@@ -1,0 +1,12 @@
+/* For component-specific overrides or custom classes */
+
+/* Example: Hero background overlay */
+.hero-overlay {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%);
+}
+
+/* Example: Card hover effect */
+.card-hover:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease-in-out;
+}
