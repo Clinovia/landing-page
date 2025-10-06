@@ -55,6 +55,17 @@ export default function PilotProgram() {
           </div>
         </div>
 
+        {/* Partner with Us */}
+        <div className="text-center mb-14">
+          <h3 className="text-2xl font-semibold mb-4">Partner with Us</h3>
+          <p className="text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            We’re currently inviting select CROs, pharmaceutical R&amp;D teams, and university hospitals 
+            to collaborate on pilot studies that advance predictive modeling and precision medicine. 
+            Whether your goal is to validate biomarkers, accelerate patient stratification, or explore 
+            AI-driven clinical endpoints — we’ll work closely with you to design a meaningful research collaboration.
+          </p>
+        </div>
+
         {/* CTA */}
         <div className="text-center mb-10">
           <h3 className="text-2xl font-semibold mb-4">Ready to Proceed?</h3>
