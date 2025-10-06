@@ -23,7 +23,9 @@ export default function Hero() {
           Accelerating Clinical Insights with AI
         </h1>
         <p className="mt-6 text-lg md:text-xl text-gray-100 max-w-3xl">
-          Advanced applications to optimize trials, detect conditions early, and support precision medicine.
+          Clinovia.ai delivers validated AI models to stratify patient risk, 
+          predict disease progression, and optimize clinical trial design—helping CROs, 
+          pharma, and clinicians reduce screen failure, accelerate enrollment, and enable earlier intervention.
         </p>
       </div>
     </section>
