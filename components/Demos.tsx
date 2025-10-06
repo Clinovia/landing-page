@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Demos() {
   return (
     <section id="demos" className="py-16 bg-white w-full">
@@ -14,8 +16,7 @@ export default function Demos() {
             className="text-lg text-[#1B4D3E] font-normal leading-relaxed"
             style={{ lineHeight: '1.8' }}
           >
-            A research-use-only platform supporting hospitals, CROs, and pharma in research.
-            Applications include early detection, patient stratification, and trial enrichment.
+            A research-use-only platform supporting hospitals, CROs, and pharma in research for early detection, patient stratification, and trial enrichment.
           </p>
         </div>
 
@@ -58,7 +59,7 @@ export default function Demos() {
           >
             <h3 className="text-2xl font-bold mb-4">AD Classifier</h3>
             <p className="mb-6 flex-grow text-gray-700">
-              Designed for Alzheimer’s and neurodegenerative research, this RUO tool was built on data from the{' '}
+              This RUO Alzheimer classification tool was built on data from the{' '}
               <a
                 href="https://adni.loni.usc.edu"
                 target="_blank"
@@ -119,6 +120,21 @@ export default function Demos() {
               Access Trial Planner
             </a>
           </div>
+        </div>
+
+        {/* Request Pilot CTA - NEW */}
+        <div className="text-center mt-16">
+          <p className="text-lg text-[#1B4D3E] mb-6 max-w-3xl mx-auto">
+            Our <strong>paid pilot programs</strong> enable CROs, pharma, and research teams to validate Clinovia.ai’s models on de-identified historical or prospective trial data. 
+            Receive a secure analysis report, risk stratification insights, and a strategy session—typically delivered in 2–3 weeks.
+          </p>
+          <Link
+            href="/pilot-program"
+            className="inline-block px-8 py-4 bg-[#1B4D3E] text-white font-semibold rounded-full hover:bg-[#2a5f4e] transition-colors shadow-md hover:shadow-lg"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            Request a Pilot Program
+          </Link>
         </div>
       </div>
     </section>
