@@ -38,17 +38,21 @@ export default function PilotProgram() {
         {/* Pilot Details */}
         <div className="mb-14">
           <h2 className="text-2xl font-semibold mb-4">Pilot Details</h2>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 leading-relaxed">
-            <li><strong>Investment:</strong> $10,000–$25,000 (based on scope and data size)</li>
-            <li><strong>Timeline:</strong> Results delivered in 2–3 weeks</li>
-            <li>
-              <strong>Data Policy:</strong> Your data is encrypted in transit and at rest, 
-              never stored beyond 30 days, and used solely for this pilot. We sign a Data Use Agreement (DUA).
-            </li>
-          </ul>
-          <p className="text-sm text-gray-600 mt-4 italic">
-            *All tools are for <strong>Research Use Only (RUO)</strong> and not intended for clinical diagnosis.*
-          </p>
+          <div className="text-gray-700 leading-relaxed space-y-4">
+            <p>
+              Each pilot program is <strong>custom-designed</strong> to align with the partner’s research goals, data types, 
+              and analytical objectives. Scope and deliverables are collaboratively defined to ensure scientific rigor 
+              and actionable outcomes for R&amp;D, biomarker validation, or trial design.
+            </p>
+            <p>
+              <strong>Data Policy:</strong> All submitted data remains fully encrypted in transit and at rest, retained 
+              for no longer than 30 days, and processed solely for the purposes of this pilot under a formal 
+              <strong> Data Use Agreement (DUA)</strong>.
+            </p>
+            <p className="text-sm text-gray-600 italic">
+              *All tools are for <strong>Research Use Only (RUO)</strong> and not intended for clinical diagnosis.*
+            </p>
+          </div>
         </div>
 
         {/* CTA */}
@@ -61,7 +65,6 @@ export default function PilotProgram() {
 
         {/* Form Embed */}
         <div className="max-w-3xl mx-auto">
-          {/* Replace the src below with your actual Tally or custom form URL */}
           <iframe
             src="https://tally.so/r/mOOY8g"
             width="100%"
