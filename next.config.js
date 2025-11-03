@@ -3,7 +3,6 @@
 const nextConfig = {
   // Recommended for all Next.js apps
   reactStrictMode: true,
-  swcMinify: true,
 
   // Only allow images from trusted domains (update as needed)
   images: {
