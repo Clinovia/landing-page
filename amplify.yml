@@ -3,17 +3,25 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Use Node 20
         - nvm install 20
         - nvm use 20
+
+        # Install dependencies cleanly
         - npm ci
     build:
       commands:
+        # Build Next.js app for production
         - npm run build
+
   artifacts:
+    # Output directory for Amplify hosting
     baseDirectory: .next
     files:
       - '**/*'
+
   cache:
+    # Cache node_modules and Next.js build artifacts for faster rebuilds
     paths:
       - node_modules/**/*
 
