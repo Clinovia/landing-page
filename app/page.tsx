@@ -1,16 +1,17 @@
-// app/page.tsx
 import Hero from "../components/Hero";
-import Demos from "../components/Demos";
+import Cardiology from "../components/Cardiology";
+import Neurology from "../components/Neurology";
 import Papers from "../components/Papers";
-import Features from "../components/Features";
+import Who_Benefit from "../components/Who_Benefit";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center">
+    <main className="w-full">
       <Hero />
-      <Demos />
+      <Cardiology />
+      <Neurology />
       <Papers />
-      <Features />
+      <Who_Benefit />
     </main>
   );
 }

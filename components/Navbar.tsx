@@ -25,10 +25,16 @@ export default function Navbar() {
             Home
           </Link>
           <Link
-            href="/#demos"
+            href="/#cardiology"
             className="text-[#1B4D3E] font-normal hover:underline hover:text-green-700 transition-colors"
           >
-            Demos
+            Cardiology
+          </Link>
+          <Link
+            href="/#neurology"
+            className="text-[#1B4D3E] font-normal hover:underline hover:text-green-700 transition-colors"
+          >
+            Neurology
           </Link>
           <Link
             href="/#papers"
@@ -40,7 +46,7 @@ export default function Navbar() {
             href="/#features"
             className="text-[#1B4D3E] font-normal hover:underline hover:text-green-700 transition-colors"
           >
-            Features
+            Who Benefit
           </Link>
         </nav>
       </div>
