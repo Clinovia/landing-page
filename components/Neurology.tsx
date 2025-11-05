@@ -66,7 +66,7 @@ Built on ADNI data to assist research in Alzheimer’s progression.`,
           <div className="flex flex-col justify-start space-y-6">
             {neuroTools.map((tool, index) => (
               <div key={tool.name}>
-                <h3 className="text-xl font-semibold text-[#1B4D3E] mb-2">{tool.name}</h3>
+                <h3 className="text-base font-semibold text-[#1B4D3E] mb-2">{tool.name}</h3>
                 {tool.description.split("\n").map((line, i) => (
                   <p key={i} className="text-gray-700 mb-1">
                     {line}
