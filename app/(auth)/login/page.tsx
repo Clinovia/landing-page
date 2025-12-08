@@ -1,4 +1,3 @@
-// landing-page/app/(auth)/login/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -13,7 +12,8 @@ import { toast } from "sonner";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, user, isLoading } = useAuth();
+
+  const { login, user, isLoading, authLoaded } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,16 +21,21 @@ export default function LoginPage() {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  // Redirect if already logged in
+  /** Wait for Supabase session to load first */
   useEffect(() => {
+    if (!authLoaded) return; // 👈 prevent early redirects
+
     if (user) {
       router.push("/protected");
     }
-  }, [user, router]);
+  }, [authLoaded, user, router]);
 
-  // Pre-fill email if passed in URL
+  /** Pre-fill email if provided in URL */
   useEffect(() => {
+    if (!authLoaded) return;
+
     const emailParam = searchParams.get("email");
+
     if (emailParam && /^\S+@\S+\.\S+$/.test(emailParam)) {
       setEmail(emailParam);
       passwordInputRef.current?.focus();
@@ -38,8 +43,9 @@ export default function LoginPage() {
     } else {
       emailInputRef.current?.focus();
     }
-  }, [searchParams]);
+  }, [authLoaded, searchParams]);
 
+  /** Handle Login Submit */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -60,6 +66,15 @@ export default function LoginPage() {
     toast.success("Login successful!");
     router.push("/protected");
   };
+
+  /** Prevent rendering form until authLoaded */
+  if (!authLoaded) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <p className="text-gray-600">Loading authentication...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">

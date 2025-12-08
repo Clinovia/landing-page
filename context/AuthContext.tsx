@@ -1,4 +1,3 @@
-// landing-page/context/AuthContext.tsx
 "use client";
 
 import {
@@ -13,7 +12,8 @@ import { supabase } from "@/lib/supabase";
 
 interface AuthContextType {
   user: any | null;
-  isLoading: boolean;
+  isLoading: boolean;     // used during async calls
+  authLoaded: boolean;    // initial Supabase session fully loaded
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   signup: (
     email: string,
@@ -26,7 +26,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authLoaded, setAuthLoaded] = useState(false); // NEW
 
   /** Load initial session */
   useEffect(() => {
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } = await supabase.auth.getSession();
 
       setUser(session?.user ?? null);
-      setIsLoading(false);
+      setAuthLoaded(true); // auth system fully initialized
     }
 
     loadSession();
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
+        setAuthLoaded(true); // ensure loaded after any event
       }
     );
 
@@ -55,10 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** LOGIN */
   const login = async (email: string, password: string) => {
+    setIsLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    setIsLoading(false);
 
     if (error) {
       return { error: error.message };
@@ -68,10 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** SIGNUP */
   const signup = async (email: string, password: string) => {
+    setIsLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
       password,
     });
+    setIsLoading(false);
 
     if (error) {
       return { error: error.message };
@@ -85,15 +91,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  /** Memoized context value */
   const value = useMemo(
     () => ({
       user,
       isLoading,
+      authLoaded,
       login,
       signup,
       logout,
     }),
-    [user, isLoading]
+    [user, isLoading, authLoaded]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -101,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
