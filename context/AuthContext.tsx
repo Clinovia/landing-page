@@ -1,62 +1,99 @@
+// landing-page/context/AuthContext.tsx
 "use client";
+
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
+  useState,
   ReactNode,
   useMemo,
 } from "react";
-import { setApiToken, setLogoutCallback } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 interface AuthContextType {
-  token: string | null;
-  login: (token: string) => void;
-  logout: () => void;
-  loading: boolean;
+  user: any | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<{ error: string | null }>;
+  signup: (
+    email: string,
+    password: string
+  ) => Promise<{ error: string | null }>;
+  logout: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  /** Load initial session */
   useEffect(() => {
-    // Load token from localStorage on initial mount
-    const savedToken = localStorage.getItem("accessToken");
-    if (savedToken) {
-      setToken(savedToken);
-      setApiToken(savedToken);
-      // Also set it in cookies for middleware
-      document.cookie = `auth_token=${savedToken}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
+    async function loadSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      setUser(session?.user ?? null);
+      setIsLoading(false);
     }
-    setLoading(false);
+
+    loadSession();
+
+    /** Listen for login/logout/signup events */
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
-  const login = (newToken: string) => {
-    localStorage.setItem("accessToken", newToken);
-    setToken(newToken);
-    setApiToken(newToken);
-    // Set cookie for middleware
-    document.cookie = `auth_token=${newToken}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
+  /** LOGIN */
+  const login = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+    return { error: null };
   };
 
-  const logout = () => {
-    localStorage.removeItem("accessToken");
-    setToken(null);
-    setApiToken(null);
-    // Clear cookie
-    document.cookie = "auth_token=; path=/; max-age=0";
+  /** SIGNUP */
+  const signup = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+    return { error: null };
   };
 
-  useEffect(() => {
-    setLogoutCallback(logout);
-  }, []);
+  /** LOGOUT */
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
 
   const value = useMemo(
-    () => ({ token, login, logout, loading }),
-    [token, loading]
+    () => ({
+      user,
+      isLoading,
+      login,
+      signup,
+      logout,
+    }),
+    [user, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

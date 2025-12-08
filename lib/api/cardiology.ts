@@ -4,7 +4,7 @@
  * Handles all API calls for cardiovascular assessment tools
  */
 
-import { apiClient } from './client';
+import { apiClient } from './supabaseClient';
 import { API_ENDPOINTS } from '@/config';
 import type {
   ASCVDInput,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signup } = useAuth();
+  const { signup } = useSupabaseAuth();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export default function SignupPage() {
   const redirectToLogin = () => {
     setTimeout(() => {
       router.push(`/login?email=${encodeURIComponent(email)}`);
-    }, 1500);
+    }, 1000);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -35,10 +35,10 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const res = await signup(email, password);
+    const { error } = await signup(fullName, email, password);
 
-    if (res.error) {
-      toast.error(res.error);
+    if (error) {
+      toast.error(error);
       setLoading(false);
       return;
     }
@@ -50,7 +50,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <Card className="w-[400px]">
+      <Card className="w-[400px] shadow-md">
         <CardHeader>
           <CardTitle>Create an Account</CardTitle>
         </CardHeader>
@@ -58,19 +58,42 @@ export default function SignupPage() {
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
               <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+              <Input
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
             <div>
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </div>
             <Button className="w-full" type="submit" disabled={loading}>
               {loading ? "Signing up..." : "Sign Up"}
