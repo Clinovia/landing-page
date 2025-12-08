@@ -19,7 +19,7 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 export default function Navbar() {
-  const { token, logout, loading } = useAuth();
+  const { user, logout, isLoading } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
@@ -44,9 +44,9 @@ export default function Navbar() {
           ))}
 
           {/* Auth */}
-          {loading ? (
+          {isLoading? (
             <div className="ml-4 text-gray-400">Loading...</div>
-          ) : token ? (
+          ) : user ? (
             <Button onClick={logout} className="ml-4">
               Logout
             </Button>

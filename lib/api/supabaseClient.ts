@@ -6,7 +6,7 @@
  * - Replaces old custom authApi
  */
 
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase";
 import { BACKEND_API_URL } from "@/config/api";
 import type {
   AuthEndpoints,

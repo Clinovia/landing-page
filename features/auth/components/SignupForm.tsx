@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useSupabaseAuth";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 export default function SignupForm() {
-  const { signup } = useAuth();
+  const { signup } = useSupabaseAuth();
 
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -26,7 +27,7 @@ export default function SignupForm() {
       return;
     }
 
-    const res = await signup(email, password);
+    const res = await signup(email, password, fullName);
     if (res?.error) setError(res.error);
 
     setLoading(false);
@@ -34,6 +35,16 @@ export default function SignupForm() {
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
+      <div>
+        <label>Full Name</label>
+        <Input
+          type="text"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
+      </div>
+
       <div>
         <label>Email</label>
         <Input
