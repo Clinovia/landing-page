@@ -1,5 +1,6 @@
-// frontend/lib/api/authApi.ts
-import { supabase } from '@/lib/supabase';
+'use client';
+
+import { supabase } from '@/lib/supabaseClient';
 
 export interface SignUpPayload {
   email: string;
@@ -39,7 +40,6 @@ export const authApi = {
     });
 
     if (error) throw new Error(error.message);
-
     return data;
   },
 
@@ -57,7 +57,7 @@ export const authApi = {
     return true;
   },
 
-  /** Update password (user must be logged in or using reset link) */
+  /** Update password */
   async updatePassword(newPassword: string) {
     const { data, error } = await supabase.auth.updateUser({
       password: newPassword,
@@ -72,5 +72,31 @@ export const authApi = {
     const { data, error } = await supabase.auth.getUser();
     if (error) throw new Error(error.message);
     return data.user;
+  },
+
+  /** Sync Supabase user to backend DB */
+  async syncUser() {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      console.warn("syncUser: No Supabase session");
+      return;
+    }
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sync`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("syncUser backend error:", text);
+      throw new Error(`Backend sync failed: ${text}`);
+    }
+
+    return true;
   },
 };

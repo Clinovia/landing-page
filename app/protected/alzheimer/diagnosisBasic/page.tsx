@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import DiagBasicForm from "@/features/alzheimer/components/DiagBasicForm";
 import DiagBasicResult from "@/features/alzheimer/components/DiagBasicResult";
+
 import {
   AlzheimerDiagnosisBasicInput,
   AlzheimerDiagnosisBasicOutput,
 } from "@/features/alzheimer/types";
 
-import {
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-
 export default function BasicDiagnosisPage() {
+  const supabase = createClientComponentClient();
   const [output, setOutput] = useState<AlzheimerDiagnosisBasicOutput | undefined>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,19 +23,14 @@ export default function BasicDiagnosisPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem("accessToken");
-
-      if (!token) {
-        setError("You must be logged in to use this module.");
-        setLoading(false);
-        return;
-      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       const response = await fetch("/api/v1/alzheimer/diagnosisBasic", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -59,12 +52,9 @@ export default function BasicDiagnosisPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
-      
       <header>
         <h1 className="text-3xl font-bold mb-4">Alzheimer Diagnosis with Basic Features</h1>
-        <p className="text-gray-700 mb-6">
-          Trained on ADNI data. Research use only.
-        </p>
+        <p className="text-gray-700 mb-6">Trained on ADNI data. Research use only.</p>
       </header>
 
       <DiagBasicForm onSubmit={handleSubmit} loading={loading} />
@@ -72,6 +62,7 @@ export default function BasicDiagnosisPage() {
       {error && <p className="text-red-600">{error}</p>}
 
       <DiagBasicResult output={output} />
+
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.
       </p>

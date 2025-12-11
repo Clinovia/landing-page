@@ -7,19 +7,11 @@
  */
 
 // Hook exports
-export { useSupabaseAuth } from './useSupabaseAuth';
 export { useLocalStorage } from './useLocalStorage';
 export { useDebounce, useDebouncedCallback } from './useDebounce';
 export { useMediaQuery, useBreakpoint } from './useMediaQuery';
 export { useForm } from './useForm';
 export { useAsync, useAsyncCallback } from './useAsync';
-
-// Type exports
-export type { 
-  UseAuthReturn, 
-  AuthResponse, 
-  SupabaseUser 
-} from './useSupabaseAuth';
 
 export type { 
   UseFormOptions, 

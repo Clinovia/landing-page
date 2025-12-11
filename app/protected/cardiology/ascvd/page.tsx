@@ -1,8 +1,12 @@
+// app/protected/cardiology/ascvd/page.tsx
 "use client";
+
 import { useState } from "react";
 import ASCVDForm from "@/features/cardiology/components/ASCVDForm";
 import ASCVDResult from "@/features/cardiology/components/ASCVDResult";
 import { ASCVDInput, ASCVDOutput } from "@/features/cardiology/types";
+import apiClient from "@/lib/apiClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ASCVDPage() {
   const [result, setResult] = useState<ASCVDOutput | null>(null);
@@ -15,27 +19,40 @@ export default function ASCVDPage() {
     setResult(null);
 
     try {
-      // Get auth token from localStorage (adjust if you store it differently)
-      const token = localStorage.getItem("accessToken");
+      // DEBUG: Check what token we're getting
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('=== SUPABASE SESSION DEBUG ===');
+      console.log('Session exists:', !!sessionData.session);
+      console.log('User:', sessionData.session?.user?.email);
+      console.log('Token exists:', !!sessionData.session?.access_token);
       
-      const response = await fetch("/api/v1/cardiology/ascvd", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` }),
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || errorData.detail || `API Error: ${response.statusText}`);
+      if (sessionData.session?.access_token) {
+        const token = sessionData.session.access_token;
+        console.log('Token length:', token.length);
+        console.log('Token (first 50 chars):', token.substring(0, 50));
+        
+        try {
+          const parts = token.split('.');
+          const header = JSON.parse(atob(parts[0]));
+          console.log('Token header:', header);
+          console.log('Token algorithm:', header.alg);
+          console.log('Token kid:', header.kid);
+        } catch (e) {
+          console.error('Failed to decode token:', e);
+        }
+      } else {
+        console.error('NO TOKEN FOUND! User may not be logged in.');
       }
+      console.log('==============================');
 
-      const resultData: ASCVDOutput = await response.json();
-      setResult(resultData);
+      // Use apiClient which automatically gets Supabase token
+      const response = await apiClient.post<ASCVDOutput>(
+        "/api/v1/cardiology/ascvd",
+        data
+      );
+      setResult(response.data); // ✅ Extract .data from Axios response
     } catch (err: any) {
-      console.error(err);
+      console.error('API Error:', err);
       setError(err.message || "Unknown error");
     } finally {
       setLoading(false);
@@ -54,10 +71,10 @@ export default function ASCVDPage() {
       {loading && <p className="text-blue-600 mt-4">Calculating risk...</p>}
       {error && <p className="text-red-600 mt-4">{error}</p>}
       {result && <ASCVDResult output={result} />}
+
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.
       </p>
     </div>
   );
-
 }

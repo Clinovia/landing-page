@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,17 +10,38 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 export default function ProtectedDashboard() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  // Authentication check
+  // Create Supabase browser client
+  const supabase = createBrowserSupabaseClient();
+
   useEffect(() => {
-    const token = localStorage.getItem("accessToken"); // use consistent token name
-    if (!token) {
-      router.push("/login"); // redirect to login page
+    async function checkAuth() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.push("/auth/login");
+      } else {
+        setLoading(false);
+      }
     }
-  }, [router]);
+
+    checkAuth();
+  }, [router, supabase]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Loading dashboard…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-16 px-4">

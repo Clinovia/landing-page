@@ -5,72 +5,85 @@
  */
 
 const API_VERSION = 'v1';
-const BASE_PATH = `/api/${API_VERSION}`;
+
+/**
+ * Backend API base URL
+ * Picks up the environment variable or defaults to localhost
+ */
+export const BACKEND_API_URL =
+  process.env.NEXT_PUBLIC_API_URL?.trim() ||
+  process.env.NEXT_PUBLIC_BACKEND_URL?.trim() ||
+  'http://localhost:8000';
+
+/**
+ * Helper to build full API URL
+ */
+const buildUrl = (path: string) => `${BACKEND_API_URL}/api/${API_VERSION}${path}`;
 
 /**
  * Authentication endpoints
  */
 export const AUTH_ENDPOINTS = {
-  LOGIN: `${BASE_PATH}/auth/login`,
-  SIGNUP: `${BASE_PATH}/auth/signup`,
-  LOGOUT: `${BASE_PATH}/auth/logout`,
-  REFRESH: `${BASE_PATH}/auth/refresh`,
-  FORGOT_PASSWORD: `${BASE_PATH}/auth/forgot-password`,
-  RESET_PASSWORD: `${BASE_PATH}/auth/reset-password`,
-  VERIFY_EMAIL: `${BASE_PATH}/auth/verify-email`,
+  LOGIN: buildUrl('/auth/login'),
+  SIGNUP: buildUrl('/auth/signup'),
+  LOGOUT: buildUrl('/auth/logout'),
+  REFRESH: buildUrl('/auth/refresh'),
+  FORGOT_PASSWORD: buildUrl('/auth/forgot-password'),
+  RESET_PASSWORD: buildUrl('/auth/reset-password'),
+  VERIFY_EMAIL: buildUrl('/auth/verify-email'),
 } as const;
 
 /**
  * Alzheimer's module endpoints
  */
 export const ALZHEIMER_ENDPOINTS = {
-  DIAGNOSIS_SCREENING: `${BASE_PATH}/alzheimer/diagnosis-screening`,
-  DIAGNOSIS_BASIC: `${BASE_PATH}/alzheimer/diagnosis-basic`,
-  DIAGNOSIS_EXTENDED: `${BASE_PATH}/alzheimer/diagnosis-extended`,
-  PROGNOSIS_2YR_BASIC: `${BASE_PATH}/alzheimer/prognosis-2yr-basic`,
-  PROGNOSIS_2YR_EXTENDED: `${BASE_PATH}/alzheimer/prognosis-2yr-extended`,
-  RISK_SCREENER: `${BASE_PATH}/alzheimer/risk-screener`,
+  DIAGNOSIS_SCREENING: buildUrl('/alzheimer/diagnosis-screening'),
+  DIAGNOSIS_BASIC: buildUrl('/alzheimer/diagnosis-basic'),
+  DIAGNOSIS_EXTENDED: buildUrl('/alzheimer/diagnosis-extended'),
+  PROGNOSIS_2YR_BASIC: buildUrl('/alzheimer/prognosis-2yr-basic'),
+  PROGNOSIS_2YR_EXTENDED: buildUrl('/alzheimer/prognosis-2yr-extended'),
+  RISK_SCREENER: buildUrl('/alzheimer/risk-screener'),
 } as const;
 
 /**
  * Cardiology module endpoints
  */
 export const CARDIOLOGY_ENDPOINTS = {
-  ASCVD: `${BASE_PATH}/cardiology/ascvd`,
-  BP_CATEGORY: `${BASE_PATH}/cardiology/bp-category`,
-  CHA2DS2_VASC: `${BASE_PATH}/cardiology/cha2ds2vasc`,
-  ECG_INTERPRETER: `${BASE_PATH}/cardiology/ecg-interpreter`,
-  EF_PREDICTION: `${BASE_PATH}/cardiology/ejection-fraction`,
+  ASCVD: buildUrl('/cardiology/ascvd'),
+  BP_CATEGORY: buildUrl('/cardiology/bp-category'),
+  CHA2DS2_VASC: buildUrl('/cardiology/cha2ds2vasc'),
+  ECG_INTERPRETER: buildUrl('/cardiology/ecg-interpreter'),
+  EF_PREDICTION: buildUrl('/cardiology/ejection-fraction'),
 } as const;
 
 /**
  * User/Profile endpoints
  */
 export const USER_ENDPOINTS = {
-  PROFILE: `${BASE_PATH}/user/profile`,
-  UPDATE_PROFILE: `${BASE_PATH}/user/profile`,
-  CHANGE_PASSWORD: `${BASE_PATH}/user/change-password`,
-  DELETE_ACCOUNT: `${BASE_PATH}/user/delete`,
+  PROFILE: buildUrl('/user/profile'),
+  UPDATE_PROFILE: buildUrl('/user/profile'),
+  CHANGE_PASSWORD: buildUrl('/user/change-password'),
+  DELETE_ACCOUNT: buildUrl('/user/delete'),
 } as const;
 
 /**
  * Dashboard/Analytics endpoints
  */
 export const DASHBOARD_ENDPOINTS = {
-  STATS: `${BASE_PATH}/dashboard/stats`,
-  RECENT_ASSESSMENTS: `${BASE_PATH}/dashboard/recent`,
-  CHARTS: `${BASE_PATH}/dashboard/charts`,
+  STATS: buildUrl('/dashboard/stats'),
+  RECENT_ASSESSMENTS: buildUrl('/dashboard/recent'),
+  CHARTS: buildUrl('/dashboard/charts'),
 } as const;
 
 /**
  * Report endpoints
  */
 export const REPORT_ENDPOINTS = {
-  GENERATE: `${BASE_PATH}/reports/generate`,
-  LIST: `${BASE_PATH}/reports/list`,
-  GET_BY_ID: (id: string) => `${BASE_PATH}/reports/${id}`,
-  DOWNLOAD: (id: string) => `${BASE_PATH}/reports/${id}/download`,
-  DELETE: (id: string) => `${BASE_PATH}/reports/${id}`,
+  GENERATE: buildUrl('/reports/generate'),
+  LIST: buildUrl('/reports/list'),
+  GET_BY_ID: (id: string) => buildUrl(`/reports/${id}`),
+  DOWNLOAD: (id: string) => buildUrl(`/reports/${id}/download`),
+  DELETE: (id: string) => buildUrl(`/reports/${id}`),
 } as const;
 
 /**
@@ -84,14 +97,6 @@ export const API_ENDPOINTS = {
   DASHBOARD: DASHBOARD_ENDPOINTS,
   REPORT: REPORT_ENDPOINTS,
 } as const;
-
-/**
- * Backend API base URL
- */
-export const BACKEND_API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.trim() ||
-  process.env.NEXT_PUBLIC_BACKEND_URL?.trim() ||
-  'http://localhost:8000';
 
 /**
  * API request timeout (in milliseconds)
@@ -115,4 +120,6 @@ export type AlzheimerEndpoints = typeof ALZHEIMER_ENDPOINTS[keyof typeof ALZHEIM
 export type CardiologyEndpoints = typeof CARDIOLOGY_ENDPOINTS[keyof typeof CARDIOLOGY_ENDPOINTS];
 export type UserEndpoints = typeof USER_ENDPOINTS[keyof typeof USER_ENDPOINTS];
 export type DashboardEndpoints = typeof DASHBOARD_ENDPOINTS[keyof typeof DASHBOARD_ENDPOINTS];
-export type ReportEndpoints = typeof REPORT_ENDPOINTS[keyof typeof REPORT_ENDPOINTS] | ReturnType<typeof REPORT_ENDPOINTS.GET_BY_ID>;
+export type ReportEndpoints =
+  | typeof REPORT_ENDPOINTS[keyof typeof REPORT_ENDPOINTS]
+  | ReturnType<typeof REPORT_ENDPOINTS.GET_BY_ID>;

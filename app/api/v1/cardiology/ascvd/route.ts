@@ -1,37 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Get authorization token from request headers
-    const authHeader = request.headers.get("authorization");
-    
-    const response = await fetch(`${BACKEND_URL}/api/v1/cardiology/ascvd`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(authHeader && { "Authorization": authHeader }),
-      },
-      body: JSON.stringify(body),
-    });
+    const authHeader = request.headers.get("authorization") ?? "";
 
+    // Forward request to FastAPI backend
+    const response = await fetch(
+      `${BACKEND_URL}/api/v1/cardiology/ascvd`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(authHeader && { Authorization: authHeader }),
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    // If backend returns error
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: "Unknown error" }));
+      let errorDetail = "Unknown error";
+
+      try {
+        const errorJson = await response.json();
+        errorDetail = errorJson.detail || errorDetail;
+      } catch {
+        /* ignore parse error */
+      }
+
       return NextResponse.json(
-        { error: errorData.detail || "Failed to calculate ASCVD risk" },
+        { error: errorDetail },
         { status: response.status }
       );
     }
 
+    // Success
     const data = await response.json();
     return NextResponse.json(data, { status: 200 });
-  } catch (error: any) {
-    console.error("ASCVD API Error:", error);
+  } catch (err: any) {
+    console.error("[ASCVDRoute] Error:", err);
+
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

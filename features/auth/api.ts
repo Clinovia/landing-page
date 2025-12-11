@@ -1,23 +1,14 @@
-import { LoginOutput } from "@/types/auth";
+// features/auth/api.ts
+import { supabase } from "@/lib/supabaseClient";
 
-export type LoginResponse = LoginOutput | { error: string };
+export async function login(email: string, password: string) {
+  return supabase.auth.signInWithPassword({ email, password });
+}
 
-export async function login(email: string, password: string): Promise<LoginResponse> {
-  try {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      headers: { "Content-Type": "application/json" },
-    });
+export async function signup(email: string, password: string) {
+  return supabase.auth.signUp({ email, password });
+}
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      return { error: errorData.message || "Login failed" };
-    }
-
-    const data: LoginOutput = await res.json();
-    return data;
-  } catch (err) {
-    return { error: "Network error" };
-  }
+export async function resetPassword(email: string) {
+  return supabase.auth.resetPasswordForEmail(email);
 }

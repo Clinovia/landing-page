@@ -1,60 +1,51 @@
-// frontend/app/api/v1/cardiology/bp-category/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export async function POST(request: NextRequest) {
   try {
-    // ---- Parse JSON body safely ----
-    const body = await request.json().catch(() => null);
-    if (!body) {
-      return NextResponse.json(
-        { error: "Invalid JSON body" },
-        { status: 400 }
-      );
-    }
+    const body = await request.json();
+    const authHeader = request.headers.get("authorization") ?? "";
 
-    // ---- Extract JWT token (from client -> API route) ----
-    const authHeader = request.headers.get("authorization");
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (authHeader) {
-      headers["Authorization"] = authHeader;
-    }
-
-    // ---- Forward request to FastAPI ----
-    const backendResponse = await fetch(
+    // Forward request to FastAPI backend
+    const response = await fetch(
       `${BACKEND_URL}/api/v1/cardiology/bp-category`,
       {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          ...(authHeader && { Authorization: authHeader }),
+        },
         body: JSON.stringify(body),
       }
     );
 
-    // ---- Handle backend errors ----
-    const responseData = await backendResponse
-      .json()
-      .catch(() => ({ detail: "Unknown error" }));
+    // If backend returns error
+    if (!response.ok) {
+      let errorDetail = "Unknown error";
 
-    if (!backendResponse.ok) {
+      try {
+        const errorJson = await response.json();
+        errorDetail = errorJson.detail || errorDetail;
+      } catch {
+        /* ignore parse error */
+      }
+
       return NextResponse.json(
-        { error: responseData.detail || "Failed to categorize blood pressure" },
-        { status: backendResponse.status }
+        { error: errorDetail },
+        { status: response.status }
       );
     }
 
-    // ---- Success ----
-    return NextResponse.json(responseData, { status: 200 });
+    // Success
+    const data = await response.json();
+    return NextResponse.json(data, { status: 200 });
   } catch (err: any) {
-    console.error("BP Category API Error:", err);
+    console.error("[BPCategoryRoute] Error:", err);
 
     return NextResponse.json(
-      { error: err?.message || "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

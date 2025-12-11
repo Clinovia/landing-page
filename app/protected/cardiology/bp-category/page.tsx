@@ -1,9 +1,12 @@
+// app/protected/cardiology/bp-category/page.tsx
 "use client";
 
 import { useState } from "react";
 import BPCategoryForm from "@/features/cardiology/components/BPCategoryForm";
 import BPCategoryResult from "@/features/cardiology/components/BPCategoryResult";
 import { BPCategoryInput, BPCategoryOutput } from "@/features/cardiology/types";
+import apiClient from "@/lib/apiClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function BPCategoryPage() {
   const [result, setResult] = useState<BPCategoryOutput | null>(null);
@@ -16,35 +19,28 @@ export default function BPCategoryPage() {
     setResult(null);
 
     try {
-      // 🔥 Get JWT token from localStorage
-      const token = localStorage.getItem("accessToken");
-
-      if (!token) {
-        setError("You must be logged in to use this module.");
-        setLoading(false);
-        return;
+      // Optional: debug session (you can remove this in production)
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session?.access_token) {
+        console.warn("No Supabase session found – user may not be authenticated.");
       }
 
-      const response = await fetch("/api/v1/cardiology/bp-category", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 🔥 send token
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `API Error: ${response.statusText}`);
-      }
-
-      const resultData: BPCategoryOutput = await response.json();
-      setResult(resultData);
-
+      // Use the shared, authenticated API client
+      const response = await apiClient.post<BPCategoryOutput>(
+        "/api/v1/cardiology/bp-category",
+        data
+      );
+      setResult(response.data); // ✅ Extract .data from Axios response
     } catch (err: any) {
-      console.error("BP Category Error:", err);
-      setError(err.message || "Unknown error");
+      console.error("BP Category API Error:", err);
+      // Handle Axios error structure
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        err.message ||
+        "Unknown error";
+      setError(message);
     } finally {
       setLoading(false);
     }

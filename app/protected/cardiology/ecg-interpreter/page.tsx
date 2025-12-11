@@ -3,48 +3,54 @@
 import { useState } from "react";
 import ECGInterpreterForm from "@/features/cardiology/components/ECGInterpreterForm";
 import ECGInterpreterResult from "@/features/cardiology/components/ECGInterpreterResult";
-import { ECGInterpreterInput, ECGInterpreterOutput } from "@/features/cardiology/types";
+import {
+  ECGInterpreterInput,
+  ECGInterpreterOutput,
+} from "@/features/cardiology/types";
+import apiClient from "@/lib/apiClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ECGInterpreterPage() {
-  const [input, setInput] = useState<ECGInterpreterInput | null>(null);  // ✅ Track input
+  const [input, setInput] = useState<ECGInterpreterInput | null>(null);
   const [result, setResult] = useState<ECGInterpreterOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (data: ECGInterpreterInput) => {
+  const handleSubmit = async (inputData: ECGInterpreterInput) => {
     setLoading(true);
     setError(null);
     setResult(null);
-    setInput(data);  // ✅ Store the input data
+    setInput(inputData);
 
     try {
-      // Get JWT token
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("You must be logged in to use this module.");
-        setLoading(false);
-        return;
+      // Get Supabase session correctly
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.warn("Supabase session error:", sessionError.message);
       }
 
-      const response = await fetch("/api/v1/cardiology/ecg-interpreter", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `API Error: ${response.statusText}`);
+      if (!sessionData.session?.access_token) {
+        console.warn("No Supabase session found – user may not be authenticated.");
       }
 
-      const resultData: ECGInterpreterOutput = await response.json();
-      setResult(resultData);
+      // Post ECG input to backend
+      const response = await apiClient.post<ECGInterpreterOutput>(
+        "/api/v1/cardiology/ecg-interpreter",
+        inputData
+      );
+
+      setResult(response.data);
     } catch (err: any) {
-      console.error("ECG Interpreter error:", err);
-      setError(err.message || "Unknown error");
+      console.error("ECG Interpreter API Error:", err);
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        err.message ||
+        "Unknown error";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -83,13 +89,14 @@ export default function ECGInterpreterPage() {
 
       {result && input && (
         <section>
-          <ECGInterpreterResult 
-            input={input}              // ✅ Pass the stored input
+          <ECGInterpreterResult
+            input={input}
             interpretation={result}
-            onReset={handleReset}      // ✅ Pass the reset handler
+            onReset={handleReset}
           />
         </section>
       )}
+
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.
       </p>

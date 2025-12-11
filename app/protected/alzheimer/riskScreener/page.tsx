@@ -16,26 +16,22 @@ export default function RiskScreenerPage() {
     setResult(null);
 
     try {
-      // 🔥 Get JWT token from localStorage
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("You must be logged in to use this module.");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch("/api/v1/alzheimer/riskScreener", {
+      const response = await fetch("/api/v1/alzheimer/RiskScreener", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 🔥 include token
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `API Error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+          errorData.detail ||
+          errorData.message ||
+          `API Error: ${response.status} ${response.statusText}`
+        );
       }
 
       const resultData: AlzheimerRiskScreenerOutput = await response.json();

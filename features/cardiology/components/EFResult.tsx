@@ -1,43 +1,38 @@
-"use client";
+import { EchonetEFInput, EchonetEFOutput } from "@/features/cardiology/types";
 
-import { EchonetEFOutput } from "@/features/cardiology/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+interface Props {
+  input: EchonetEFInput;
+  interpretation: EchonetEFOutput;
+  onReset: () => void;
+}
 
-type Props = {
-  output?: EchonetEFOutput;
-  onReset?: () => void; 
-};
-
-export default function EFResult({ output }: Props) {
-  if (!output) {
-    return (
-      <div className="p-4 border rounded bg-gray-50 mt-4 animate-pulse">
-        <div className="h-4 bg-gray-300 rounded w-1/3 mb-3"></div>
-        <div className="space-y-2">
-          <div className="h-3 bg-gray-200 rounded"></div>
-          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-        </div>
-      </div>
-    );
-  }
-
+export default function EFResult({ input, interpretation, onReset }: Props) {
   return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>EF Prediction Result</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="border p-4 rounded-lg space-y-4">
+      <h2 className="text-xl font-semibold">Ejection Fraction Result</h2>
+
+      <div className="space-y-2">
+        {interpretation.ef_percent !== undefined && (
+          <p>
+            <strong>Ejection Fraction:</strong> {interpretation.ef_percent}%
+          </p>
+        )}
+
         <p>
-          <strong>Ejection Fraction:</strong> {output.ef_percent?.toFixed(1)}%
+          <strong>Category:</strong> {interpretation.category}
         </p>
-        <p>
-          <strong>Category:</strong> {output.category}
+
+        <p className="text-gray-600 text-sm">
+          Model: {interpretation.model_name} (v{interpretation.model_version})
         </p>
-        <p>
-          <strong>Model:</strong> {output.model_name} v{output.model_version}
-        </p>
-      </CardContent>
-    </Card>
+      </div>
+
+      <button
+        onClick={onReset}
+        className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+      >
+        Reset
+      </button>
+    </div>
   );
 }

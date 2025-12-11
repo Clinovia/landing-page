@@ -1,3 +1,5 @@
+// landing-page/hooks/useLocalStorage.ts
+
 import { useState, useEffect, useCallback } from 'react';
 
 /**

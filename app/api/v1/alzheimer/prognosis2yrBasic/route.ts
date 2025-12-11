@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,10 +16,18 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
+    // If backend returns error
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: "Unknown error" }));
-      return NextResponse.json(
-        { error: errorData.detail || "Failed to perform 2-year basic prognosis" },
+      let errorDetail = "Unknown error";
+
+      try {
+        const errorJson = await response.json();
+        errorDetail = errorJson.detail || errorDetail;
+      } catch {
+        /* ignore parse error */
+      }
+          return NextResponse.json(
+        { error: errorDetail },
         { status: response.status }
       );
     }
@@ -34,3 +42,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

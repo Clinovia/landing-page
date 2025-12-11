@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { authApi } from "@/lib/api/authApi";
 
 export default function SignupForm() {
-  const { signup } = useSupabaseAuth();
+  const router = useRouter();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,15 +23,36 @@ export default function SignupForm() {
     setError("");
 
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
-    const res = await signup(email, password, fullName);
-    if (res?.error) setError(res.error);
+    try {
+      // Sign up via Supabase
+      const data = await authApi.signUp({ email, password, full_name: fullName });
 
-    setLoading(false);
+      if (!data.session) {
+        // Email confirmation required → no session yet
+        router.push("/auth/check-email");
+        return;
+      }
+
+      // Store tokens for backend JWT auth
+      localStorage.setItem("accessToken", data.session.access_token);
+      localStorage.setItem("refreshToken", data.session.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Sync user to backend DB
+      await authApi.syncUser();
+
+      router.push("/protected");
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      setError(err.message || "Unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -78,7 +100,7 @@ export default function SignupForm() {
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <Button type="submit" disabled={loading} className="w-full">
-        {loading ? "Signing up..." : "Create Account"}
+        {loading ? "Creating account..." : "Sign Up"}
       </Button>
     </form>
   );

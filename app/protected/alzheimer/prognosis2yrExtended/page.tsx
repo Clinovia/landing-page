@@ -18,25 +18,22 @@ export default function Prog2yrExtendedPage() {
     setInput(data);
 
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("You must be logged in to use this module.");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch("/api/v1/alzheimer/prognosis2yrExtended", {
+      const response = await fetch("/api/v1/alzheimer/Prognosis2yrExtended", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `API Error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+          errorData.detail ||
+          errorData.message ||
+          `API Error: ${response.status} ${response.statusText}`
+        );
       }
 
       const result: AlzheimerPrognosis2yrExtendedOutput = await response.json();

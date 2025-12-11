@@ -1,7 +1,8 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 interface ProtectedLayoutProps {
   children: ReactNode;
@@ -9,19 +10,36 @@ interface ProtectedLayoutProps {
 
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication
   useEffect(() => {
-    const token = localStorage.getItem("accessToken"); // consistent key
-    if (!token) {
-      router.push("/auth/login");
-    }
+    const checkAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      const session = data?.session ?? null;
+
+      if (!session) {
+        const currentPath =
+          window.location.pathname + window.location.search;
+
+        router.replace(
+          `/login?redirectTo=${encodeURIComponent(currentPath)}`
+        );
+        return;
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuth();
   }, [router]);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Do NOT include <Navbar /> here */}
-      {children}
-    </div>
-  );
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Checking authentication...</p>
+      </div>
+    );
+  }
+
+  return <div className="min-h-screen bg-gray-50">{children}</div>;
 }
