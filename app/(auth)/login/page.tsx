@@ -1,3 +1,6 @@
+// app/auth/login/page.tsx
+'use client';
+
 import LoginForm from "@/features/auth/components/LoginForm";
 
 export default function LoginPage() {
@@ -8,4 +11,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

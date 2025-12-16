@@ -1,54 +1,34 @@
 "use client";
+
 import { useState } from "react";
 import Prog2yrBasicForm from "@/features/alzheimer/components/Prog2yrBasicForm";
 import Prog2yrBasicResult from "@/features/alzheimer/components/Prog2yrBasicResult";
-import { AlzheimerPrognosis2yrBasicInput, AlzheimerPrognosis2yrBasicOutput } from "@/features/alzheimer/types";
+import {
+  AlzheimerPrognosis2yrBasicInput,
+  AlzheimerPrognosis2yrBasicOutput,
+} from "@/features/alzheimer/types";
+import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
 
 export default function Prog2yrBasicPage() {
   const [input, setInput] = useState<AlzheimerPrognosis2yrBasicInput | null>(null);
-  const [output, setOutput] = useState<AlzheimerPrognosis2yrBasicOutput | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { result, loading, error, runTool } = useAlzheimerTool<
+    AlzheimerPrognosis2yrBasicInput,
+    AlzheimerPrognosis2yrBasicOutput
+  >("prognosis2yrBasic");
 
   const handleSubmit = async (data: AlzheimerPrognosis2yrBasicInput) => {
-    setLoading(true);
     setInput(data);
-    setOutput(null);
-    setError(null);
-
     try {
-      const response = await fetch("/api/v1/alzheimer/Prognosis2yrBasic", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-          errorData.detail ||
-          errorData.message ||
-          `API Error: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const result: AlzheimerPrognosis2yrBasicOutput = await response.json();
-      setOutput(result);
-    } catch (error: any) {
-      console.error("Error predicting 2-year progression:", error);
-      setError(error.message || "Unknown error");
-    } finally {
-      setLoading(false);
+      await runTool(data);
+    } catch (err) {
+      console.error("Error predicting 2-year progression:", err);
     }
   };
 
   const handleReset = () => {
     setInput(null);
-    setOutput(null);
-    setError(null);
+    // Note: You may need to add a reset function to the hook
+    // or manually clear by reloading the component
   };
 
   return (
@@ -56,11 +36,12 @@ export default function Prog2yrBasicPage() {
       {/* Header */}
       <h1 className="text-3xl font-bold mb-4">Alzheimer's 2-Year Prognosis</h1>
       <p className="text-gray-700 mb-6">
-        Basic model for predicting progression to Alzheimer's dementia within 2 years trained on ADNI data.
+        Basic model for predicting progression to Alzheimer's dementia within 2
+        years trained on ADNI data.
       </p>
 
       {/* Form - only show if no result */}
-      {!output && (
+      {!result && (
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
           <Prog2yrBasicForm onSubmit={handleSubmit} loading={loading} />
         </div>
@@ -70,7 +51,9 @@ export default function Prog2yrBasicPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-          <p className="text-gray-600">Analyzing patient data and computing prognosis...</p>
+          <p className="text-gray-600">
+            Analyzing patient data and computing prognosis...
+          </p>
         </div>
       )}
 
@@ -89,23 +72,27 @@ export default function Prog2yrBasicPage() {
       )}
 
       {/* Result */}
-      {output && input && !loading && (
-        <Prog2yrBasicResult 
-          input={input} 
-          prognosis={output} 
-          onReset={handleReset} 
+      {result && input && !loading && (
+        <Prog2yrBasicResult
+          input={input}
+          prognosis={result}
+          onReset={handleReset}
         />
       )}
 
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2">ℹ️ About This Tool</h3>
+        <h3 className="text-sm font-semibold text-blue-900 mb-2">
+          ℹ️ About This Tool
+        </h3>
         <p className="text-sm text-blue-800">
-          This basic prognostic model uses demographic data, cognitive scores, and genetic markers 
-          to estimate the probability of progression to Alzheimer's dementia within 2 years. 
-          For enhanced predictions with biomarker analysis and SHAP explanations, use the Extended model.
+          This basic prognostic model uses demographic data, cognitive scores,
+          and genetic markers to estimate the probability of progression to
+          Alzheimer's dementia within 2 years. For enhanced predictions with
+          biomarker analysis and SHAP explanations, use the Extended model.
         </p>
       </div>
+
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.
       </p>

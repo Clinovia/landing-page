@@ -1,4 +1,4 @@
-// app/alzheimer/layout.tsx
+// app/protected/alzheimer/layout.tsx
 
 import Sidebar from "@/components/layout/Sidebar";
 

@@ -14,22 +14,20 @@ import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 export default function ProtectedDashboard() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-
-  // Create Supabase browser client
+  const [loading, setLoading] = useState(true); // ✅ now declared
   const supabase = createBrowserSupabaseClient();
 
   useEffect(() => {
     async function checkAuth() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/auth/login");
-      } else {
-        setLoading(false);
+        // ✅ Redirect to your actual login page — likely "/"
+        router.push("/");
+        return;
       }
+
+      setLoading(false);
     }
 
     checkAuth();
@@ -43,12 +41,12 @@ export default function ProtectedDashboard() {
     );
   }
 
+  // ✅ Only authenticated users reach this point
   return (
     <div className="container mx-auto py-16 px-4">
       <h1 className="text-3xl font-bold mb-8">Welcome to the Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         {/* Cardiology */}
         <Link href="/protected/cardiology" className="no-underline">
           <Card className="hover:shadow-xl transition-shadow cursor-pointer">
@@ -78,7 +76,6 @@ export default function ProtectedDashboard() {
             </CardContent>
           </Card>
         </Link>
-
       </div>
     </div>
   );

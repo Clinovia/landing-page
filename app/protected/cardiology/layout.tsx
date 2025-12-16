@@ -1,4 +1,4 @@
-// app/cardiology/layout.tsx
+// app/protected/cardiology/layout.tsx
 // NOTE: 🚫 Do NOT use "use client" here — layouts should be server components.
 
 import Sidebar from "@/components/layout/Sidebar";

@@ -37,12 +37,12 @@ export const AUTH_ENDPOINTS = {
  * Alzheimer's module endpoints
  */
 export const ALZHEIMER_ENDPOINTS = {
-  DIAGNOSIS_SCREENING: buildUrl('/alzheimer/diagnosis-screening'),
-  DIAGNOSIS_BASIC: buildUrl('/alzheimer/diagnosis-basic'),
-  DIAGNOSIS_EXTENDED: buildUrl('/alzheimer/diagnosis-extended'),
-  PROGNOSIS_2YR_BASIC: buildUrl('/alzheimer/prognosis-2yr-basic'),
-  PROGNOSIS_2YR_EXTENDED: buildUrl('/alzheimer/prognosis-2yr-extended'),
-  RISK_SCREENER: buildUrl('/alzheimer/risk-screener'),
+  DIAGNOSIS_SCREENING: buildUrl('/alzheimer/diagnosisScreening'),
+  DIAGNOSIS_BASIC: buildUrl('/alzheimer/diagnosisBasic'),
+  DIAGNOSIS_EXTENDED: buildUrl('/alzheimer/diagnosisExtended'),
+  PROGNOSIS_2YR_BASIC: buildUrl('/alzheimer/prognosis2yrBasic'),
+  PROGNOSIS_2YR_EXTENDED: buildUrl('/alzheimer/prognosis2yrExtended'),
+  RISK_SCREENER: buildUrl('/alzheimer/riskScreener'),
 } as const;
 
 /**

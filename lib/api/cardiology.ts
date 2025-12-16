@@ -1,10 +1,7 @@
 /**
- * Cardiology Module API Client
- * Handles all API calls for cardiovascular assessment tools
+ * Cardiology Module API Client (Next.js API Routes)
+ * Calls /api/v1/cardiology/* (App Router)
  */
-
-import { apiRequest, apiRequestWithFile } from '../supabaseClient';
-import { API_ENDPOINTS } from '@/config';
 
 import type {
   ASCVDInput,
@@ -19,145 +16,180 @@ import type {
   EchonetEFOutput,
 } from '@/features/cardiology/types';
 
-// ==================== API Functions ====================
+/* ------------------------------------------------------------------ */
+/* Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+function getAccessToken() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('accessToken');
+}
+
+async function authedFetch<T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = getAccessToken();
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.body instanceof FormData
+        ? {}
+        : { 'Content-Type': 'application/json' }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `Request failed (${res.status})`);
+  }
+
+  return res.json();
+}
+
+/* ------------------------------------------------------------------ */
+/* API Functions                                                      */
+/* ------------------------------------------------------------------ */
 
 /**
- * ASCVD Risk Calculator - 10-year cardiovascular disease risk
+ * ASCVD Risk Calculator
  */
-export async function calculateASCVD(data: ASCVDInput): Promise<ASCVDOutput> {
-  return apiRequest<ASCVDOutput>({
-    url: API_ENDPOINTS.CARDIOLOGY.ASCVD,
+export function calculateASCVD(
+  data: ASCVDInput
+): Promise<ASCVDOutput> {
+  return authedFetch('/api/v1/cardiology/ascvd', {
     method: 'POST',
-    data,
+    body: JSON.stringify(data),
   });
 }
 
 /**
- * Blood Pressure Category - Classify BP readings
+ * Blood Pressure Category
  */
-export async function categorizeBP(
+export function categorizeBP(
   data: BPCategoryInput
 ): Promise<BPCategoryOutput> {
-  return apiRequest<BPCategoryOutput>({
-    url: API_ENDPOINTS.CARDIOLOGY.BP_CATEGORY,
+  return authedFetch('/api/v1/cardiology/bp-category', {
     method: 'POST',
-    data,
+    body: JSON.stringify(data),
   });
 }
 
 /**
- * CHA₂DS₂-VASc Score - Stroke risk in atrial fibrillation
+ * CHA₂DS₂-VASc Score
  */
-export async function calculateCHA2DS2VASc(
+export function calculateCHA2DS2VASc(
   data: CHA2DS2VAScInput
 ): Promise<CHA2DS2VAScOutput> {
-  return apiRequest<CHA2DS2VAScOutput>({
-    url: API_ENDPOINTS.CARDIOLOGY.CHA2DS2_VASC,
+  return authedFetch('/api/v1/cardiology/cha2ds2vasc', {
     method: 'POST',
-    data,
+    body: JSON.stringify(data),
   });
 }
 
 /**
- * ECG Interpreter - AI-powered ECG analysis
+ * ECG Interpreter
  */
-export async function interpretECG(
+export function interpretECG(
   data: ECGInterpreterInput
 ): Promise<ECGInterpreterOutput> {
-  return apiRequest<ECGInterpreterOutput>({
-    url: API_ENDPOINTS.CARDIOLOGY.ECG_INTERPRETER,
+  return authedFetch('/api/v1/cardiology/ecg-interpreter', {
     method: 'POST',
-    data,
+    body: JSON.stringify(data),
   });
 }
 
 /**
- * Echonet EF Prediction - Requires file upload
+ * Echonet EF Prediction (file upload)
  */
 export async function predictEchonetEF(
   file: File
 ): Promise<EchonetEFOutput> {
-  return apiRequestWithFile<EchonetEFOutput>({
-    url: API_ENDPOINTS.CARDIOLOGY.EF_PREDICTION,
-    fileField: 'video_file',
-    file,
+  const token = getAccessToken();
+
+  const formData = new FormData();
+  formData.append('video_file', file);
+
+  const res = await fetch('/api/v1/cardiology/ejection-fraction', {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
   });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `Upload failed (${res.status})`);
+  }
+
+  return res.json();
 }
 
-/**
- * Get cardiology assessment history
- */
-export async function getCardiologyHistory(userId?: string) {
-  const params = userId ? `?userId=${userId}` : '';
+/* ------------------------------------------------------------------ */
+/* History / Results                                                  */
+/* ------------------------------------------------------------------ */
 
-  return apiRequest({
-    url: `${API_ENDPOINTS.CARDIOLOGY.ASCVD}/history${params}`,
-    method: 'GET',
-  });
+export function getCardiologyHistory(userId?: string) {
+  const query = userId ? `?userId=${userId}` : '';
+  return authedFetch(
+    `/api/v1/cardiology/ascvd/history${query}`
+  );
 }
 
-/**
- * Get specific assessment result by ID
- */
-export async function getCardiologyAssessmentById(
+export function getCardiologyAssessmentById(
   assessmentId: string,
   type: string
 ) {
-  return apiRequest({
-    url: `/api/v1/cardiology/${type}/results/${assessmentId}`,
-    method: 'GET',
-  });
+  return authedFetch(
+    `/api/v1/cardiology/${type}/results/${assessmentId}`
+  );
 }
 
-/**
- * Save assessment for later
- */
-export async function saveCardiologyDraft(
+/* ------------------------------------------------------------------ */
+/* Extras                                                             */
+/* ------------------------------------------------------------------ */
+
+export function saveCardiologyDraft(
   assessmentType: string,
   data: any
 ) {
-  return apiRequest({
-    url: `/api/v1/cardiology/${assessmentType}/draft`,
-    method: 'POST',
-    data,
-  });
+  return authedFetch(
+    `/api/v1/cardiology/${assessmentType}/draft`,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }
+  );
 }
 
-/**
- * Export assessment results
- */
-export async function exportCardiologyResults(
+export function exportCardiologyResults(
   assessmentId: string,
   assessmentType: string,
   format: 'pdf' | 'json' | 'csv' = 'pdf'
 ) {
-  return apiRequest({
-    url: `/api/v1/cardiology/${assessmentType}/export/${assessmentId}?format=${format}`,
-    method: 'GET',
-  });
+  return authedFetch(
+    `/api/v1/cardiology/${assessmentType}/export/${assessmentId}?format=${format}`
+  );
 }
 
-/**
- * Compare multiple assessments
- */
-export async function compareAssessments(assessmentIds: string[]) {
-  return apiRequest({
-    url: `/api/v1/cardiology/compare`,
+export function compareAssessments(assessmentIds: string[]) {
+  return authedFetch('/api/v1/cardiology/compare', {
     method: 'POST',
-    data: { assessment_ids: assessmentIds },
+    body: JSON.stringify({ assessment_ids: assessmentIds }),
   });
 }
 
-/**
- * Get treatment guidelines based on results
- */
-export async function getTreatmentGuidelines(
+export function getTreatmentGuidelines(
   assessmentType: string,
   resultData: any
 ): Promise<{ guidelines: string[]; references: string[] }> {
-  return apiRequest({
-    url: `/api/v1/cardiology/${assessmentType}/guidelines`,
-    method: 'POST',
-    data: resultData,
-  });
+  return authedFetch(
+    `/api/v1/cardiology/${assessmentType}/guidelines`,
+    {
+      method: 'POST',
+      body: JSON.stringify(resultData),
+    }
+  );
 }

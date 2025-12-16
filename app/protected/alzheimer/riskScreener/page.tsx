@@ -1,46 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import AlzheimerRiskForm from "@/features/alzheimer/components/RiskScreenerForm";
 import AlzheimerRiskResult from "@/features/alzheimer/components/RiskScreenerResult";
-import { AlzheimerRiskScreenerInput, AlzheimerRiskScreenerOutput } from "@/features/alzheimer/types";
+import { 
+  AlzheimerRiskScreenerInput,
+  AlzheimerRiskScreenerOutput 
+} from "@/features/alzheimer/types";
+import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
 
 export default function RiskScreenerPage() {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AlzheimerRiskScreenerOutput | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { result, loading, error, runTool } = useAlzheimerTool<
+    AlzheimerRiskScreenerInput,
+    AlzheimerRiskScreenerOutput
+  >("riskScreener");
 
   const handleSubmit = async (data: AlzheimerRiskScreenerInput) => {
-    setLoading(true);
-    setError(null);
-    setResult(null);
-
     try {
-      const response = await fetch("/api/v1/alzheimer/RiskScreener", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-          errorData.detail ||
-          errorData.message ||
-          `API Error: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const resultData: AlzheimerRiskScreenerOutput = await response.json();
-      setResult(resultData);
-    } catch (err: any) {
+      await runTool(data);
+    } catch (err) {
       console.error("Error submitting risk screener:", err);
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -53,7 +31,11 @@ export default function RiskScreenerPage() {
 
       <AlzheimerRiskForm onSubmit={handleSubmit} loading={loading} />
 
-      {error && <p className="text-red-600 mt-4">{error}</p>}
+      {error && (
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
 
       {result && <AlzheimerRiskResult output={result} />}
 

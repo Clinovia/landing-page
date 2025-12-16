@@ -1,106 +1,164 @@
 'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { authApi } from "@/lib/api/authApi";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { signUp, login } from '@/lib/api/authApi';
 
-export default function SignupForm() {
+export default function MinimalSignupForm() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirm: '',
+  });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const syncUserToBackend = async (uid: string, email: string) => {
+    try {
+      await fetch('/api/v1/users/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, email }),
+      });
+    } catch (err) {
+      console.error('Failed to sync user to backend:', err);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+
+    const { fullName, email, password, confirm } = formData;
 
     if (password !== confirm) {
-      setError("Passwords do not match");
-      setLoading(false);
+      setError('Passwords do not match');
       return;
     }
 
-    try {
-      // Sign up via Supabase
-      const data = await authApi.signUp({ email, password, full_name: fullName });
+    setLoading(true);
+    setError('');
 
-      if (!data.session) {
-        // Email confirmation required → no session yet
-        router.push("/auth/check-email");
+    try {
+      const { data, error: signupError } = await signUp({
+        email,
+        password,
+        full_name: fullName,
+      });
+
+      // Case 1: User already exists → log in
+      if (
+        signupError?.message &&
+        signupError.message.toLowerCase().includes('already')
+      ) {
+        const loginData = await login({ email, password });
+        if (loginData?.user) {
+          await syncUserToBackend(loginData.user.id, email);
+          router.push('/protected');
+        }
         return;
       }
 
-      // Store tokens for backend JWT auth
-      localStorage.setItem("accessToken", data.session.access_token);
-      localStorage.setItem("refreshToken", data.session.refresh_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // Case 2: Other signup error
+      if (signupError) {
+        throw new Error(signupError.message);
+      }
 
-      // Sync user to backend DB
-      await authApi.syncUser();
+      // Case 3: Email confirmation required (no active session)
+      if (!data?.session) {
+        setError('Account created. Please check your email to verify your account.');
+        return;
+      }
 
-      router.push("/protected");
+      // Case 4: Successful signup with active session
+      if (data?.user) {
+        await syncUserToBackend(data.user.id, email);
+      }
+
+      router.push('/protected');
     } catch (err: any) {
-      console.error("Signup error:", err);
-      setError(err.message || "Unexpected error occurred.");
+      console.error('Signup error:', err);
+      setError(err.message || 'An unexpected error occurred during signup.');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
       <div>
-        <label>Full Name</label>
+        <Label htmlFor="fullName">Full Name</Label>
         <Input
+          id="fullName"
+          name="fullName"
           type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          value={formData.fullName}
+          onChange={handleChange}
           required
+          disabled={loading}
         />
       </div>
 
       <div>
-        <label>Email</label>
+        <Label htmlFor="email">Email</Label>
         <Input
+          id="email"
+          name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
           required
+          disabled={loading}
         />
       </div>
 
       <div>
-        <label>Password</label>
+        <Label htmlFor="password">Password</Label>
         <Input
+          id="password"
+          name="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
           required
+          minLength={6}
+          disabled={loading}
         />
       </div>
 
       <div>
-        <label>Confirm Password</label>
+        <Label htmlFor="confirm">Confirm Password</Label>
         <Input
+          id="confirm"
+          name="confirm"
           type="password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
+          value={formData.confirm}
+          onChange={handleChange}
           required
+          minLength={6}
+          disabled={loading}
         />
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+          {error}
+        </div>
+      )}
 
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? "Creating account..." : "Sign Up"}
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? 'Creating account...' : 'Sign Up'}
       </Button>
     </form>
   );

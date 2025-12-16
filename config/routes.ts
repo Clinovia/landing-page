@@ -31,12 +31,12 @@ export const DASHBOARD_ROUTES = {
 export const ALZHEIMER_ROUTES = {
   BASE: '/alzheimer',
   OVERVIEW: '/alzheimer/overview',
-  DIAGNOSIS_SCREENING: '/alzheimer/diagnosis-screening',
-  DIAGNOSIS_BASIC: '/alzheimer/diagnosis-basic',
-  DIAGNOSIS_EXTENDED: '/alzheimer/diagnosis-extended',
-  PROGNOSIS_2YR_BASIC: '/alzheimer/prognosis-2yr-basic',
-  PROGNOSIS_2YR_EXTENDED: '/alzheimer/prognosis-2yr-extended',
-  RISK_SCREENER: '/alzheimer/risk-screener',
+  DIAGNOSIS_SCREENING: '/alzheimer/diagnosisScreening',
+  DIAGNOSIS_BASIC: '/alzheimer/diagnosisBasic',
+  DIAGNOSIS_EXTENDED: '/alzheimer/diagnosisExtended',
+  PROGNOSIS_2YR_BASIC: '/alzheimer/prognosis2yrBasic',
+  PROGNOSIS_2YR_EXTENDED: '/alzheimer/prognosis2yrExtended',
+  RISK_SCREENER: '/alzheimer/riskScreener',
 } as const;
 
 export const CARDIOLOGY_ROUTES = {

@@ -3,64 +3,41 @@
 import { useState } from "react";
 import Prog2yrExtendedForm from "@/features/alzheimer/components/Prog2yrExtendedForm";
 import Prog2yrExtendedResult from "@/features/alzheimer/components/Prog2yrExtendedResult";
-import { AlzheimerPrognosis2yrExtendedInput, AlzheimerPrognosis2yrExtendedOutput } from "@/features/alzheimer/types";
+import {
+  AlzheimerPrognosis2yrExtendedInput,
+  AlzheimerPrognosis2yrExtendedOutput,
+} from "@/features/alzheimer/types";
+import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
 
 export default function Prog2yrExtendedPage() {
   const [input, setInput] = useState<AlzheimerPrognosis2yrExtendedInput | null>(null);
-  const [prognosis, setPrognosis] = useState<AlzheimerPrognosis2yrExtendedOutput | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { result, loading, error, runTool } = useAlzheimerTool<
+    AlzheimerPrognosis2yrExtendedInput,
+    AlzheimerPrognosis2yrExtendedOutput
+  >("prognosis2yrExtended");
 
   const handleSubmit = async (data: AlzheimerPrognosis2yrExtendedInput) => {
-    setLoading(true);
-    setError(null); // clear previous errors
-    // Keep existing `input` if you want to preserve it on reset—optional
     setInput(data);
-
     try {
-      const response = await fetch("/api/v1/alzheimer/Prognosis2yrExtended", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-          errorData.detail ||
-          errorData.message ||
-          `API Error: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const result: AlzheimerPrognosis2yrExtendedOutput = await response.json();
-      console.log("API Response:", result);
-      setPrognosis(result);
-    } catch (error: any) {
-      console.error("Error predicting 2-year progression (extended):", error);
-      setError(error.message || "Unknown error");
-    } finally {
-      setLoading(false);
+      await runTool(data);
+    } catch (err) {
+      console.error("Error predicting 2-year progression (extended):", err);
     }
   };
 
   const handleReset = () => {
-    // Optional: keep form filled by not resetting `input`
-    setPrognosis(null);
-    setError(null);
-    // If you want to clear the form too, uncomment:
-    // setInput(null);
+    setInput(null);
   };
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       {/* Header */}
-      <h1 className="text-3xl font-bold mb-4">Alzheimer's 2-Year Prognosis (Extended)</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        Alzheimer's 2-Year Prognosis (Extended)
+      </h1>
       <p className="text-gray-700 mb-6">
-        Machine Learning model for predicting progression to Alzheimer's dementia within 2 years trained on ADNI data with extended features.
+        Machine Learning model for predicting progression to Alzheimer's
+        dementia within 2 years trained on ADNI data with extended features.
       </p>
 
       {/* Form: always visible */}
@@ -72,8 +49,12 @@ export default function Prog2yrExtendedPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-          <p className="text-gray-600 font-medium">Analyzing patient data with biomarkers...</p>
-          <p className="text-gray-500 text-sm">Computing SHAP values and feature importance</p>
+          <p className="text-gray-600 font-medium">
+            Analyzing patient data with biomarkers...
+          </p>
+          <p className="text-gray-500 text-sm">
+            Computing SHAP values and feature importance
+          </p>
         </div>
       )}
 
@@ -92,22 +73,25 @@ export default function Prog2yrExtendedPage() {
       )}
 
       {/* Result: appended below form when ready */}
-      {prognosis && input && !loading && (
-        <Prog2yrExtendedResult 
+      {result && input && !loading && (
+        <Prog2yrExtendedResult
           input={input}
-          prognosis={prognosis}
-          onReset={handleReset} 
+          prognosis={result}
+          onReset={handleReset}
         />
       )}
 
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2">ℹ️ About This Tool</h3>
+        <h3 className="text-sm font-semibold text-blue-900 mb-2">
+          ℹ️ About This Tool
+        </h3>
         <div className="text-sm text-blue-800 space-y-2">
           <p>
-            This extended prognostic model incorporates advanced biomarker data including CSF markers 
-            (Aβ42, tau, p-tau), neuroimaging (hippocampal volume, FDG-PET, amyloid PET), alongside 
-            demographic and cognitive measures.
+            This extended prognostic model incorporates advanced biomarker data
+            including CSF markers (Aβ42, tau, p-tau), neuroimaging (hippocampal
+            volume, FDG-PET, amyloid PET), alongside demographic and cognitive
+            measures.
           </p>
           <p className="font-medium">
             <strong>Key Features:</strong>
@@ -120,6 +104,7 @@ export default function Prog2yrExtendedPage() {
           </ul>
         </div>
       </div>
+
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.
       </p>

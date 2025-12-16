@@ -1,4 +1,3 @@
-// lib/apiClient.ts
 "use client";
 
 import axios from "axios";
@@ -8,13 +7,18 @@ const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000",
 });
 
-// Request interceptor to attach Supabase access token
-apiClient.interceptors.request.use(async (config) => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
+// Cache token
+let accessToken: string | null = null;
+
+// Keep token updated
+supabase.auth.onAuthStateChange((_event, session) => {
+  accessToken = session?.access_token || null;
+});
+
+// Attach token to every request
+apiClient.interceptors.request.use((config) => {
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
 });

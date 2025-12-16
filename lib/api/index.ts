@@ -5,7 +5,7 @@
  */
 
 // Export the pre-configured Supabase client instance
-export { supabase, getAuthToken, apiRequest, apiRequestWithFile } from "../supabaseClient";
+export { supabase, getCachedToken, apiRequest, apiRequestWithFile } from "../supabaseClient";
 
 // Re-export endpoint types for convenience
 export type {

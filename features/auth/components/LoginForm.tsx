@@ -4,72 +4,102 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { authApi } from "@/lib/api/authApi";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const syncUserToBackend = async (uid: string, email: string) => {
+    try {
+      await fetch('/api/v1/users/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, email }),
+      });
+    } catch (err) {
+      console.error('Failed to sync user to backend:', err);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    if (isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
 
     try {
-      // Sign in via Supabase
-      const data = await authApi.signIn({ email, password });
+      const { data, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      if (!data.session) {
-        setError("No session returned from Supabase.");
-        return;
-      }
-
-      // Store tokens for backend
-      localStorage.setItem("accessToken", data.session.access_token);
-      localStorage.setItem("refreshToken", data.session.refresh_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (authError) throw authError;
+      if (!data.session) throw new Error("No session returned from Supabase.");
 
       // Sync user to backend DB
-      await authApi.syncUser();
+      if (data.user) {
+        await syncUserToBackend(data.user.id, email);
+      }
 
-      router.push("/protected");
-    } catch (err: any) {
-      console.error("Login error:", err);
-      setError(err.message || "Unexpected error occurred.");
+      router.replace("/protected");
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred.";
+      setError(message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit} noValidate>
       <div>
-        <label>Email</label>
+        <label className="block text-sm font-medium mb-2" htmlFor="email">
+          Email
+        </label>
         <Input
+          id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={isLoading}
+          autoComplete="email"
         />
       </div>
 
       <div>
-        <label>Password</label>
+        <label className="block text-sm font-medium mb-2" htmlFor="password">
+          Password
+        </label>
         <Input
+          id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          disabled={isLoading}
+          autoComplete="current-password"
         />
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div className="text-sm text-destructive bg-destructive/10 p-2 rounded-md">
+          {error}
+        </div>
+      )}
 
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? "Logging in..." : "Login"}
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Logging in…" : "Login"}
       </Button>
     </form>
   );

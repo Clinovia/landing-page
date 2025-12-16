@@ -1,6 +1,9 @@
-'use client';
-
+// lib/api/authApi.ts
 import { supabase } from '@/lib/supabaseClient';
+
+// Debug
+console.log('=== authApi loaded ===');
+console.log('Supabase client exists:', !!supabase);
 
 export interface SignUpPayload {
   email: string;
@@ -8,95 +11,97 @@ export interface SignUpPayload {
   full_name?: string;
 }
 
-export interface SignInPayload {
+export interface LoginPayload {
   email: string;
   password: string;
 }
 
-export const authApi = {
-  /** Create user account */
-  async signUp(payload: SignUpPayload) {
-    const { email, password, full_name } = payload;
+/* --------------------------------------------------------------------------------
+ *  SIGN UP
+ * -------------------------------------------------------------------------------*/
+export async function signUp({ email, password, full_name }: SignUpPayload) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name },
+    },
+  });
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name },
-      },
-    });
+  return { data, error };
+}
 
-    if (error) throw new Error(error.message);
-    return data;
-  },
+/* --------------------------------------------------------------------------------
+ *  LOGIN
+ * -------------------------------------------------------------------------------*/
+export async function login({ email, password }: LoginPayload) {
+  console.log('=== login called ===');
+  console.log('Email:', email);
 
-  /** Login user */
-  async signIn(payload: SignInPayload) {
-    const { email, password } = payload;
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  console.log('Supabase login response:', { data, error });
 
-    if (error) throw new Error(error.message);
-    return data;
-  },
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  /** Logout */
-  async signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw new Error(error.message);
-    return true;
-  },
+  // 🔑 No backend sync, Supabase is source of truth
+  return data;
+}
 
-  /** Send password reset email */
-  async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw new Error(error.message);
-    return true;
-  },
+/* --------------------------------------------------------------------------------
+ *  LOGOUT
+ * -------------------------------------------------------------------------------*/
+export async function logout() {
+  console.log('=== logout called ===');
 
-  /** Update password */
-  async updatePassword(newPassword: string) {
-    const { data, error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
+  const { error } = await supabase.auth.signOut();
+  if (error) throw new Error(error.message);
 
-    if (error) throw new Error(error.message);
-    return data;
-  },
+  return true;
+}
 
-  /** Get current user */
-  async getUser() {
-    const { data, error } = await supabase.auth.getUser();
-    if (error) throw new Error(error.message);
-    return data.user;
-  },
+/* --------------------------------------------------------------------------------
+ *  RESET PASSWORD EMAIL
+ * -------------------------------------------------------------------------------*/
+export async function resetPassword(email: string) {
+  console.log('=== resetPassword called ===');
+  console.log('Email:', email);
 
-  /** Sync Supabase user to backend DB */
-  async syncUser() {
-    const { data: { session } } = await supabase.auth.getSession();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/reset-password`,
+  });
 
-    if (!session?.access_token) {
-      console.warn("syncUser: No Supabase session");
-      return;
-    }
+  if (error) throw new Error(error.message);
+  return true;
+}
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sync`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
-    });
+/* --------------------------------------------------------------------------------
+ *  UPDATE PASSWORD
+ * -------------------------------------------------------------------------------*/
+export async function updatePassword(newPassword: string) {
+  console.log('=== updatePassword called ===');
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("syncUser backend error:", text);
-      throw new Error(`Backend sync failed: ${text}`);
-    }
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
 
-    return true;
-  },
-};
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/* --------------------------------------------------------------------------------
+ *  GET CURRENT USER
+ * -------------------------------------------------------------------------------*/
+export async function getUser() {
+  console.log('=== getUser called ===');
+
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw new Error(error.message);
+
+  return data.user;
+}
