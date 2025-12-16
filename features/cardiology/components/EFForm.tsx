@@ -1,12 +1,12 @@
 "use client";
+
 import { useState, FormEvent, useEffect, useRef, DragEvent } from "react";
-import { EchonetEFInput } from "@/features/cardiology/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
 
 type Props = {
-  onSubmit: (data: EchonetEFInput) => void;
+  onSubmit: (data: FormData) => void; // Updated to FormData
   loading?: boolean;
   videoFile?: File | null;
 };
@@ -38,13 +38,19 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!videoFile) return;
-    onSubmit({ video_file: videoFile });
+
+    const formData = new FormData();
+    formData.append("video", videoFile); // matches FastAPI parameter
+    // Optional: append patient_id if needed
+    // formData.append("patient_id", "1234");
+
+    onSubmit(formData);
   };
 
   const handleFileSelect = (file: File) => {
     const validTypes = ['.avi', '.mp4', '.mpeg', '.mov', '.m4v', '.mpg'];
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-    
+
     if (validTypes.includes(fileExtension)) {
       setVideoFile(file);
     } else {
@@ -65,7 +71,7 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files[0];
     if (file) {
       handleFileSelect(file);
@@ -100,7 +106,6 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* === Drag & Drop Upload Box === */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -120,7 +125,6 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
             `}
           >
             {!videoURL ? (
-              // Upload prompt
               <div className="text-center">
                 <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <p className="text-lg font-medium text-gray-700 mb-2">
@@ -134,7 +138,6 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
                 </p>
               </div>
             ) : (
-              // Video preview
               <div className="relative w-full h-full flex items-center justify-center">
                 <video
                   src={videoURL}
@@ -158,7 +161,6 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
               </div>
             )}
 
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -169,7 +171,6 @@ export default function EFForm({ onSubmit, loading = false, videoFile: uploadedV
             />
           </div>
 
-          {/* File info */}
           {videoFile && (
             <div className="text-sm text-gray-600">
               <strong>File:</strong> {videoFile.name} ({(videoFile.size / 1024 / 1024).toFixed(2)} MB)

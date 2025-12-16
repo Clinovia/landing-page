@@ -3,15 +3,11 @@
 import { useState } from "react";
 import EFForm from "@/features/cardiology/components/EFForm";
 import EFResult from "@/features/cardiology/components/EFResult";
-import {
-  EchonetEFInput,
-  EchonetEFOutput,
-} from "@/features/cardiology/types";
+import { EchonetEFOutput } from "@/features/cardiology/types";
 import apiClient from "@/lib/apiClient";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function EjectionFractionPage() {
-  const [input, setInput] = useState<EchonetEFInput | null>(null);
   const [result, setResult] = useState<EchonetEFOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,29 +15,29 @@ export default function EjectionFractionPage() {
   /**
    * Submit handler
    */
-  const handleSubmit = async (inputData: EchonetEFInput) => {
+  const handleSubmit = async (formData: FormData) => {
     setLoading(true);
     setError(null);
     setResult(null);
-    setInput(inputData);
 
     try {
-      // Get Supabase session (optional)
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
+      // Get Supabase session
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) console.warn("Supabase session error:", sessionError.message);
 
-      if (sessionError) {
-        console.warn("Supabase session error:", sessionError.message);
-      }
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) console.warn("No Supabase session found. User may be logged out.");
 
-      if (!sessionData.session?.access_token) {
-        console.warn("No Supabase session found. User may be logged out.");
-      }
-
-      // Call backend
+      // Call backend with FormData and auth header
       const response = await apiClient.post<EchonetEFOutput>(
         "/api/v1/cardiology/ejection-fraction",
-        inputData
+        formData,
+        {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data", // important for file upload
+          },
+        }
       );
 
       setResult(response.data);
@@ -62,10 +58,9 @@ export default function EjectionFractionPage() {
   };
 
   /**
-   * Reset form + result
+   * Reset result
    */
   const handleReset = () => {
-    setInput(null);
     setResult(null);
     setError(null);
   };
@@ -83,23 +78,11 @@ export default function EjectionFractionPage() {
         <EFForm onSubmit={handleSubmit} loading={loading} />
       </section>
 
-      {loading && (
-        <p className="text-blue-600 mt-4">Analyzing Ejection Fraction...</p>
-      )}
-
-      {error && (
-        <p className="text-red-600 mt-4">
-          {error}
-        </p>
-      )}
-
-      {result && input && (
+      {loading && <p className="text-blue-600 mt-4">Analyzing Ejection Fraction...</p>}
+      {error && <p className="text-red-600 mt-4">{error}</p>}
+      {result && (
         <section>
-          <EFResult
-            input={input}
-            interpretation={result}
-            onReset={handleReset}
-          />
+          <EFResult interpretation={result} onReset={handleReset} />
         </section>
       )}
 
