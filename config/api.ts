@@ -12,7 +12,6 @@ const API_VERSION = 'v1';
  */
 export const BACKEND_API_URL =
   process.env.NEXT_PUBLIC_API_URL?.trim() ||
-  process.env.NEXT_PUBLIC_BACKEND_URL?.trim() ||
   'http://localhost:8000';
 
 /**
