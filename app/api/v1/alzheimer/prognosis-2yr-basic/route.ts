@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const authHeader = request.headers.get("authorization");
     
-    const response = await fetch(`${BACKEND_URL}/api/v1/alzheimer/prognosis2yrBasic`, {
+    const response = await fetch(`${BACKEND_URL}/api/v1/alzheimer/prognosis-2yr-basic`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,6 +1,9 @@
 /**
  * Alzheimer's Module API Client (Next.js API Routes)
  * Calls /api/v1/alzheimer/* (App Router)
+ *
+ * URL convention: kebab-case
+ * Function convention: camelCase
  */
 
 import type {
@@ -36,7 +39,9 @@ async function authedFetch<T>(
   const res = await fetch(url, {
     ...options,
     headers: {
-      ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+      ...(options.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -57,7 +62,7 @@ async function authedFetch<T>(
 export function diagnosisScreening(
   data: AlzheimerDiagnosisScreeningInput
 ): Promise<AlzheimerDiagnosisScreeningOutput> {
-  return authedFetch("/api/v1/alzheimer/diagnosisScreening", {
+  return authedFetch("/api/v1/alzheimer/diagnosis-screening", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -66,7 +71,7 @@ export function diagnosisScreening(
 export function riskScreener(
   data: AlzheimerRiskScreenerInput
 ): Promise<AlzheimerRiskScreenerOutput> {
-  return authedFetch("/api/v1/alzheimer/riskScreener", {
+  return authedFetch("/api/v1/alzheimer/risk-screener", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -75,7 +80,7 @@ export function riskScreener(
 export function diagnosisBasic(
   data: AlzheimerDiagnosisBasicInput
 ): Promise<AlzheimerDiagnosisBasicOutput> {
-  return authedFetch("/api/v1/alzheimer/diagnosisBasic", {
+  return authedFetch("/api/v1/alzheimer/diagnosis-basic", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -84,7 +89,7 @@ export function diagnosisBasic(
 export function diagnosisExtended(
   data: AlzheimerDiagnosisExtendedInput
 ): Promise<AlzheimerDiagnosisExtendedOutput> {
-  return authedFetch("/api/v1/alzheimer/diagnosisExtended", {
+  return authedFetch("/api/v1/alzheimer/diagnosis-extended", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -93,7 +98,7 @@ export function diagnosisExtended(
 export function prognosis2YrBasic(
   data: AlzheimerPrognosis2yrBasicInput
 ): Promise<AlzheimerPrognosis2yrBasicOutput> {
-  return authedFetch("/api/v1/alzheimer/prognosis2yrBasic", {
+  return authedFetch("/api/v1/alzheimer/prognosis-2yr-basic", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -102,7 +107,7 @@ export function prognosis2YrBasic(
 export function prognosis2YrExtended(
   data: AlzheimerPrognosis2yrExtendedInput
 ): Promise<AlzheimerPrognosis2yrExtendedOutput> {
-  return authedFetch("/api/v1/alzheimer/prognosis2yrExtended", {
+  return authedFetch("/api/v1/alzheimer/prognosis-2yr-extended", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -112,11 +117,14 @@ export function prognosis2YrExtended(
 /* History / Results                                                  */
 /* ------------------------------------------------------------------ */
 
-export function getAssessmentHistory(userId?: string) {
-  const query = userId ? `?userId=${userId}` : "";
-  return authedFetch(`/api/v1/alzheimer/diagnosisScreening/history${query}`);
+export function getAssessmentHistory() {
+  return authedFetch(
+    "/api/v1/alzheimer/diagnosis-screening/history"
+  );
 }
 
 export function getAssessmentById(assessmentId: string) {
-  return authedFetch(`/api/v1/alzheimer/diagnosisScreening/results/${assessmentId}`);
+  return authedFetch(
+    `/api/v1/alzheimer/diagnosis-screening/results/${assessmentId}`
+  );
 }

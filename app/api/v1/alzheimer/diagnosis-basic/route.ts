@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     // Forward request to FastAPI backend
     const response = await fetch(
-      `${BACKEND_URL}/api/v1/alzheimer/diagnosisBasic`,
+      `${BACKEND_URL}/api/v1/alzheimer/diagnosis-basic`,
       {
         method: "POST",
         headers: {

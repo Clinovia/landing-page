@@ -22,7 +22,7 @@ export default function NeurologyPage() {
         "Risk Category (Low/Moderate/High/Error)",
         "Recommendation",
       ],
-      href: "/protected/alzheimer/riskScreener",
+      href: "/protected/alzheimer/risk-screener",
     },
     {
       name: "Alzheimer Basic Diagnosis",
@@ -39,7 +39,7 @@ export default function NeurologyPage() {
         "FAQ",
       ],
       outputs: ["Predicted class (CN/MCI/AD)", "Confidence", "Probabilities"],
-      href: "/protected/alzheimer/diagnosisScreening",
+      href: "/protected/alzheimer/diagnosis-screening",
     },
     {
       name: "Basic Diagnosis",
@@ -63,7 +63,7 @@ export default function NeurologyPage() {
         "probabilities",
         "top_features",
       ],
-      href: "/protected/alzheimer/diagnosisBasic",
+      href: "/protected/alzheimer/diagnosis-basic",
     },
     {
       name: "Extended Diagnosis",
@@ -100,7 +100,7 @@ export default function NeurologyPage() {
         "probabilities",
         "top_features",
       ],
-      href: "/protected/alzheimer/diagnosisExtended",
+      href: "/protected/alzheimer/diagnosis-extended",
     },
     {
       name: "2-Year Prognosis Basic",
@@ -123,7 +123,7 @@ export default function NeurologyPage() {
         "Confidence",
         "Top Features",
       ],
-      href: "/protected/alzheimer/prognosis2yrBasic",
+      href: "/protected/alzheimer/prognosis-2yr-basic",
     },
     {
       name: "2-Year Prognosis Extended",
@@ -136,7 +136,7 @@ export default function NeurologyPage() {
         "Confidence",
         "Top Features",
       ],
-      href: "/protected/alzheimer/prognosis2yrExtended",
+      href: "/protected/alzheimer/prognosis-2yr-extended",
     },
   ];
 

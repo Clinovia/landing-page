@@ -18,20 +18,20 @@ const sidebar = [
     title: "Neurology / Alzheimer",
     href: "/protected/alzheimer",
     items: [
-      { title: "Risk Screener", href: "/protected/alzheimer/riskScreener" },
+      { title: "Risk Screener", href: "/protected/alzheimer/risk-screener" },
       {
         title: "Diagnosis",
         children: [
-          { title: "Screening", href: "/protected/alzheimer/diagnosisScreening" },
-          { title: "Basic Features", href: "/protected/alzheimer/diagnosisBasic" },
-          { title: "Extended Features", href: "/protected/alzheimer/diagnosisExtended" },
+          { title: "Screening", href: "/protected/alzheimer/diagnosis-screening" },
+          { title: "Basic Features", href: "/protected/alzheimer/diagnosis-basic" },
+          { title: "Extended Features", href: "/protected/alzheimer/diagnosis-extended" },
         ],
       },
       {
         title: "Prognosis (2yr)",
         children: [
-          { title: "Basic Features", href: "/protected/alzheimer/prognosis2yrBasic" },
-          { title: "Extended Features", href: "/protected/alzheimer/prognosis2yrExtended" },
+          { title: "Basic Features", href: "/protected/alzheimer/prognosis-2yr-basic" },
+          { title: "Extended Features", href: "/protected/alzheimer/prognosis-2yr-extended" },
         ],
       },
     ],

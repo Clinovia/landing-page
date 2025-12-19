@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     // Forward request to FastAPI backend
     const response = await fetch(
-      `${BACKEND_URL}/api/v1/alzheimer/diagnosisExtended`,
+      `${BACKEND_URL}/api/v1/alzheimer/diagnosis-screening`,
       {
         method: "POST",
         headers: {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: 200 });
   } catch (err: any) {
-    console.error("[DiagnosisExtendedRoute] Error:", err);
+    console.error("[DiagnosisScreeningRoute] Error:", err);
 
     return NextResponse.json(
       { error: "Internal server error" },
