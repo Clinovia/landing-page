@@ -1,3 +1,4 @@
+// lib/api/alzheimer.ts
 /**
  * Alzheimer's Module API Client (Next.js API Routes)
  * Calls /api/v1/alzheimer/* (App Router)

@@ -12,12 +12,22 @@ export function useAlzheimerTool<TInput = Record<string, unknown>, TOutput = unk
   const [result, setResult] = useState<TOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   const supabase = createClientComponentClient();
+
+  // Map camelCase endpoint names to kebab-case API routes
+  const endpointMap: Record<string, string> = {
+    riskScreener: 'risk-screener',
+    diagnosisBasic: 'diagnosis-basic',
+    diagnosisExtended: 'diagnosis-extended',
+    diagnosisScreening: 'diagnosis-screening',
+    prognosis2yrBasic: 'prognosis-2yr-basic',
+    prognosis2yrExtended: 'prognosis-2yr-extended',
+  };
 
   const runTool = useCallback(
     async (payload: TInput) => {
       console.log("🧠 [AlzheimerTool] Starting:", endpoint);
-      
       setLoading(true);
       setError(null);
       setResult(null);
@@ -25,7 +35,6 @@ export function useAlzheimerTool<TInput = Record<string, unknown>, TOutput = unk
       try {
         // Get authentication session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
         console.log("🧠 [AlzheimerTool] Session retrieved:", !!session);
         console.log("🧠 [AlzheimerTool] Token exists:", !!session?.access_token);
 
@@ -34,9 +43,10 @@ export function useAlzheimerTool<TInput = Record<string, unknown>, TOutput = unk
           throw new Error("Not authenticated");
         }
 
-        // Construct request URL - use Next.js API route, not backend directly
-        const url = `/api/v1/alzheimer/${endpoint}`;
-        
+        // Convert camelCase to kebab-case for API route
+        const apiEndpoint = endpointMap[endpoint] || endpoint;
+        const url = `/api/v1/alzheimer/${apiEndpoint}`;
+
         // Prepare headers with authentication
         const headers = {
           "Content-Type": "application/json",
@@ -66,9 +76,7 @@ export function useAlzheimerTool<TInput = Record<string, unknown>, TOutput = unk
         const data = await response.json();
         console.log("✅ [AlzheimerTool] Success!");
         setResult(data);
-
         return data;
-
       } catch (err) {
         const message = err instanceof Error ? err.message : "An unknown error occurred";
         console.error("💥 [AlzheimerTool] Error:", message);
