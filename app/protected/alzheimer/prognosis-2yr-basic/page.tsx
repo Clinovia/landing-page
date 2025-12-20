@@ -27,8 +27,8 @@ export default function Prog2yrBasicPage() {
 
   const handleReset = () => {
     setInput(null);
-    // Note: You may need to add a reset function to the hook
-    // or manually clear by reloading the component
+    // Optionally, you can clear the result by adding a reset in your hook
+    // or force reload of the page
   };
 
   return (
@@ -40,12 +40,10 @@ export default function Prog2yrBasicPage() {
         years trained on ADNI data.
       </p>
 
-      {/* Form - only show if no result */}
-      {!result && (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-          <Prog2yrBasicForm onSubmit={handleSubmit} loading={loading} />
-        </div>
-      )}
+      {/* Form always visible */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+        <Prog2yrBasicForm onSubmit={handleSubmit} loading={loading} />
+      </div>
 
       {/* Loading State */}
       {loading && (
@@ -73,11 +71,9 @@ export default function Prog2yrBasicPage() {
 
       {/* Result */}
       {result && input && !loading && (
-        <Prog2yrBasicResult
-          input={input}
-          prognosis={result}
-          onReset={handleReset}
-        />
+        <div className="mt-6">
+          <Prog2yrBasicResult input={input} prognosis={result} onReset={handleReset} />
+        </div>
       )}
 
       {/* Info Box */}
