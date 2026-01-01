@@ -24,7 +24,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-6 text-lg md:text-xl text-gray-200 leading-relaxed text-center">
-            Modular statistical and AI/ML analysis for protocol design, patient stratification, and outcome prediction
+            We use mathematical and scientific tools to bring clarity to critical decision points, enabling teams to act with quantified risk and reward — while retaining full ownership of the decision.
           </p>
 
           {/* Call-to-action button → updated link */}
