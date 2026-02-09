@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Race } from "@/features/alzheimer/types";
-import { AlzheimerDiagnosisScreeningInput } from "@/features/alzheimer/types";
+import { Race, Gender, AlzheimerDiagnosisFormData, mapFormToBackend } from "@/features/alzheimer/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
@@ -10,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 type Props = {
-  onSubmit: (data: AlzheimerDiagnosisScreeningInput) => void;
+  onSubmit: (data: any) => void; // Accept backend type
   loading?: boolean;
 };
 
@@ -25,27 +24,27 @@ const raceMap: Record<number, string> = {
 };
 
 export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<AlzheimerDiagnosisScreeningInput>({
+  const [formData, setFormData] = useState<AlzheimerDiagnosisFormData>({
     age: 75,
-    education_years: 16,
-    moca_score: 26,
-    adas13_score: 10,
-    cdr_sum: 1,
-    faq_total: 5,
+    educationYears: 16,
+    mocaScore: 26,
+    adas13Score: 10,
+    cdrSum: 1,
+    faqTotal: 5,
     gender: "female",
-    race: 1,
+    race: 5,
   });
 
-  const handleChange = <K extends keyof AlzheimerDiagnosisScreeningInput>(
+  const handleChange = <K extends keyof AlzheimerDiagnosisFormData>(
     key: K,
-    value: AlzheimerDiagnosisScreeningInput[K]
+    value: AlzheimerDiagnosisFormData[K]
   ) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(mapFormToBackend(formData));
   };
 
   return (
@@ -66,61 +65,61 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
 
           {/* Education Years */}
           <div className="space-y-2">
-            <Label>Years of Education: {formData.education_years}</Label>
+            <Label>Years of Education: {formData.educationYears}</Label>
             <Slider
               min={6}
               max={20}
               step={1}
-              value={[formData.education_years]}
-              onValueChange={(v) => handleChange("education_years", v[0])}
+              value={[formData.educationYears]}
+              onValueChange={(v) => handleChange("educationYears", v[0])}
             />
           </div>
 
-          {/* MoCA Score */}
+          {/* MoCA */}
           <div className="space-y-2">
-            <Label>MoCA Score: {formData.moca_score}</Label>
+            <Label>MoCA Score: {formData.mocaScore}</Label>
             <Slider
               min={0}
               max={30}
               step={1}
-              value={[formData.moca_score]}
-              onValueChange={(v) => handleChange("moca_score", v[0])}
+              value={[formData.mocaScore]}
+              onValueChange={(v) => handleChange("mocaScore", v[0])}
             />
           </div>
 
-          {/* ADAS13 Score */}
+          {/* ADAS13 */}
           <div className="space-y-2">
-            <Label>ADAS13 Score: {formData.adas13_score}</Label>
+            <Label>ADAS13 Score: {formData.adas13Score}</Label>
             <Slider
               min={0}
               max={70}
               step={0.5}
-              value={[formData.adas13_score]}
-              onValueChange={(v) => handleChange("adas13_score", v[0])}
+              value={[formData.adas13Score]}
+              onValueChange={(v) => handleChange("adas13Score", v[0])}
             />
           </div>
 
           {/* CDR Sum */}
           <div className="space-y-2">
-            <Label>CDR Sum: {formData.cdr_sum}</Label>
+            <Label>CDR Sum: {formData.cdrSum}</Label>
             <Slider
               min={0}
               max={18}
               step={0.5}
-              value={[formData.cdr_sum]}
-              onValueChange={(v) => handleChange("cdr_sum", v[0])}
+              value={[formData.cdrSum]}
+              onValueChange={(v) => handleChange("cdrSum", v[0])}
             />
           </div>
 
-          {/* FAQ Total */}
+          {/* FAQ */}
           <div className="space-y-2">
-            <Label>FAQ Total: {formData.faq_total}</Label>
+            <Label>FAQ Total: {formData.faqTotal}</Label>
             <Slider
               min={0}
               max={30}
               step={1}
-              value={[formData.faq_total]}
-              onValueChange={(v) => handleChange("faq_total", v[0])}
+              value={[formData.faqTotal]}
+              onValueChange={(v) => handleChange("faqTotal", v[0])}
             />
           </div>
 
@@ -129,9 +128,7 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
             <Label>Gender</Label>
             <Select
               value={formData.gender}
-              onValueChange={(v) =>
-                handleChange("gender", v as "female" | "male")
-              }
+              onValueChange={(v) => handleChange("gender", v as Gender)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select gender" />
@@ -163,7 +160,6 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
             </Select>
           </div>
 
-          {/* Submit */}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Predicting..." : "Predict"}
           </Button>

@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <Image
           src="/images/ai_doctor.png"
-          alt="AI Doctor"
+          alt="AI Clinical Intelligence"
           fill
           className="object-cover"
           priority
@@ -20,26 +20,23 @@ export default function Hero() {
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 animate-fadeIn text-center">
         <div className="mt-20 md:mt-32 max-w-3xl">
           <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
-            Transforming Healthcare with AI
+            Clinical Intelligence for Neurology & Cardiology Research
           </h1>
 
           <p className="mt-6 text-lg md:text-xl text-gray-200 leading-relaxed text-center">
-            Accelerate diagnosis, improve patient outcomes, and empower clinicians 
-            with AI-driven insights for cardiology and neurology — built on real-world data.
+            Interpretable AI, predictive analytics, and actionable insights to accelerate discovery and de-risk clinical decisions.
           </p>
 
-          {/* Call-to-action button → updated link */}
           <Link
             href="/explore"
             className="mt-10 inline-block bg-green-800 hover:bg-[#1B4D3E] text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition-transform hover:scale-105"
           >
-            Start Free Trial
+            Request Early Access
           </Link>
         </div>
 
-        {/* Disclaimer at bottom */}
         <p className="absolute bottom-6 text-sm text-gray-300">
-          *Our AI tools are for research use only and not approved for clinical diagnosis.
+          *Tools are for research use only and not approved for clinical diagnosis.
         </p>
       </div>
     </section>

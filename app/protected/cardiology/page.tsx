@@ -33,13 +33,6 @@ export default function CardiologyPage() {
       outputs: ["ECG interpretation", "Abnormality flags"],
       href: "/protected/cardiology/ecg-interpreter",
     },
-    {
-      name: "Ejection Fraction Prediction",
-      description: "Predict left ventricular ejection fraction from echocardiogram video.",
-      inputs: ["Echo/video file", "Patient ID"],
-      outputs: ["EF %", "EF Category (Normal, Mildly Reduced, etc.)"],
-      href: "/protected/cardiology/ejection-fraction",
-    },
   ];
 
   return (

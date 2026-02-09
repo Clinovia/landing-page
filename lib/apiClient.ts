@@ -1,26 +1,38 @@
+// lib/apiClient.ts
 "use client";
 
 import axios from "axios";
 import { supabase } from "@/lib/supabaseClient";
 
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+export const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Cache token
-let accessToken: string | null = null;
+// Always fetch the *current* token (no cache bugs)
+apiClient.interceptors.request.use(async (config) => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-// Keep token updated
-supabase.auth.onAuthStateChange((_event, session) => {
-  accessToken = session?.access_token || null;
-});
-
-// Attach token to every request
-apiClient.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`;
   }
+
   return config;
 });
 
-export default apiClient;
+// Normalize backend errors (NO CORS MASKING)
+apiClient.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    const message =
+      error.response?.data?.detail ??
+      error.response?.data?.message ??
+      error.message;
+
+    return Promise.reject(new Error(message));
+  }
+);

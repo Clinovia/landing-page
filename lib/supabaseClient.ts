@@ -1,13 +1,13 @@
 "use client";
 
-import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import type { Session } from "@supabase/supabase-js";
 
 /* ------------------------------------------------------------------
-   Supabase client (SINGLETON — browser only)
+   Supabase client (SINGLETON — client components only)
 ------------------------------------------------------------------- */
 
-export const supabase = createBrowserSupabaseClient();
+export const supabase = createClientComponentClient();
 
 /* ------------------------------------------------------------------
    Access token cache (for FastAPI calls)
@@ -40,7 +40,7 @@ supabase.auth.onAuthStateChange((_event, session: Session | null) => {
 /**
  * Getter used by API helpers
  */
-export async function getCachedToken() {
+export async function getCachedToken(): Promise<string | null> {
   await initTokenCache();
   return accessToken;
 }
@@ -56,7 +56,7 @@ export async function apiRequest<T>({
 }: {
   url: string;
   method?: "GET" | "POST" | "PUT" | "DELETE";
-  data?: any;
+  data?: unknown;
 }): Promise<T> {
   const token = await getCachedToken();
 
@@ -73,11 +73,13 @@ export async function apiRequest<T>({
   if (!response.ok) {
     const text = await response.text();
     throw new Error(
-      `API request failed (${response.status}): ${text || response.statusText}`
+      `API request failed (${response.status}): ${
+        text || response.statusText
+      }`
     );
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 /* ------------------------------------------------------------------
@@ -93,7 +95,7 @@ export async function apiRequestWithFile<T>({
   url: string;
   fileField: string;
   file: File;
-  extraFields?: Record<string, any>;
+  extraFields?: Record<string, unknown>;
 }): Promise<T> {
   const token = await getCachedToken();
 
@@ -102,7 +104,7 @@ export async function apiRequestWithFile<T>({
 
   if (extraFields) {
     Object.entries(extraFields).forEach(([key, value]) => {
-      formData.append(key, value);
+      formData.append(key, String(value));
     });
   }
 
@@ -118,9 +120,11 @@ export async function apiRequestWithFile<T>({
   if (!response.ok) {
     const text = await response.text();
     throw new Error(
-      `File upload failed (${response.status}): ${text || response.statusText}`
+      `File upload failed (${response.status}): ${
+        text || response.statusText
+      }`
     );
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }

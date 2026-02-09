@@ -1,12 +1,4 @@
-// lib/api/alzheimer.ts
-/**
- * Alzheimer's Module API Client (Next.js API Routes)
- * Calls /api/v1/alzheimer/* (App Router)
- *
- * URL convention: kebab-case
- * Function convention: camelCase
- */
-
+import { apiClient } from "../apiClient";
 import type {
   AlzheimerDiagnosisScreeningInput,
   AlzheimerDiagnosisScreeningOutput,
@@ -23,109 +15,73 @@ import type {
 } from "@/features/alzheimer/types";
 
 /* ------------------------------------------------------------------ */
-/* Helpers                                                            */
+/* Diagnosis                                                          */
 /* ------------------------------------------------------------------ */
 
-function getAccessToken() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("accessToken");
-}
-
-async function authedFetch<T>(
-  url: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const token = getAccessToken();
-
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...(options.body instanceof FormData
-        ? {}
-        : { "Content-Type": "application/json" }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Request failed (${res.status})`);
-  }
-
-  return res.json();
-}
-
-/* ------------------------------------------------------------------ */
-/* API Functions                                                      */
-/* ------------------------------------------------------------------ */
-
-export function diagnosisScreening(
+export async function diagnosisScreening(
   data: AlzheimerDiagnosisScreeningInput
 ): Promise<AlzheimerDiagnosisScreeningOutput> {
-  return authedFetch("/api/v1/alzheimer/diagnosis-screening", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  const res = await apiClient.post(
+    "/api/v1/alzheimer/diagnosis-screening",
+    data
+  );
+  return res.data;
 }
 
-export function riskScreener(
-  data: AlzheimerRiskScreenerInput
-): Promise<AlzheimerRiskScreenerOutput> {
-  return authedFetch("/api/v1/alzheimer/risk-screener", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export function diagnosisBasic(
+export async function diagnosisBasic(
   data: AlzheimerDiagnosisBasicInput
 ): Promise<AlzheimerDiagnosisBasicOutput> {
-  return authedFetch("/api/v1/alzheimer/diagnosis-basic", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  const res = await apiClient.post(
+    "/api/v1/alzheimer/diagnosis-basic",
+    data
+  );
+  return res.data;
 }
 
-export function diagnosisExtended(
+export async function diagnosisExtended(
   data: AlzheimerDiagnosisExtendedInput
 ): Promise<AlzheimerDiagnosisExtendedOutput> {
-  return authedFetch("/api/v1/alzheimer/diagnosis-extended", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  const res = await apiClient.post(
+    "/api/v1/alzheimer/diagnosis-extended",
+    data
+  );
+  return res.data;
 }
 
-export function prognosis2YrBasic(
+/* ------------------------------------------------------------------ */
+/* Risk Screener (Rule-based)                                          */
+/* ------------------------------------------------------------------ */
+
+export async function riskScreener(
+  data: AlzheimerRiskScreenerInput
+): Promise<AlzheimerRiskScreenerOutput> {
+  const res = await apiClient.post(
+    "/api/v1/alzheimer/risk-screener",
+    data
+  );
+  return res.data;
+}
+
+/* ------------------------------------------------------------------ */
+/* Prognosis (2-Year)                                                  */
+/* ------------------------------------------------------------------ */
+
+export async function prognosis2YrBasic(
   data: AlzheimerPrognosis2yrBasicInput
 ): Promise<AlzheimerPrognosis2yrBasicOutput> {
-  return authedFetch("/api/v1/alzheimer/prognosis-2yr-basic", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  const res = await apiClient.post(
+    "/api/v1/alzheimer/prognosis-2yr-basic",
+    data
+  );
+  return res.data;
 }
 
-export function prognosis2YrExtended(
+export async function prognosis2YrExtended(
   data: AlzheimerPrognosis2yrExtendedInput
 ): Promise<AlzheimerPrognosis2yrExtendedOutput> {
-  return authedFetch("/api/v1/alzheimer/prognosis-2yr-extended", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-/* ------------------------------------------------------------------ */
-/* History / Results                                                  */
-/* ------------------------------------------------------------------ */
-
-export function getAssessmentHistory() {
-  return authedFetch(
-    "/api/v1/alzheimer/diagnosis-screening/history"
+  const res = await apiClient.post(
+    "/api/v1/alzheimer/prognosis-2yr-extended",
+    data
   );
-}
-
-export function getAssessmentById(assessmentId: string) {
-  return authedFetch(
-    `/api/v1/alzheimer/diagnosis-screening/results/${assessmentId}`
-  );
+  return res.data;
 }

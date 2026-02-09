@@ -1,65 +1,35 @@
+// app/protected/cardiology/ecg-interpreter/page.tsx
 "use client";
 
 import { useState } from "react";
 import ECGInterpreterForm from "@/features/cardiology/components/ECGInterpreterForm";
 import ECGInterpreterResult from "@/features/cardiology/components/ECGInterpreterResult";
-import {
+import { useCardiologyTool } from "@/features/cardiology/hooks/useCardiologyTool";
+import { interpretECG } from "@/lib/api/cardiology";
+import type {
   ECGInterpreterInput,
   ECGInterpreterOutput,
 } from "@/features/cardiology/types";
-import apiClient from "@/lib/apiClient";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function ECGInterpreterPage() {
   const [input, setInput] = useState<ECGInterpreterInput | null>(null);
-  const [result, setResult] = useState<ECGInterpreterOutput | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (inputData: ECGInterpreterInput) => {
-    setLoading(true);
-    setError(null);
-    setResult(null);
-    setInput(inputData);
+  const {
+    runTool,
+    result,
+    loading,
+    error,
+  } = useCardiologyTool<ECGInterpreterInput, ECGInterpreterOutput>(
+    interpretECG
+  );
 
-    try {
-      // Get Supabase session correctly
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
-
-      if (sessionError) {
-        console.warn("Supabase session error:", sessionError.message);
-      }
-
-      if (!sessionData.session?.access_token) {
-        console.warn("No Supabase session found – user may not be authenticated.");
-      }
-
-      // Post ECG input to backend
-      const response = await apiClient.post<ECGInterpreterOutput>(
-        "/api/v1/cardiology/ecg-interpreter",
-        inputData
-      );
-
-      setResult(response.data);
-    } catch (err: any) {
-      console.error("ECG Interpreter API Error:", err);
-      const message =
-        err.response?.data?.error ||
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        err.message ||
-        "Unknown error";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async (data: ECGInterpreterInput) => {
+    setInput(data);
+    await runTool(data);
   };
 
   const handleReset = () => {
     setInput(null);
-    setResult(null);
-    setError(null);
   };
 
   return (
@@ -71,30 +41,17 @@ export default function ECGInterpreterPage() {
         </p>
       </header>
 
-      <section>
-        <ECGInterpreterForm onSubmit={handleSubmit} loading={loading} />
-      </section>
+      <ECGInterpreterForm onSubmit={handleSubmit} loading={loading} />
 
-      {loading && (
-        <p className="text-blue-600 mt-4" data-testid="loading-message">
-          Analyzing ECG...
-        </p>
-      )}
-
-      {error && (
-        <p className="text-red-600 mt-4" data-testid="error-message">
-          {error}
-        </p>
-      )}
+      {loading && <p className="text-blue-600 mt-4">Analyzing ECG...</p>}
+      {error && <p className="text-red-600 mt-4">{error}</p>}
 
       {result && input && (
-        <section>
-          <ECGInterpreterResult
-            input={input}
-            interpretation={result}
-            onReset={handleReset}
-          />
-        </section>
+        <ECGInterpreterResult
+          input={input}
+          interpretation={result}
+          onReset={handleReset}
+        />
       )}
 
       <p className="text-sm text-gray-500 mt-6">

@@ -1,3 +1,4 @@
+// app/protected/alzheimer/diagnosis-screening/page.tsx
 "use client";
 
 import DiagScreeningForm from "@/features/alzheimer/components/DiagScreeningForm";
@@ -7,19 +8,19 @@ import {
   AlzheimerDiagnosisScreeningOutput,
 } from "@/features/alzheimer/types";
 import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
+import { diagnosisScreening } from "@/lib/api/alzheimer";
 
 export default function DiagnosisScreeningPage() {
-  const { result, loading, error, runTool } = useAlzheimerTool<
-    AlzheimerDiagnosisScreeningInput,
-    AlzheimerDiagnosisScreeningOutput
-  >("diagnosisScreening");
+  const { result, loading, error, runTool } =
+    useAlzheimerTool<
+      AlzheimerDiagnosisScreeningInput,
+      AlzheimerDiagnosisScreeningOutput
+    >(diagnosisScreening);
 
-  const handleSubmit = async (data: AlzheimerDiagnosisScreeningInput) => {
-    try {
-      await runTool(data);
-    } catch (err) {
-      console.error("Error submitting diagnosis screening:", err);
-    }
+  const handleSubmit = async (
+    data: AlzheimerDiagnosisScreeningInput
+  ) => {
+    await runTool(data);
   };
 
   return (

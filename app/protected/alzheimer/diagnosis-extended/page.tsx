@@ -1,3 +1,4 @@
+// app/protected/alzheimer/diagnosis-extended/page.tsx
 "use client";
 
 import DiagExtendedForm from "@/features/alzheimer/components/DiagExtendedForm";
@@ -7,19 +8,19 @@ import {
   AlzheimerDiagnosisExtendedOutput,
 } from "@/features/alzheimer/types";
 import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
+import { diagnosisExtended } from "@/lib/api/alzheimer";
 
 export default function ExtendedDiagnosisPage() {
-  const { result, loading, error, runTool } = useAlzheimerTool<
-    AlzheimerDiagnosisExtendedInput,
-    AlzheimerDiagnosisExtendedOutput
-  >("diagnosisExtended");
+  const { result, loading, error, runTool } =
+    useAlzheimerTool<
+      AlzheimerDiagnosisExtendedInput,
+      AlzheimerDiagnosisExtendedOutput
+    >(diagnosisExtended);
 
-  const handleSubmit = async (data: AlzheimerDiagnosisExtendedInput) => {
-    try {
-      await runTool(data);
-    } catch (err) {
-      console.error("Error submitting extended diagnosis:", err);
-    }
+  const handleSubmit = async (
+    data: AlzheimerDiagnosisExtendedInput
+  ) => {
+    await runTool(data);
   };
 
   return (
@@ -41,7 +42,7 @@ export default function ExtendedDiagnosisPage() {
         </div>
       )}
 
-      <DiagExtendedResult output={result ?? undefined} />
+      {result && <DiagExtendedResult output={result} />}
 
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.

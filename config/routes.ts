@@ -46,7 +46,6 @@ export const CARDIOLOGY_ROUTES = {
   BP_CATEGORY: '/cardiology/bp-category',
   CHA2DS2_VASC: '/cardiology/cha2ds2vasc',
   ECG_INTERPRETER: '/cardiology/ecg-interpreter',
-  EF_PREDICTION: '/cardiology/ejection-fraction',
 } as const;
 
 /**
@@ -83,7 +82,6 @@ export const ROUTE_METADATA = {
     { path: CARDIOLOGY_ROUTES.BP_CATEGORY, title: 'Blood Pressure Category', description: 'Categorize blood pressure readings', icon: '🩺' },
     { path: CARDIOLOGY_ROUTES.CHA2DS2_VASC, title: 'CHA₂DS₂-VASc Score', description: 'Stroke risk in atrial fibrillation', icon: '🫀' },
     { path: CARDIOLOGY_ROUTES.ECG_INTERPRETER, title: 'ECG Interpreter', description: 'AI-powered ECG analysis', icon: '📈' },
-    { path: CARDIOLOGY_ROUTES.EF_PREDICTION, title: 'Ejection Fraction', description: 'Predict cardiac ejection fraction', icon: '💗' },
   ],
   MAIN_NAV: [
     { path: PUBLIC_ROUTES.HOME, title: 'Home', icon: '🏠' },

@@ -1,19 +1,19 @@
-// frntend/app/(public)/page.tsx
-
 import Hero from "./home-sections/Hero";
-import Cardiology from "./home-sections/Cardiology";
-import Neurology from "./home-sections/Neurology";
-import Papers from "./home-sections/Papers";
-import Who_Benefit from "./home-sections/Who_Benefit";
+import SpecialtyTools from "./home-sections/SpecialtyTools";
+import DecisionAreas from "./home-sections/DecisionAreas";
+import HowWeWork from "./home-sections/HowWeWork";
+import About from "./home-sections/About";
+import CTASection from "./home-sections/CTASection";
 
 export default function HomePage() {
   return (
     <main className="w-full">
       <Hero />
-      <Cardiology />
-      <Neurology />
-      <Papers />
-      <Who_Benefit />
+      <SpecialtyTools />
+      <DecisionAreas />
+      <HowWeWork />
+      <About />
+      <CTASection />
     </main>
   );
 }

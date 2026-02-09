@@ -10,15 +10,14 @@ import { Button } from "@/components/ui/button";
 const getDisplayLabel = (fieldName: string): string => {
   const labels: Record<string, string> = {
     AGE: "Age",
-    MMSE_bl: "MMSE",
-    CDRSB_bl: "CDR Sum of Boxes",
-    FAQ_bl: "FAQ Score",
+    MMSE: "MMSE",
+    FAQ: "FAQ Score",
     PTEDUCAT: "Education (years)",
     PTGENDER: "Gender",
     APOE4: "APOE4 Allele Count",
-    RAVLT_immediate_bl: "RAVLT Immediate Recall",
-    MOCA_bl: "MoCA Score",
-    ADAS13_bl: "ADAS13 Score",
+    RAVLT_immediate: "RAVLT Immediate Recall",
+    MOCA: "MoCA Score",
+    ADAS13: "ADAS13 Score",
   };
   return labels[fieldName] || fieldName;
 };
@@ -32,15 +31,14 @@ export default function DiagBasicForm({ onSubmit, loading = false }: Props) {
   const [formData, setFormData] = useState<AlzheimerDiagnosisBasicInput>({
     patient_id: null,
     AGE: 74,
-    MMSE_bl: 26,
-    CDRSB_bl: 1,
-    FAQ_bl: 3,
+    MMSE: 26,
+    FAQ: 3,
     PTEDUCAT: 16,
     PTGENDER: "female",
     APOE4: 1,
-    RAVLT_immediate_bl: 35,
-    MOCA_bl: 25,
-    ADAS13_bl: 10.5,
+    RAVLT_immediate: 35,
+    MOCA: 25,
+    ADAS13: 10.5,
   });
 
   const handleChange = (key: keyof AlzheimerDiagnosisBasicInput, value: number | string) => {
@@ -53,7 +51,13 @@ export default function DiagBasicForm({ onSubmit, loading = false }: Props) {
   };
 
   return (
-    <Card className="p-6 rounded-2xl shadow-md">
+    <Card className="p-6 rounded-2xl shadow-md max-w-xl mx-auto">
+      <CardHeader>
+        <CardTitle>Alzheimer’s Basic Diagnosis</CardTitle>
+        <CardDescription>
+          Input patient data to predict cognitive class (CN, MCI, AD) using basic features.
+        </CardDescription>
+      </CardHeader>
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -100,105 +104,33 @@ export default function DiagBasicForm({ onSubmit, loading = false }: Props) {
             </select>
           </div>
 
-          {/* MMSE */}
-          <div>
-            <Label htmlFor="MMSE_bl">{getDisplayLabel("MMSE_bl")}: {formData.MMSE_bl}</Label>
-            <input
-              type="range"
-              min={0}
-              max={30}
-              value={formData.MMSE_bl}
-              onChange={(e) => handleChange("MMSE_bl", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* CDRSB */}
-          <div>
-            <Label htmlFor="CDRSB_bl">{getDisplayLabel("CDRSB_bl")}: {formData.CDRSB_bl}</Label>
-            <input
-              type="range"
-              min={0}
-              max={20}
-              step={0.1}
-              value={formData.CDRSB_bl}
-              onChange={(e) => handleChange("CDRSB_bl", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* FAQ */}
-          <div>
-            <Label htmlFor="FAQ_bl">{getDisplayLabel("FAQ_bl")}: {formData.FAQ_bl}</Label>
-            <input
-              type="range"
-              min={0}
-              max={30}
-              step={0.1}
-              value={formData.FAQ_bl}
-              onChange={(e) => handleChange("FAQ_bl", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* Education */}
-          <div>
-            <Label htmlFor="PTEDUCAT">
-              {getDisplayLabel("PTEDUCAT")}: {formData.PTEDUCAT} yrs
-            </Label>
-            <input
-              type="range"
-              min={0}
-              max={30}
-              value={formData.PTEDUCAT}
-              onChange={(e) => handleChange("PTEDUCAT", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* RAVLT */}
-          <div>
-            <Label htmlFor="RAVLT_immediate_bl">
-              {getDisplayLabel("RAVLT_immediate_bl")}: {formData.RAVLT_immediate_bl}
-            </Label>
-            <input
-              type="range"
-              min={0}
-              max={75}
-              value={formData.RAVLT_immediate_bl}
-              onChange={(e) => handleChange("RAVLT_immediate_bl", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* MoCA */}
-          <div>
-            <Label htmlFor="MOCA_bl">{getDisplayLabel("MOCA_bl")}: {formData.MOCA_bl}</Label>
-            <input
-              type="range"
-              min={0}
-              max={30}
-              value={formData.MOCA_bl}
-              onChange={(e) => handleChange("MOCA_bl", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* ADAS13 */}
-          <div>
-            <Label htmlFor="ADAS13_bl">
-              {getDisplayLabel("ADAS13_bl")}: {formData.ADAS13_bl}
-            </Label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={0.1}
-              value={formData.ADAS13_bl}
-              onChange={(e) => handleChange("ADAS13_bl", Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
+          {/* Sliders for numeric features */}
+          {["MMSE","FAQ","PTEDUCAT","RAVLT_immediate","MOCA","ADAS13"].map((key) => {
+            const minMaxStep: Record<string, [number, number, number]> = {
+              MMSE: [0, 30, 1],
+              FAQ: [0, 30, 0.1],
+              PTEDUCAT: [0, 30, 1],
+              RAVLT_immediate: [0, 75, 1],
+              MOCA: [0, 30, 1],
+              ADAS13: [0, 100, 0.1],
+            };
+            const [min, max, step] = minMaxStep[key];
+            return (
+              <div key={key}>
+                <Label htmlFor={key}>{getDisplayLabel(key)}: {formData[key as keyof AlzheimerDiagnosisBasicInput]}</Label>
+                <input
+                  id={key}
+                  type="range"
+                  min={min}
+                  max={max}
+                  step={step}
+                  value={formData[key as keyof AlzheimerDiagnosisBasicInput] as number}
+                  onChange={(e) => handleChange(key as keyof AlzheimerDiagnosisBasicInput, Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+            );
+          })}
 
           {/* Submit */}
           <Button type="submit" disabled={loading} className="w-full">

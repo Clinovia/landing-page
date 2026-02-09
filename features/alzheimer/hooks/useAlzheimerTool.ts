@@ -1,92 +1,35 @@
 // features/alzheimer/hooks/useAlzheimerTool.ts
 import { useState, useCallback } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-/**
- * Hook to interact with Alzheimer assessment endpoints.
- *
- * @param endpoint - The specific Alzheimer tool endpoint (e.g., "riskScreener", "diagnosisBasic")
- * @returns Object containing result, loading state, error, and runTool function
- */
-export function useAlzheimerTool<TInput = Record<string, unknown>, TOutput = unknown>(endpoint: string) {
+type RunFn<TInput, TOutput> = (input: TInput) => Promise<TOutput>;
+
+export function useAlzheimerTool<TInput, TOutput>(
+  runApi: RunFn<TInput, TOutput>
+) {
   const [result, setResult] = useState<TOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const supabase = createClientComponentClient();
-
-  // Map camelCase endpoint names to kebab-case API routes
-  const endpointMap: Record<string, string> = {
-    riskScreener: 'risk-screener',
-    diagnosisBasic: 'diagnosis-basic',
-    diagnosisExtended: 'diagnosis-extended',
-    diagnosisScreening: 'diagnosis-screening',
-    prognosis2yrBasic: 'prognosis-2yr-basic',
-    prognosis2yrExtended: 'prognosis-2yr-extended',
-  };
 
   const runTool = useCallback(
     async (payload: TInput) => {
-      console.log("🧠 [AlzheimerTool] Starting:", endpoint);
       setLoading(true);
       setError(null);
       setResult(null);
 
       try {
-        // Get authentication session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log("🧠 [AlzheimerTool] Session retrieved:", !!session);
-        console.log("🧠 [AlzheimerTool] Token exists:", !!session?.access_token);
-
-        if (sessionError || !session?.access_token) {
-          console.error("🔴 [AlzheimerTool] No valid session");
-          throw new Error("Not authenticated");
-        }
-
-        // Convert camelCase to kebab-case for API route
-        const apiEndpoint = endpointMap[endpoint] || endpoint;
-        const url = `/api/v1/alzheimer/${apiEndpoint}`;
-
-        // Prepare headers with authentication
-        const headers = {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
-        };
-
-        console.log("🧠 [AlzheimerTool] Fetching:", url);
-        console.log("🧠 [AlzheimerTool] Auth header present:", !!headers.Authorization);
-
-        // Make API request
-        const response = await fetch(url, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(payload),
-        });
-
-        console.log("🧠 [AlzheimerTool] Response status:", response.status);
-
-        // Handle error responses
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => "API request failed");
-          console.error("🔴 [AlzheimerTool] Error:", errorText);
-          throw new Error(errorText || "API request failed");
-        }
-
-        // Parse and set successful response
-        const data = await response.json();
-        console.log("✅ [AlzheimerTool] Success!");
+        const data = await runApi(payload);
         setResult(data);
         return data;
       } catch (err) {
-        const message = err instanceof Error ? err.message : "An unknown error occurred";
-        console.error("💥 [AlzheimerTool] Error:", message);
+        const message =
+          err instanceof Error ? err.message : "An unknown error occurred";
         setError(message);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [endpoint, supabase]
+    [runApi]
   );
 
   return {

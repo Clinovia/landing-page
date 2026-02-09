@@ -1,3 +1,4 @@
+// app/protected/alzheimer/diagnosis-basic/page.tsx
 "use client";
 
 import DiagBasicForm from "@/features/alzheimer/components/DiagBasicForm";
@@ -7,19 +8,17 @@ import {
   AlzheimerDiagnosisBasicOutput,
 } from "@/features/alzheimer/types";
 import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
+import { diagnosisBasic } from "@/lib/api/alzheimer";
 
 export default function BasicDiagnosisPage() {
-  const { result, loading, error, runTool } = useAlzheimerTool<
-    AlzheimerDiagnosisBasicInput,
-    AlzheimerDiagnosisBasicOutput
-  >("diagnosisBasic");
+  const { result, loading, error, runTool } =
+    useAlzheimerTool<
+      AlzheimerDiagnosisBasicInput,
+      AlzheimerDiagnosisBasicOutput
+    >(diagnosisBasic);
 
   const handleSubmit = async (data: AlzheimerDiagnosisBasicInput) => {
-    try {
-      await runTool(data);
-    } catch (err) {
-      console.error("Error submitting basic diagnosis:", err);
-    }
+    await runTool(data);
   };
 
   return (
@@ -41,7 +40,7 @@ export default function BasicDiagnosisPage() {
         </div>
       )}
 
-      <DiagBasicResult output={result ?? undefined} />
+      {result && <DiagBasicResult output={result} />}
 
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.

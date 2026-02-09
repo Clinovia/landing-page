@@ -15,7 +15,6 @@ export default function ModulesPage() {
     { name: "Blood Pressure Category", description: "Classifies BP readings", inputs: "Systolic & diastolic BP", outputs: "BP category classification" },
     { name: "CHA2DS2VASc", description: "Stroke risk estimation in AF patients", inputs: "Clinical factors", outputs: "Risk score" },
     { name: "ECG Interpreter", description: "Basic ECG interpretation module", inputs: "ECG parameters", outputs: "Interpretation summary" },
-    { name: "EF Prediction", description: "Deep learning model for EF prediction", inputs: "Clinical inputs", outputs: "Estimated EF %" },
   ];
 
   const neurology: Module[] = [

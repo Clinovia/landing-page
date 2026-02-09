@@ -95,17 +95,3 @@ export interface ECGInterpreterOutput {
   model_name: string; // default: "ecg_interpreter_rule_v1"
   model_version: string;
 }
-
-// ======================
-// 5. Echonet EF Prediction
-// ======================
-export interface EchonetEFInput {
-  video_file: File; // file path or base64 depending on uploader
-}
-
-export interface EchonetEFOutput {
-  ef_percent?: number; // 0–100
-  category: string; // "Normal", "Mildly Reduced", etc.
-  model_name: string; // "echonet_ef_model"
-  model_version: string; // "1.0.0"
-}

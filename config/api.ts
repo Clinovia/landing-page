@@ -52,7 +52,6 @@ export const CARDIOLOGY_ENDPOINTS = {
   BP_CATEGORY: buildUrl('/cardiology/bp-category'),
   CHA2DS2_VASC: buildUrl('/cardiology/cha2ds2vasc'),
   ECG_INTERPRETER: buildUrl('/cardiology/ecg-interpreter'),
-  EF_PREDICTION: buildUrl('/cardiology/ejection-fraction'),
 } as const;
 
 /**

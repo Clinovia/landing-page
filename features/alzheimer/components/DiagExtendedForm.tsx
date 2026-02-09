@@ -13,30 +13,29 @@ type Props = {
 
 export default function DiagExtendedForm({ onSubmit, loading = false }: Props) {
   const [formData, setFormData] = useState<AlzheimerDiagnosisExtendedInput>({
+    patient_id: null,
     AGE: 72,
-    MMSE_bl: 25,
-    CDRSB_bl: 1.5,
-    FAQ_bl: 4,
+    MMSE: 25,
+    FAQ: 4,
     PTEDUCAT: 14,
     PTGENDER: "male",
     APOE4: 1,
-    RAVLT_immediate_bl: 32,
-    MOCA_bl: 24,
-    ADAS13_bl: 12,
-    Hippocampus_bl: 6000,
-    Ventricles_bl: 45000,
-    WholeBrain_bl: 950000,
-    Entorhinal_bl: 3500,
-    FDG_bl: 1.25,
-    AV45_bl: 1.35,
-    PIB_bl: 1.28,
-    FBB_bl: 1.2,
-    ABETA_bl: 180,
-    TAU_bl: 350,
-    PTAU_bl: 55,
-    mPACCdigit_bl: 0.45,
-    mPACCtrailsB_bl: -0.6,
-    patient_id: null,
+    RAVLT_immediate: 32,
+    MOCA: 24,
+    ADAS13: 12,
+    Hippocampus: 6000,
+    Ventricles: 45000,
+    WholeBrain: 950000,
+    Entorhinal: 3500,
+    FDG: 1.25,
+    AV45: 1.35,
+    PIB: 1.28,
+    FBB: 1.2,
+    ABETA: 180,
+    TAU: 350,
+    PTAU: 55,
+    mPACCdigit: 0.45,
+    mPACCtrailsB: -0.6,
   });
 
   const handleChange = (key: keyof AlzheimerDiagnosisExtendedInput, value: any) => {
@@ -50,33 +49,31 @@ export default function DiagExtendedForm({ onSubmit, loading = false }: Props) {
 
   const sliderFields: Array<[keyof AlzheimerDiagnosisExtendedInput, string, number, number, number]> = [
     ["AGE", "Age", 0, 120, 1],
-    ["MMSE_bl", "MMSE", 0, 30, 1],
-    ["CDRSB_bl", "CDRSB", 0, 20, 0.1],
-    ["FAQ_bl", "FAQ", 0, 30, 0.1],
+    ["MMSE", "MMSE", 0, 30, 1],
+    ["FAQ", "FAQ", 0, 30, 0.1],
     ["PTEDUCAT", "Years of Education", 0, 30, 1],
-    ["RAVLT_immediate_bl", "RAVLT Immediate", 0, 50, 1],
-    ["MOCA_bl", "MOCA", 0, 30, 1],
-    ["ADAS13_bl", "ADAS13", 0, 100, 0.1],
-    ["Hippocampus_bl", "Hippocampus", 0, 10000, 1],
-    ["Ventricles_bl", "Ventricles", 0, 100000, 10],
-    ["WholeBrain_bl", "Whole Brain", 0, 2000000, 1000],
-    ["Entorhinal_bl", "Entorhinal", 0, 10000, 1],
-    ["FDG_bl", "FDG", 0, 5, 0.01],
-    ["AV45_bl", "AV45", 0, 5, 0.01],
-    ["PIB_bl", "PIB", 0, 5, 0.01],
-    ["FBB_bl", "FBB", 0, 5, 0.01],
-    ["ABETA_bl", "ABETA", 0, 1000, 1],
-    ["TAU_bl", "TAU", 0, 1000, 1],
-    ["PTAU_bl", "PTAU", 0, 100, 0.1],
-    ["mPACCdigit_bl", "mPACCdigit", -5, 5, 0.01],
-    ["mPACCtrailsB_bl", "mPACCtrailsB", -5, 5, 0.01],
+    ["RAVLT_immediate", "RAVLT Immediate", 0, 50, 1],
+    ["MOCA", "MOCA", 0, 30, 1],
+    ["ADAS13", "ADAS13", 0, 100, 0.1],
+    ["Hippocampus", "Hippocampus", 0, 10000, 1],
+    ["Ventricles", "Ventricles", 0, 100000, 10],
+    ["WholeBrain", "Whole Brain", 0, 2000000, 1000],
+    ["Entorhinal", "Entorhinal", 0, 10000, 1],
+    ["FDG", "FDG", 0, 5, 0.01],
+    ["AV45", "AV45", 0, 5, 0.01],
+    ["PIB", "PIB", 0, 5, 0.01],
+    ["FBB", "FBB", 0, 5, 0.01],
+    ["ABETA", "ABETA", 0, 1000, 1],
+    ["TAU", "TAU", 0, 1000, 1],
+    ["PTAU", "PTAU", 0, 100, 0.1],
+    ["mPACCdigit", "mPACCdigit", -5, 5, 0.01],
+    ["mPACCtrailsB", "mPACCtrailsB", -5, 5, 0.01],
   ];
 
   return (
     <Card className="p-6 rounded-2xl shadow-md max-w-3xl mx-auto">
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-
           {/* Gender */}
           <div>
             <Label htmlFor="PTGENDER">Gender</Label>
