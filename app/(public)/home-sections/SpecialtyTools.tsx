@@ -6,13 +6,13 @@ export default function SpecialtyTools() {
       name: "Alzheimer’s Risk Stratification",
       specialty: "Neurology",
       description: "Predict patient risk and identify high-value cohorts for research and early trials.",
-      image: "/images/neurology_tool.png",
+      image: "/images/alzheimer.jpg",
     },
     {
       name: "Cardiac Risk Scoring & Cohort Analysis",
       specialty: "Cardiology",
       description: "Assess longitudinal heart health and stratify patient cohorts for research insights.",
-      image: "/images/cardiology_tool.png",
+      image: "/images/cardiology.jpg",
     },
   ];
 
