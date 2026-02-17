@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/lib/api/authApi";
 
+useEffect(() => {
+  const checkSession = async () => {
+    const { data } = await supabase.auth.getSession()
+    console.log("SESSION:", data.session)
+  }
+  checkSession()
+}, [])
+
 export default function LoginForm() {
   const router = useRouter();
 

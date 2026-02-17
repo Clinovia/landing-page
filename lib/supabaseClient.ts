@@ -1,3 +1,4 @@
+// frontend/lib/supabaseClient.ts
 "use client";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -10,39 +11,15 @@ import type { Session } from "@supabase/supabase-js";
 export const supabase = createClientComponentClient();
 
 /* ------------------------------------------------------------------
-   Access token cache (for FastAPI calls)
+   Access token helper (SAFE — no stale cache)
 ------------------------------------------------------------------- */
 
-let accessToken: string | null = null;
-let initialized = false;
-
-/**
- * Initialize token cache once
- */
-async function initTokenCache() {
-  if (initialized) return;
-  initialized = true;
-
+export async function getCachedToken(): Promise<string | null> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  accessToken = session?.access_token ?? null;
-}
-
-/**
- * Keep token in sync on auth changes
- */
-supabase.auth.onAuthStateChange((_event, session: Session | null) => {
-  accessToken = session?.access_token ?? null;
-});
-
-/**
- * Getter used by API helpers
- */
-export async function getCachedToken(): Promise<string | null> {
-  await initTokenCache();
-  return accessToken;
+  return session?.access_token ?? null;
 }
 
 /* ------------------------------------------------------------------
