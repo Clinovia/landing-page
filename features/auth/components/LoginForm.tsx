@@ -1,62 +1,54 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabaseClient";
+import { login } from "@/lib/api/authApi";
 
 export default function LoginForm() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const syncUserToBackend = async (uid: string, email: string) => {
-    try {
-      await fetch('/api/v1/users/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, email }),
-      });
-    } catch (err) {
-      console.error('Failed to sync user to backend:', err);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading) return;
+    if (loading) return;
 
-    setIsLoading(true);
+    const { email, password } = formData;
+
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    setLoading(true);
     setError(null);
 
     try {
-      const { data, error: authError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      await login({ email, password });
 
-      if (authError) throw authError;
-      if (!data.session) throw new Error("No session returned from Supabase.");
-
-      // Sync user to backend DB
-      if (data.user) {
-        await syncUserToBackend(data.user.id, email);
-      }
-
+      // No backend sync here anymore
       router.replace("/protected");
     } catch (err) {
       const message =
         err instanceof Error
           ? err.message
-          : "An unexpected error occurred.";
+          : "Invalid email or password.";
       setError(message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -69,10 +61,10 @@ export default function LoginForm() {
         <Input
           id="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
           required
-          disabled={isLoading}
+          disabled={loading}
           autoComplete="email"
         />
       </div>
@@ -84,23 +76,12 @@ export default function LoginForm() {
         <Input
           id="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
           required
-          disabled={isLoading}
+          disabled={loading}
           autoComplete="current-password"
         />
       </div>
 
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-2 rounded-md">
-          {error}
-        </div>
-      )}
-
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? "Logging in…" : "Login"}
-      </Button>
-    </form>
-  );
-}
+      {error &&

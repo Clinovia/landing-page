@@ -1,40 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { signUp, login } from '@/lib/api/authApi';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signUp, login } from "@/lib/api/authApi";
 
 export default function MinimalSignupForm() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirm: '',
+    fullName: "",
+    email: "",
+    password: "",
+    confirm: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const syncUserToBackend = async (uid: string, email: string) => {
-    try {
-      await fetch('/api/v1/users/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, email }),
-      });
-    } catch (err) {
-      console.error('Failed to sync user to backend:', err);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,53 +31,52 @@ export default function MinimalSignupForm() {
     const { fullName, email, password, confirm } = formData;
 
     if (password !== confirm) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const { data, error: signupError } = await signUp({
+      // Attempt signup
+      const user = await signUp({
         email,
         password,
         full_name: fullName,
       });
 
-      // Case 1: User already exists → log in
-      if (
-        signupError?.message &&
-        signupError.message.toLowerCase().includes('already')
-      ) {
-        const loginData = await login({ email, password });
-        if (loginData?.user) {
-          await syncUserToBackend(loginData.user.id, email);
-          router.push('/protected');
-        }
+      // Email confirmation required
+      if (!user) {
+        setError(
+          "Account created. Please check your email to verify your account."
+        );
         return;
       }
 
-      // Case 2: Other signup error
-      if (signupError) {
-        throw new Error(signupError.message);
-      }
-
-      // Case 3: Email confirmation required (no active session)
-      if (!data?.session) {
-        setError('Account created. Please check your email to verify your account.');
-        return;
-      }
-
-      // Case 4: Successful signup with active session
-      if (data?.user) {
-        await syncUserToBackend(data.user.id, email);
-      }
-
-      router.push('/protected');
+      // Successful signup
+      router.push("/protected");
     } catch (err: any) {
-      console.error('Signup error:', err);
-      setError(err.message || 'An unexpected error occurred during signup.');
+      const message =
+        err instanceof Error ? err.message : "Signup failed";
+
+      // If user already exists → try login
+      if (message.toLowerCase().includes("already")) {
+        try {
+          await login({ email, password });
+          router.push("/protected");
+          return;
+        } catch (loginErr: any) {
+          setError(
+            loginErr instanceof Error
+              ? loginErr.message
+              : "Login failed"
+          );
+          return;
+        }
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -158,7 +145,7 @@ export default function MinimalSignupForm() {
       )}
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Creating account...' : 'Sign Up'}
+        {loading ? "Creating account..." : "Sign Up"}
       </Button>
     </form>
   );
