@@ -1,18 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/lib/api/authApi";
-
-useEffect(() => {
-  const checkSession = async () => {
-    const { data } = await supabase.auth.getSession()
-    console.log("SESSION:", data.session)
-  }
-  checkSession()
-}, [])
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -24,6 +17,19 @@ export default function LoginForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // ✅ Debug session (remove later if desired)
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      console.log("SESSION:", session);
+    };
+
+    checkSession();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -47,7 +53,15 @@ export default function LoginForm() {
     try {
       await login({ email, password });
 
-      // No backend sync here anymore
+      // Ensure session exists before redirect
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error("Login succeeded but session not established.");
+      }
+
       router.replace("/protected");
     } catch (err) {
       const message =
