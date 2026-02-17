@@ -15,73 +15,76 @@ import type {
 } from "@/features/alzheimer/types";
 
 /* ------------------------------------------------------------------ */
-/* Diagnosis                                                          */
+/* Shared Helper                                                       */
 /* ------------------------------------------------------------------ */
 
-export async function diagnosisScreening(
+async function post<TInput, TOutput>(
+  url: string,
+  data: TInput
+): Promise<TOutput> {
+  const { data: response } = await apiClient.post<TOutput>(url, data);
+  return response;
+}
+
+/* ------------------------------------------------------------------ */
+/* Diagnosis                                                           */
+/* ------------------------------------------------------------------ */
+
+export const diagnosisScreening = (
   data: AlzheimerDiagnosisScreeningInput
-): Promise<AlzheimerDiagnosisScreeningOutput> {
-  const res = await apiClient.post(
+) =>
+  post<AlzheimerDiagnosisScreeningInput, AlzheimerDiagnosisScreeningOutput>(
     "/api/v1/alzheimer/diagnosis-screening",
     data
   );
-  return res.data;
-}
 
-export async function diagnosisBasic(
+export const diagnosisBasic = (
   data: AlzheimerDiagnosisBasicInput
-): Promise<AlzheimerDiagnosisBasicOutput> {
-  const res = await apiClient.post(
+) =>
+  post<AlzheimerDiagnosisBasicInput, AlzheimerDiagnosisBasicOutput>(
     "/api/v1/alzheimer/diagnosis-basic",
     data
   );
-  return res.data;
-}
 
-export async function diagnosisExtended(
+export const diagnosisExtended = (
   data: AlzheimerDiagnosisExtendedInput
-): Promise<AlzheimerDiagnosisExtendedOutput> {
-  const res = await apiClient.post(
+) =>
+  post<AlzheimerDiagnosisExtendedInput, AlzheimerDiagnosisExtendedOutput>(
     "/api/v1/alzheimer/diagnosis-extended",
     data
   );
-  return res.data;
-}
 
 /* ------------------------------------------------------------------ */
 /* Risk Screener (Rule-based)                                          */
 /* ------------------------------------------------------------------ */
 
-export async function riskScreener(
+export const riskScreener = (
   data: AlzheimerRiskScreenerInput
-): Promise<AlzheimerRiskScreenerOutput> {
-  const res = await apiClient.post(
+) =>
+  post<AlzheimerRiskScreenerInput, AlzheimerRiskScreenerOutput>(
     "/api/v1/alzheimer/risk-screener",
     data
   );
-  return res.data;
-}
 
 /* ------------------------------------------------------------------ */
 /* Prognosis (2-Year)                                                  */
 /* ------------------------------------------------------------------ */
 
-export async function prognosis2YrBasic(
+export const prognosis2YrBasic = (
   data: AlzheimerPrognosis2yrBasicInput
-): Promise<AlzheimerPrognosis2yrBasicOutput> {
-  const res = await apiClient.post(
+) =>
+  post<AlzheimerPrognosis2yrBasicInput, AlzheimerPrognosis2yrBasicOutput>(
     "/api/v1/alzheimer/prognosis-2yr-basic",
     data
   );
-  return res.data;
-}
 
-export async function prognosis2YrExtended(
+export const prognosis2YrExtended = (
   data: AlzheimerPrognosis2yrExtendedInput
-): Promise<AlzheimerPrognosis2yrExtendedOutput> {
-  const res = await apiClient.post(
+) =>
+  post<
+    AlzheimerPrognosis2yrExtendedInput,
+    AlzheimerPrognosis2yrExtendedOutput
+  >(
     "/api/v1/alzheimer/prognosis-2yr-extended",
     data
   );
-  return res.data;
-}

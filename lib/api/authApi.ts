@@ -1,9 +1,8 @@
-// lib/api/authApi.ts
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from "@/lib/supabaseClient";
 
-// Debug
-console.log('=== authApi loaded ===');
-console.log('Supabase client exists:', !!supabase);
+/* ------------------------------------------------------------------ */
+/* Types                                                              */
+/* ------------------------------------------------------------------ */
 
 export interface SignUpPayload {
   email: string;
@@ -16,10 +15,15 @@ export interface LoginPayload {
   password: string;
 }
 
-/* --------------------------------------------------------------------------------
- *  SIGN UP
- * -------------------------------------------------------------------------------*/
-export async function signUp({ email, password, full_name }: SignUpPayload) {
+/* ------------------------------------------------------------------ */
+/* Sign Up                                                            */
+/* ------------------------------------------------------------------ */
+
+export async function signUp({
+  email,
+  password,
+  full_name,
+}: SignUpPayload) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -28,80 +32,94 @@ export async function signUp({ email, password, full_name }: SignUpPayload) {
     },
   });
 
-  return { data, error };
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.user;
 }
 
-/* --------------------------------------------------------------------------------
- *  LOGIN
- * -------------------------------------------------------------------------------*/
-export async function login({ email, password }: LoginPayload) {
-  console.log('=== login called ===');
-  console.log('Email:', email);
+/* ------------------------------------------------------------------ */
+/* Login                                                              */
+/* ------------------------------------------------------------------ */
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  console.log('Supabase login response:', { data, error });
+export async function login({
+  email,
+  password,
+}: LoginPayload) {
+  const { data, error } =
+    await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  // 🔑 No backend sync, Supabase is source of truth
-  return data;
+  return data.user;
 }
 
-/* --------------------------------------------------------------------------------
- *  LOGOUT
- * -------------------------------------------------------------------------------*/
-export async function logout() {
-  console.log('=== logout called ===');
+/* ------------------------------------------------------------------ */
+/* Logout                                                             */
+/* ------------------------------------------------------------------ */
 
+export async function logout(): Promise<void> {
   const { error } = await supabase.auth.signOut();
-  if (error) throw new Error(error.message);
 
-  return true;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
-/* --------------------------------------------------------------------------------
- *  RESET PASSWORD EMAIL
- * -------------------------------------------------------------------------------*/
-export async function resetPassword(email: string) {
-  console.log('=== resetPassword called ===');
-  console.log('Email:', email);
+/* ------------------------------------------------------------------ */
+/* Reset Password                                                     */
+/* ------------------------------------------------------------------ */
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/reset-password`,
-  });
+export async function resetPassword(
+  email: string,
+  redirectTo: string
+): Promise<void> {
+  const { error } =
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
 
-  if (error) throw new Error(error.message);
-  return true;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
-/* --------------------------------------------------------------------------------
- *  UPDATE PASSWORD
- * -------------------------------------------------------------------------------*/
-export async function updatePassword(newPassword: string) {
-  console.log('=== updatePassword called ===');
+/* ------------------------------------------------------------------ */
+/* Update Password                                                    */
+/* ------------------------------------------------------------------ */
 
-  const { data, error } = await supabase.auth.updateUser({
-    password: newPassword,
-  });
+export async function updatePassword(
+  newPassword: string
+) {
+  const { data, error } =
+    await supabase.auth.updateUser({
+      password: newPassword,
+    });
 
-  if (error) throw new Error(error.message);
-  return data;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.user;
 }
 
-/* --------------------------------------------------------------------------------
- *  GET CURRENT USER
- * -------------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------ */
+/* Get Current User                                                   */
+/* ------------------------------------------------------------------ */
+
 export async function getUser() {
-  console.log('=== getUser called ===');
+  const { data, error } =
+    await supabase.auth.getUser();
 
-  const { data, error } = await supabase.auth.getUser();
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
 
   return data.user;
 }

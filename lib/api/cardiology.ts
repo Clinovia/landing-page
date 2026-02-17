@@ -1,4 +1,3 @@
-// lib/api/cardiology.ts
 import { apiClient } from "../apiClient";
 import type {
   ASCVDInput,

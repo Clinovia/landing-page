@@ -1,29 +1,37 @@
-import { BatchJob } from "@/features/alzheimer/batch/types";
+import { apiClient } from "../apiClient";
+import type { BatchJob } from "@/features/alzheimer/batch/types";
 
-export const uploadAdBatch = async (file: File): Promise<BatchJob> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: Math.floor(Math.random() * 1000).toString(),
-        status: "processing",
-        submittedAt: new Date().toISOString(),
-        // optional completedAt, resultFileUrl
-      });
-    }, 1000);
-  });
-};
+/* ------------------------------------------------------------------ */
+/* Upload Batch File                                                   */
+/* ------------------------------------------------------------------ */
 
-export const getAlzheimerBatchStatus = async (): Promise<BatchJob[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: "1",
-          status: "completed",
-          submittedAt: new Date().toISOString(),
-          completedAt: new Date().toISOString(),
-        },
-      ]);
-    }, 500);
-  });
-};
+export async function uploadAdBatch(
+  file: File
+): Promise<BatchJob> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await apiClient.post<BatchJob>(
+    "/api/v1/alzheimer/batch/upload",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return data;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fetch Batch Status                                                  */
+/* ------------------------------------------------------------------ */
+
+export async function getAlzheimerBatchStatus(): Promise<BatchJob[]> {
+  const { data } = await apiClient.get<BatchJob[]>(
+    "/api/v1/alzheimer/batch/status"
+  );
+
+  return data;
+}

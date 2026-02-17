@@ -1,38 +1,30 @@
 // lib/apiClient.ts
-"use client";
-
 import axios from "axios";
-import { supabase } from "@/lib/supabaseClient";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Always fetch the *current* token (no cache bugs)
-apiClient.interceptors.request.use(async (config) => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+// Attach Supabase JWT on every request
+apiClient.interceptors.request.use(
+  async (config) => {
+    const supabase = createClientComponentClient();
 
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
-  }
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-  return config;
-});
+    if (session?.access_token) {
+      config.headers.Authorization = `Bearer ${session.access_token}`;
+    }
 
-// Normalize backend errors (NO CORS MASKING)
-apiClient.interceptors.response.use(
-  (res) => res,
-  (error) => {
-    const message =
-      error.response?.data?.detail ??
-      error.response?.data?.message ??
-      error.message;
-
-    return Promise.reject(new Error(message));
-  }
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
+
+export { apiClient };
