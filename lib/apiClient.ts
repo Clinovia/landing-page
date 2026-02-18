@@ -1,104 +1,97 @@
 // lib/apiClient.ts
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
 import { supabase } from "@/lib/supabaseClient";
 
-// ✅ Custom error class for API failures
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
+
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+
+type ApiRequestOptions<T> = {
+  path: string;
+  method?: HttpMethod;
+  body?: T;
+  requireAuth?: boolean;
+};
+
 export class ApiError extends Error {
   status: number;
   body?: string;
 
-  constructor(status: number, message?: string) {
-    super(message || `API Error (${status})`);
-    this.name = "ApiError";
+  constructor(status: number, body?: string) {
+    super(`API Error (${status})`);
     this.status = status;
+    this.body = body;
   }
 }
 
-// ✅ Create Axios instance with base config
-const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: { "Content-Type": "application/json" },
-  timeout: 30000, // 30s default timeout
-});
+export async function apiRequest<TResponse, TBody = unknown>({
+  path,
+  method = "GET",
+  body,
+  requireAuth = true,
+}: ApiRequestOptions<TBody>): Promise<TResponse> {
+  let token: string | null = null;
 
-// ✅ Request interceptor: attach auth token
-apiClient.interceptors.request.use(
-  async (config) => {
-    // Skip auth for public endpoints if needed
-    if (config.headers?.["X-Skip-Auth"] === "true") {
-      return config;
-    }
-
-    const {  { session }, error } = await supabase.auth.getSession();
-    
+  if (requireAuth) {
+    const { data: { session }, error } = await supabase.auth.getSession();
     if (error || !session?.access_token) {
-      console.warn("⚠️ No valid session for request:", config.url);
-      throw new ApiError(401, "Authentication required");
+      throw new ApiError(401, "Not authenticated");
     }
+    token = session.access_token;
+  }
 
-    // Type-safe header assignment
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${session.access_token}`,
-    };
-    
-    return config;
-  },
-  (error: AxiosError) => Promise.reject(error)
-);
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    credentials: "include",
+  });
 
-// ✅ Response interceptor: global error handling
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const status = error.response?.status;
+  if (!response.ok) {
+    const text = await response.text();
+    throw new ApiError(response.status, text);
+  }
 
-    // Handle 401: session expired or invalid token
-    if (status === 401) {
-      console.warn("🔐 Session expired, redirecting to login");
-      // Optional: trigger logout flow or redirect
-      // window.location.href = "/login";
-    }
+  return response.json() as Promise<TResponse>;
+}
 
-    // Handle 403: permission denied
-    if (status === 403) {
-      console.warn("🚫 Access denied to resource");
-    }
+export async function apiRequestWithFile<T>({
+  path,
+  fileField,
+  file,
+  extraFields,
+}: {
+  path: string;
+  fileField: string;
+  file: File;
+  extraFields?: Record<string, unknown>;
+}): Promise<T> {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error || !session?.access_token) {
+    throw new ApiError(401, "Not authenticated");
+  }
 
-    // Handle 404: endpoint not found
-    if (status === 404) {
-      console.warn("🔍 API endpoint not found:", error.config?.url);
-    }
-
-    // Wrap in custom error for consistent handling upstream
-    throw new ApiError(
-      status || 500,
-      error.response?.data ? JSON.stringify(error.response.data) : error.message
+  const formData = new FormData();
+  formData.append(fileField, file);
+  if (extraFields) {
+    Object.entries(extraFields).forEach(([key, value]) =>
+      formData.append(key, String(value))
     );
   }
-);
 
-// ✅ Type-safe request wrapper (optional convenience)
-export async function request<TResponse, TBody = unknown>(
-  path: string,
-  options: {
-    method?: "GET" | "POST" | "PUT" | "DELETE";
-    body?: TBody;
-    skipAuth?: boolean;
-  } = {}
-): Promise<TResponse> {
-  const { method = "GET", body, skipAuth = false } = options;
-  
-  const config: AxiosRequestConfig = {
-    method,
-    url: path,
-    ...(skipAuth && { headers: { "X-Skip-Auth": "true" } }),
-    ...(body && { data: body }),
-  };
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    body: formData,
+    credentials: "include",
+  });
 
-  const {  data } = await apiClient.request<TResponse>(config);
-  return data;
+  if (!response.ok) {
+    const text = await response.text();
+    throw new ApiError(response.status, text);
+  }
+
+  return response.json() as Promise<T>;
 }
-
-// ✅ Export both the instance and wrapper
-export { apiClient };

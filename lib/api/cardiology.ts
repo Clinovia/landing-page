@@ -1,4 +1,5 @@
-import { apiClient } from "../apiClient";
+// lib/api/cardiology.ts
+import { apiRequest } from "../apiClient";
 import type {
   ASCVDInput,
   ASCVDOutput,
@@ -10,43 +11,18 @@ import type {
   ECGInterpreterOutput,
 } from "@/features/cardiology/types";
 
-/* ------------------------------------------------------------------ */
-/* Core Assessments                                                    */
-/* ------------------------------------------------------------------ */
-
-export async function calculateASCVD(
-  data: ASCVDInput
-): Promise<ASCVDOutput> {
-  const res = await apiClient.post("/api/v1/cardiology/ascvd", data);
-  return res.data;
+function post<TInput, TOutput>(path: string, body: TInput): Promise<TOutput> {
+  return apiRequest<TOutput, TInput>({ path, method: "POST", body });
 }
 
-export async function categorizeBP(
-  data: BPCategoryInput
-): Promise<BPCategoryOutput> {
-  const res = await apiClient.post(
-    "/api/v1/cardiology/bp-category",
-    data
-  );
-  return res.data;
-}
+export const calculateASCVD = (data: ASCVDInput) =>
+  post<ASCVDInput, ASCVDOutput>("/api/v1/cardiology/ascvd", data);
 
-export async function calculateCHA2DS2VASc(
-  data: CHA2DS2VAScInput
-): Promise<CHA2DS2VAScOutput> {
-  const res = await apiClient.post(
-    "/api/v1/cardiology/cha2ds2vasc",
-    data
-  );
-  return res.data;
-}
+export const categorizeBP = (data: BPCategoryInput) =>
+  post<BPCategoryInput, BPCategoryOutput>("/api/v1/cardiology/bp-category", data);
 
-export async function interpretECG(
-  data: ECGInterpreterInput
-): Promise<ECGInterpreterOutput> {
-  const res = await apiClient.post(
-    "/api/v1/cardiology/ecg-interpreter",
-    data
-  );
-  return res.data;
-}
+export const calculateCHA2DS2VASc = (data: CHA2DS2VAScInput) =>
+  post<CHA2DS2VAScInput, CHA2DS2VAScOutput>("/api/v1/cardiology/cha2ds2vasc", data);
+
+export const interpretECG = (data: ECGInterpreterInput) =>
+  post<ECGInterpreterInput, ECGInterpreterOutput>("/api/v1/cardiology/ecg-interpreter", data);

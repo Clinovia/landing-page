@@ -1,13 +1,7 @@
-// lib/api/index.ts (or wherever this file lives)
-/**
- * Main API module exports
- * Centralized exports for all API utilities
- */
+// lib/api/index.ts
+export { supabase } from "../supabaseClient";
+export { apiRequest, apiRequestWithFile, ApiError } from "../apiClient";
 
-// Export the pre-configured Supabase client instance
-export { supabase, getCachedToken, apiRequest, apiRequestWithFile } from "../supabaseClient";
-
-// Re-export endpoint types for convenience
 export type {
   AuthEndpoints,
   AlzheimerEndpoints,
