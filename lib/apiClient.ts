@@ -1,30 +1,58 @@
 // lib/apiClient.ts
-import axios from "axios";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabaseClient";
 
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-// Attach Supabase JWT on every request
-apiClient.interceptors.request.use(
-  async (config) => {
-    const supabase = createClientComponentClient();
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+type ApiRequestOptions<T> = {
+  path: string;
+  method?: HttpMethod;
+  body?: T;
+  requireAuth?: boolean;
+};
 
-    if (session?.access_token) {
-      config.headers.Authorization = `Bearer ${session.access_token}`;
+export class ApiError extends Error {
+  status: number;
+  body?: string;
+
+  constructor(status: number, body?: string) {
+    super(`API Error (${status})`);
+    this.status = status;
+    this.body = body;
+  }
+}
+
+export async function apiRequest<TResponse, TBody = unknown>({
+  path,
+  method = "GET",
+  body,
+  requireAuth = true,
+}: ApiRequestOptions<TBody>): Promise<TResponse> {
+  let token: string | null = null;
+
+  if (requireAuth) {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.access_token) {
+      throw new ApiError(401, "Not authenticated");
     }
+    token = session.access_token;
+  }
 
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    credentials: "include",
+  });
 
-export { apiClient };
+  if (!response.ok) {
+    const text = await response.text();
+    throw new ApiError(response.status, text);
+  }
+
+  return response.json() as Promise<TResponse>;
+}

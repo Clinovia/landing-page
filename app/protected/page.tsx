@@ -1,3 +1,4 @@
+// app/protected/page.tsx (or wherever this component lives)
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,40 +11,49 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+// ✅ Import the singleton client instead of creating a new one
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ProtectedDashboard() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-
-  const supabase = createClientComponentClient();
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
+    let isMounted = true;
 
-    async function checkAuth() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const checkAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
 
-      if (!mounted) return;
+        if (!isMounted) return;
 
-      if (!session) {
-        router.push("/");
-        return;
+        if (error) {
+          console.error("Auth check failed:", error);
+          router.replace("/login");
+          return;
+        }
+
+        if (!data.session) {
+          router.replace("/login");
+          return;
+        }
+
+        setSessionChecked(true);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error("Unexpected auth error:", err);
+        router.replace("/login");
       }
-
-      setLoading(false);
-    }
+    };
 
     checkAuth();
 
     return () => {
-      mounted = false;
+      isMounted = false;
     };
-  }, [router, supabase]);
+  }, [router]);
 
-  if (loading) {
+  if (!sessionChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-500">Loading dashboard…</p>
@@ -58,7 +68,6 @@ export default function ProtectedDashboard() {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Cardiology */}
         <Link href="/protected/cardiology" className="no-underline">
           <Card className="hover:shadow-xl transition-shadow cursor-pointer">
             <CardHeader>
@@ -68,30 +77,29 @@ export default function ProtectedDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p><strong>ASCVD:</strong> Calculate 10-year atherosclerotic cardiovascular disease risk.</p>
-              <p><strong>BP Category:</strong> Classify blood pressure and guide management.</p>
-              <p><strong>CHA₂DS₂-VASc:</strong> Stroke risk assessment in atrial fibrillation.</p>
-              <p><strong>ECG Interpreter:</strong> Automated ECG reading and insights.</p>
+              <p><strong>ASCVD:</strong> Calculate 10-year ASCVD risk.</p>
+              <p><strong>BP Category:</strong> Classify blood pressure.</p>
+              <p><strong>CHA₂DS₂-VASc:</strong> Stroke risk assessment.</p>
+              <p><strong>ECG Interpreter:</strong> Automated ECG insights.</p>
             </CardContent>
           </Card>
         </Link>
 
-        {/* Neurology */}
         <Link href="/protected/alzheimer" className="no-underline">
           <Card className="hover:shadow-xl transition-shadow cursor-pointer">
             <CardHeader>
               <CardTitle>Neurology</CardTitle>
               <CardDescription>
-                Access neurology modules and Alzheimer's Disease prediction tools.
+                Alzheimer&apos;s Disease prediction tools.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p><strong>Diagnosis Basic:</strong> Initial diagnostic model trained on ADNI data.</p>
-              <p><strong>Diagnosis Extended:</strong> Advanced diagnostic insights from multi-modal ADNI features.</p>
-              <p><strong>Diagnosis Screening:</strong> Quick screening tool for early detection of AD symptoms.</p>
-              <p><strong>Prognosis 2yr Basic:</strong> Predict 2-year progression risk using ML models trained on ADNI data.</p>
-              <p><strong>Prognosis 2yr Extended:</strong> Enhanced 2-year prognosis using extended ADNI features.</p>
-              <p><strong>Risk Screener:</strong> Identify individuals at high risk for Alzheimer's Disease.</p>
+              <p><strong>Diagnosis Basic</strong></p>
+              <p><strong>Diagnosis Extended</strong></p>
+              <p><strong>Diagnosis Screening</strong></p>
+              <p><strong>Prognosis 2yr Basic</strong></p>
+              <p><strong>Prognosis 2yr Extended</strong></p>
+              <p><strong>Risk Screener</strong></p>
             </CardContent>
           </Card>
         </Link>

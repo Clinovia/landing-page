@@ -1,9 +1,9 @@
+// components/layout/Navbar.tsx — Simplified with useAuth()
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext"; // ✅ Use your global auth hook
 
 const NAV_LINKS = [
   { label: "Home", href: "/#Hero" },
@@ -16,33 +16,12 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
-  const supabase = createClientComponentClient();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user ?? null);
-      setLoading(false);
-    };
-
-    loadUser();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, [supabase]);
+  const { user, isLoading } = useAuth(); // ✅ Get auth state from context
+  const { supabase } = useAuth(); // ✅ Or destructure if you need direct access
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setUser(null);
+    // ✅ AuthContext listener auto-updates UI — no manual state management
   };
 
   return (
@@ -65,9 +44,12 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {!loading &&
+          {/* Auth buttons — isLoading prevents flicker */}
+          {!isLoading &&
             (user ? (
-              <Button onClick={handleLogout}>Logout</Button>
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
             ) : (
               <Link href="/login">
                 <Button>Sign In</Button>
