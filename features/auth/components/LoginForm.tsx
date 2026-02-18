@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import { login } from "@/lib/api/authApi";
 import { supabase } from "@/lib/supabaseClient";
 
+const { data: { session } } = await supabase.auth.getSession();
+if (session) {
+  const header = JSON.parse(atob(session.access_token.split('.')[0]));
+  console.log("TOKEN KID:", header.kid);
+}
+
 export default function LoginForm() {
   const router = useRouter();
 
