@@ -1,12 +1,5 @@
 // config/app.ts
-///**
- * Application Configuration
- * General app settings and constants
- */
 
-/**
- * Application metadata
- */
 export const APP_CONFIG = {
   NAME: 'MedAI Platform',
   DESCRIPTION: 'AI-powered medical diagnosis and prognosis platform',
