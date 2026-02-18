@@ -33,6 +33,7 @@ export async function apiRequest<TResponse, TBody = unknown>({
 
   if (requireAuth) {
     const { data: { session }, error } = await supabase.auth.getSession();
+    console.log("API REQUEST SESSION:", session); // 👈 debug log
     if (error || !session?.access_token) {
       throw new ApiError(401, "Not authenticated");
     }
@@ -69,6 +70,7 @@ export async function apiRequestWithFile<T>({
   extraFields?: Record<string, unknown>;
 }): Promise<T> {
   const { data: { session }, error } = await supabase.auth.getSession();
+  console.log("FILE REQUEST SESSION:", session); // 👈 debug log
   if (error || !session?.access_token) {
     throw new ApiError(401, "Not authenticated");
   }

@@ -1,4 +1,5 @@
-/**
+// config/app.ts
+///**
  * Application Configuration
  * General app settings and constants
  */
