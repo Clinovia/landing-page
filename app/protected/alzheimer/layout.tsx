@@ -1,5 +1,4 @@
 // app/protected/alzheimer/layout.tsx
-
 import Sidebar from "@/components/layout/Sidebar";
 
 export default function AlzheimerLayout({ children }: { children: React.ReactNode }) {

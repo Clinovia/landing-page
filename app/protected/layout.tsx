@@ -1,11 +1,9 @@
 // app/protected/layout.tsx
 "use client";
-
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
-// Inner component that uses useAuth
 function AuthGuard({ children }: { children: ReactNode }) {
   const { session, isLoading } = useAuth();
   const router = useRouter();
@@ -25,18 +23,11 @@ function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!session) {
-    return null; // or loading spinner
-  }
+  if (!session) return null;
 
   return <div className="min-h-screen bg-gray-50">{children}</div>;
 }
 
-// Outer layout that provides context
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
-  return (
-    <AuthProvider>
-      <AuthGuard>{children}</AuthGuard>
-    </AuthProvider>
-  );
+  return <AuthGuard>{children}</AuthGuard>;
 }
