@@ -1,21 +1,9 @@
-// lib/apiClient.ts
 import { supabase } from "@/lib/supabaseClient";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
-
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
-
-type ApiRequestOptions<T> = {
-  path: string;
-  method?: HttpMethod;
-  body?: T;
-  requireAuth?: boolean;
-};
-
+// No BASE_URL needed — use relative paths so requests go through Next.js
 export class ApiError extends Error {
   status: number;
   body?: string;
-
   constructor(status: number, body?: string) {
     super(`API Error (${status})`);
     this.status = status;
@@ -28,19 +16,23 @@ export async function apiRequest<TResponse, TBody = unknown>({
   method = "GET",
   body,
   requireAuth = true,
-}: ApiRequestOptions<TBody>): Promise<TResponse> {
+}: {
+  path: string;
+  method?: "GET" | "POST" | "PUT" | "DELETE";
+  body?: TBody;
+  requireAuth?: boolean;
+}): Promise<TResponse> {
   let token: string | null = null;
 
   if (requireAuth) {
     const { data: { session }, error } = await supabase.auth.getSession();
-    console.log("API REQUEST SESSION:", session); // 👈 debug log
     if (error || !session?.access_token) {
       throw new ApiError(401, "Not authenticated");
     }
     token = session.access_token;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(path, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -70,7 +62,6 @@ export async function apiRequestWithFile<T>({
   extraFields?: Record<string, unknown>;
 }): Promise<T> {
   const { data: { session }, error } = await supabase.auth.getSession();
-  console.log("FILE REQUEST SESSION:", session); // 👈 debug log
   if (error || !session?.access_token) {
     throw new ApiError(401, "Not authenticated");
   }
@@ -83,7 +74,7 @@ export async function apiRequestWithFile<T>({
     );
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(path, {
     method: "POST",
     headers: { Authorization: `Bearer ${session.access_token}` },
     body: formData,
