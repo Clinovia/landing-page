@@ -6,31 +6,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const authHeader = request.headers.get("authorization") ?? "";
-    console.log("AUTH HEADER RECEIVED:", authHeader);
 
-    const response = await fetch(`${BACKEND_URL}/api/v1/cardiology/ascvd`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(authHeader && { Authorization: authHeader }),
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      let errorDetail = "Unknown error";
-      try {
-        const errorJson = await response.json();
-        errorDetail = errorJson.detail || errorDetail;
-      } catch { /* ignore */ }
-      return NextResponse.json({ error: errorDetail }, { status: response.status });
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: 200 });
+    // Temporary debug response — remove after testing
+    return NextResponse.json({
+      debug: {
+        authHeaderPresent: !!authHeader,
+        authHeaderPreview: authHeader.slice(0, 40),
+        backendUrl: BACKEND_URL,
+      }
+    }, { status: 200 });
 
   } catch (err: any) {
-    console.error("[ASCVDRoute] Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
