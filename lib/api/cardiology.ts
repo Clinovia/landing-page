@@ -1,5 +1,5 @@
 // lib/api/cardiology.ts
-import { apiRequest } from "../apiClient";
+import { apiRequest } from "@/lib/apiClient";
 import type {
   ASCVDInput,
   ASCVDOutput,
@@ -11,8 +11,15 @@ import type {
   ECGInterpreterOutput,
 } from "@/features/cardiology/types";
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.clinovia.ai";
+
 function post<TInput, TOutput>(path: string, body: TInput): Promise<TOutput> {
-  return apiRequest<TOutput, TInput>({ path, method: "POST", body });
+  return apiRequest<TOutput, TInput>({
+    path: `${BASE_URL}${path}`,
+    method: "POST",
+    body,
+    requireAuth: true, // Supabase auth token will still be used
+  });
 }
 
 export const calculateASCVD = (data: ASCVDInput) =>
