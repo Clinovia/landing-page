@@ -1,4 +1,4 @@
-// frontend/types/cardiology.ts
+// frontend/features/cardiology/types.ts
 
 // ======================
 // 1. ASCVD Risk
