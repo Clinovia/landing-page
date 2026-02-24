@@ -11,13 +11,13 @@ export type RiskCategory = "low" | "moderate" | "high";
 // ==========================================================
 export interface AlzheimerDiagnosisInput {
   patient_id?: string | number | null;
-  AGE: number;
-  PTEDUCAT: number;
-  MOCA: number;
-  ADAS13: number;
-  CDRSB: number;
-  FAQ: number;
-  PTGENDER: Gender;
+  age: number;
+  education_years: number;
+  moca_score: number;
+  adas13_score: number;
+  cdr_sum: number;
+  faq_total: number;
+  gender: Gender;
   race: Race;
 }
 
@@ -51,13 +51,13 @@ export function mapFormToBackend(
   form: AlzheimerDiagnosisFormData
 ): AlzheimerDiagnosisInput {
   return {
-    AGE: form.age,
-    PTEDUCAT: form.educationYears,
-    MOCA: form.mocaScore,
-    ADAS13: form.adas13Score,
-    CDRSB: form.cdrSum,
-    FAQ: form.faqTotal,
-    PTGENDER: form.gender,
+    age: form.age,
+    education_years: form.educationYears,
+    moca_score: form.mocaScore,
+    adas13_score: form.adas13Score,
+    cdr_sum: form.cdrSum,
+    faq_total: form.faqTotal,
+    gender: form.gender,
     race: form.race,
   };
 }
