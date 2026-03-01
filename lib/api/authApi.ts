@@ -1,23 +1,10 @@
 import { supabase } from "@/lib/supabaseClient";
 
-/* ------------------------------------------------------------------ */
-/* Types                                                              */
-/* ------------------------------------------------------------------ */
-
-export interface SignUpPayload {
+interface SignUpPayload {
   email: string;
   password: string;
-  full_name?: string;
+  full_name: string;
 }
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-/* ------------------------------------------------------------------ */
-/* Sign Up                                                            */
-/* ------------------------------------------------------------------ */
 
 export async function signUp({
   email,
@@ -36,28 +23,27 @@ export async function signUp({
     throw new Error(error.message);
   }
 
-  return data.user;
+  return {
+    user: data.user,
+    session: data.session, // 🔑 IMPORTANT
+  };
 }
-
-/* ------------------------------------------------------------------ */
-/* Login                                                              */
-/* ------------------------------------------------------------------ */
 
 export async function login({
   email,
   password,
-}: LoginPayload) {
-  const { data, error } =
-    await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+}: {
+  email: string;
+  password: string;
+}) {
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (error) {
     throw new Error(error.message);
   }
-
-  return data.user;
 }
 
 /* ------------------------------------------------------------------ */

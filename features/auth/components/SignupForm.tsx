@@ -19,6 +19,7 @@ export default function MinimalSignupForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,26 +38,26 @@ export default function MinimalSignupForm() {
 
     setLoading(true);
     setError("");
+    setInfoMessage("");
 
     try {
-      // Attempt signup
-      const user = await signUp({
+      const { user, session } = await signUp({
         email,
         password,
         full_name: fullName,
       });
 
-      // Email confirmation required
-      if (!user) {
-        setError(
-          "Account created. Please check your email to verify your account."
+      // 🔐 Email confirmation required (no session yet)
+      if (!session) {
+        setInfoMessage(
+          "Account created successfully. Please check your email to verify your account."
         );
         return;
       }
 
-      // Successful signup
+      // ✅ Auto-login case
       router.push("/protected");
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Signup failed";
 
@@ -66,7 +67,7 @@ export default function MinimalSignupForm() {
           await login({ email, password });
           router.push("/protected");
           return;
-        } catch (loginErr: any) {
+        } catch (loginErr: unknown) {
           setError(
             loginErr instanceof Error
               ? loginErr.message
@@ -141,6 +142,12 @@ export default function MinimalSignupForm() {
       {error && (
         <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
           {error}
+        </div>
+      )}
+
+      {infoMessage && (
+        <div className="text-sm text-green-600 bg-green-100 p-3 rounded-md">
+          {infoMessage}
         </div>
       )}
 
