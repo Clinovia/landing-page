@@ -1,111 +1,31 @@
 import { supabase } from "@/lib/supabaseClient";
 
-interface SignUpPayload {
-  email: string;
-  password: string;
-  full_name: string;
+export async function login(email: string, password: string) {
+  return supabase.auth.signInWithPassword({ email, password });
 }
 
-export async function signUp({
-  email,
-  password,
-  full_name,
-}: SignUpPayload) {
-  const { data, error } = await supabase.auth.signUp({
+export async function signup(
+  email: string,
+  password: string,
+  fullName?: string
+) {
+  return supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { full_name },
+      data: {
+        full_name: fullName,
+      },
     },
   });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return {
-    user: data.user,
-    session: data.session, // 🔑 IMPORTANT
-  };
 }
 
-export async function login({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) {
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+export async function resetPassword(email: string) {
+  return supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/update-password`,
   });
-
-  if (error) {
-    throw new Error(error.message);
-  }
 }
 
-/* ------------------------------------------------------------------ */
-/* Logout                                                             */
-/* ------------------------------------------------------------------ */
-
-export async function logout(): Promise<void> {
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Reset Password                                                     */
-/* ------------------------------------------------------------------ */
-
-export async function resetPassword(
-  email: string,
-  redirectTo: string
-): Promise<void> {
-  const { error } =
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
-    });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Update Password                                                    */
-/* ------------------------------------------------------------------ */
-
-export async function updatePassword(
-  newPassword: string
-) {
-  const { data, error } =
-    await supabase.auth.updateUser({
-      password: newPassword,
-    });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data.user;
-}
-
-/* ------------------------------------------------------------------ */
-/* Get Current User                                                   */
-/* ------------------------------------------------------------------ */
-
-export async function getUser() {
-  const { data, error } =
-    await supabase.auth.getUser();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data.user;
+export async function logout() {
+  return supabase.auth.signOut();
 }

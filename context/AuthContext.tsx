@@ -24,27 +24,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const init = async () => {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (!isMounted) return;
-
+    // Get initial session
+    supabase.auth.getSession().then(({ data, error }) => {
       if (error) {
         console.error("Error fetching session:", error);
-        setSession(null);
-        setUser(null);
-      } else {
-        setSession(data.session);
-        setUser(data.session?.user ?? null);
       }
 
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
       setIsLoading(false);
-    };
+    });
 
-    init();
-
+    // Listen to auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
@@ -53,12 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => {
-      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  // 🔒 Prevent children from rendering before auth is ready
+  // Optional: show spinner instead of returning null
   if (isLoading) return null;
 
   return (
