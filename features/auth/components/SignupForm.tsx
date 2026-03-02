@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signUp, login } from "@/lib/api/authApi";
+import { signup, login } from "@/lib/api/authApi";
 
 export default function MinimalSignupForm() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function MinimalSignupForm() {
     setInfoMessage("");
 
     try {
-      const { user, session } = await signUp({
+      const { user, session } = await signup({
         email,
         password,
         full_name: fullName,
