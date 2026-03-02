@@ -29,7 +29,7 @@ export default function DecisionAreas() {
   ];
 
   return (
-    <section id="decision-areas" className="py-16 bg-gray-50 w-full">
+    <section id="DecisionAreas" className="py-16 bg-gray-50 w-full">
       <div className="max-w-7xl mx-auto px-12">
         {/* Heading */}
         <div className="text-center mb-10">

@@ -17,7 +17,7 @@ export default function SpecialtyTools() {
   ];
 
   return (
-    <section className="py-16 bg-gray-50 w-full">
+    <section id="SpecialtyTools" className="py-16 bg-gray-50 w-full">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[#1B4D3E] mb-4">
