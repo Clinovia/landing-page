@@ -6,12 +6,10 @@ import { supabase } from "@/lib/supabaseClient";
 
 const NAV_LINKS = [
   { label: "Home", href: "/#Hero" },
-  { label: "About", href: "/#how-we-work" },
-  { label: "Research Tools", href: "/#specialty-research-tools" },
-  { label: "Decision Areas", href: "/#decision-areas" },
-  { label: "How We Work", href: "/#how-we-work" },
-  { label: "Demo", href: "/explore" },
-  { label: "Contact", href: "/#contact" },
+  { label: "About", href: "/#About" },
+  { label: "Research Tools", href: "/#SpecialtyTools" },
+  { label: "Decision Areas", href: "/#DecisionAreas" },
+  { label: "How We Work", href: "/#HowWeWork" },
 ];
 
 export default function Navbar() {
