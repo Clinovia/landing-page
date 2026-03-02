@@ -30,8 +30,6 @@ const sidebar: SidebarSection[] = [
       { title: "Blood Pressure Categorization", href: "/protected/cardiology/bp-category" },
       { title: "CHA2DS2-VASc", href: "/protected/cardiology/cha2ds2vasc" },
       { title: "ECG Interpreter", href: "/protected/cardiology/ecg-interpreter" },
-      { title: "Batch Processing", href: "/protected/cardiology/batch" },
-      { title: "Reports", href: "/protected/cardiology/reports" },
     ],
   },
   {
@@ -54,8 +52,6 @@ const sidebar: SidebarSection[] = [
           { title: "Extended Features", href: "/protected/alzheimer/prognosis-2yr-extended" },
         ],
       },
-      { title: "Batch Processing", href: "/protected/alzheimer/batch" },
-      { title: "Reports", href: "/protected/alzheimer/reports" },
     ],
   },
 ];
