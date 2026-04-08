@@ -33,7 +33,7 @@ export default function Prog2yrBasicPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 space-y-6">
+    <div className="max-w-3xl mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-4">
         Alzheimer&apos;s 2-Year Prognosis
       </h1>
@@ -42,9 +42,7 @@ export default function Prog2yrBasicPage() {
         within 2 years trained on ADNI data.
       </p>
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-        <Prog2yrBasicForm onSubmit={handleSubmit} loading={loading} />
-      </div>
+      <Prog2yrBasicForm onSubmit={handleSubmit} loading={loading} />
 
       {loading && (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
@@ -70,22 +68,10 @@ export default function Prog2yrBasicPage() {
 
       {result && input && !loading && (
         <Prog2yrBasicResult
-          input={input}
           prognosis={result}
           onReset={handleReset}
         />
       )}
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2">
-          ℹ️ About This Tool
-        </h3>
-        <p className="text-sm text-blue-800">
-          This basic prognostic model uses demographic data, cognitive scores,
-          and genetic markers to estimate the probability of progression to
-          Alzheimer&apos;s dementia within 2 years.
-        </p>
-      </div>
 
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.

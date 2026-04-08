@@ -18,19 +18,27 @@ type Props = {
 };
 
 export default function BPCategoryForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<BPCategoryInput>({
+  const [patientId, setPatientId] = useState("");
+
+  const [formData, setFormData] = useState<Omit<BPCategoryInput, "patient_id">>({
     systolic_bp: 120,
     diastolic_bp: 80,
-    patient_id: null,
   });
 
-  const handleChange = (key: keyof BPCategoryInput, value: number) => {
+  const handleChange = <K extends keyof typeof formData>(
+    key: K,
+    value: (typeof formData)[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    onSubmit({
+      ...formData,
+      patient_id: patientId.trim() || undefined,
+    });
   };
 
   return (
@@ -38,15 +46,26 @@ export default function BPCategoryForm({ onSubmit, loading = false }: Props) {
       <CardHeader>
         <CardTitle>Blood Pressure Category Assessment</CardTitle>
       </CardHeader>
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Patient ID */}
+          <div className="space-y-2">
+            <Label>Patient ID (optional)</Label>
+            <input
+              type="text"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              placeholder="e.g. pt-1001"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+
           {/* Systolic BP */}
           <div>
-            <Label htmlFor="systolic_bp">
-              Systolic BP: {formData.systolic_bp} mmHg
-            </Label>
+            <Label>Systolic BP: {formData.systolic_bp} mmHg</Label>
             <Slider
-              id="systolic_bp"
               value={[formData.systolic_bp]}
               min={70}
               max={250}
@@ -57,11 +76,8 @@ export default function BPCategoryForm({ onSubmit, loading = false }: Props) {
 
           {/* Diastolic BP */}
           <div>
-            <Label htmlFor="diastolic_bp">
-              Diastolic BP: {formData.diastolic_bp} mmHg
-            </Label>
+            <Label>Diastolic BP: {formData.diastolic_bp} mmHg</Label>
             <Slider
-              id="diastolic_bp"
               value={[formData.diastolic_bp]}
               min={40}
               max={150}
@@ -70,10 +86,10 @@ export default function BPCategoryForm({ onSubmit, loading = false }: Props) {
             />
           </div>
 
-          {/* Submit Button */}
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Assessing..." : "🫀 Assess BP Category"}
           </Button>
+
         </form>
       </CardContent>
     </Card>

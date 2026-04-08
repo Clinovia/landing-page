@@ -28,10 +28,10 @@ export default function Hero() {
           </p>
 
           <Link
-            href="/explore"
+            href="/modules"
             className="mt-10 inline-block bg-green-800 hover:bg-[#1B4D3E] text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition-transform hover:scale-105"
           >
-            Request Early Access
+            Explore
           </Link>
         </div>
 

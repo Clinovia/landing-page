@@ -1,54 +1,46 @@
 "use client";
 
 import { ASCVDOutput } from "@/features/cardiology/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ClinicalResultCard from "@/components/shared/ClinicalResultCard";
 
 type Props = {
   output?: ASCVDOutput;
 };
 
-export default function ASCVDResult({ output }: Props) {
-  if (!output) {
-    return (
-      <Card className="mt-4 animate-pulse">
-        <CardContent className="space-y-2">
-          <div className="h-4 bg-gray-300 rounded w-1/3 mb-3"></div>
-          <div className="space-y-2">
-            <div className="h-3 bg-gray-200 rounded"></div>
-            <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+const CATEGORY_COLORS: Record<string, string> = {
+  high: "text-red-600",
+  intermediate: "text-yellow-600",
+  borderline: "text-orange-600",
+  low: "text-green-600",
+};
 
-  const categoryColor = {
-    high: "text-red-600",
-    intermediate: "text-yellow-600",
-    borderline: "text-orange-600",
-    low: "text-green-600",
-  }[output.risk_category] || "text-gray-600";
+export default function ASCVDResult({ output }: Props) {
+  if (!output) return null;
+
+  const reportId =
+    (output as any).assessment_id || (output as any).id;
+
+  const categoryColor =
+    CATEGORY_COLORS[output.risk_category] || "text-gray-700";
 
   return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>ASCVD Risk Result</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p>
-          <strong>Risk Percentage:</strong> {output.risk_percentage.toFixed(1)}%
-        </p>
-        <p>
-          <strong>Risk Category:</strong>{" "}
-          <span className={`font-bold ${categoryColor}`}>
-            {output.risk_category.toUpperCase()}
-          </span>
-        </p>
-        <p>
-          <strong>Model:</strong> {output.model_name}
-        </p>
-      </CardContent>
-    </Card>
+    <ClinicalResultCard
+      title="ASCVD 10-Year Risk"
+      fields={[
+        {
+          label: "Risk",
+          value: `${output.risk_percentage.toFixed(1)}%`,
+          highlight: true,
+        },
+        {
+          label: "Category",
+          value: output.risk_category,
+          highlight: true,
+          color: categoryColor,
+        },
+      ]}
+      modelName={output.model_name}
+      reportId={reportId}
+    />
   );
 }

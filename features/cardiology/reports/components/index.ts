@@ -1,2 +1,2 @@
 export { CardioReportFilters } from "./CardioReportFilters";
-export { CardioReportTable } from "./CardioReportTable";
+export { default as CardioReportTable } from "./CardioReportTable";

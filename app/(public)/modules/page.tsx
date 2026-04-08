@@ -61,7 +61,7 @@ export default function ModulesPage() {
 
       <div className="flex flex-col items-center mt-12 space-y-4">
         <Link
-          href="/signup"
+          href="/pricing"
           className="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700"
         >
           Get Started

@@ -1,25 +1,16 @@
+import { apiRequest } from "@/lib/apiClient";
 import { CardioReport } from "@/features/cardiology/reports/types";
 
-export const fetchCardioReports = async (filters?: Record<string, any>): Promise<CardioReport[]> => {
-  // Simulate backend API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: "1",
-          patientId: "C123",
-          testDate: "2026-02-02",
-          ascvdRisk: 12,
-          bpCategory: "Stage 1",
-        },
-        {
-          id: "2",
-          patientId: "C124",
-          testDate: "2026-02-01",
-          ascvdRisk: 8,
-          bpCategory: "Elevated",
-        },
-      ]);
-    }, 500);
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.clinovia.ai";
+
+export const fetchCardioReports = async (
+  filters?: Record<string, any>
+): Promise<CardioReport[]> => {
+  const query = filters
+    ? `?${new URLSearchParams(filters as Record<string, string>).toString()}`
+    : "";
+  return apiRequest<CardioReport[]>({
+    path: `${BASE_URL}/api/v1/reports${query}`,
+    method: "GET",
   });
 };

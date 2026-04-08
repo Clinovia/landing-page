@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signup, login } from "@/lib/api/authApi";
+import { useCheckout } from "@/features/payments/hooks/useCheckout";
 
 export default function MinimalSignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { startCheckout } = useCheckout();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -16,20 +19,27 @@ export default function MinimalSignupForm() {
     password: "",
     confirm: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [infoMessage, setInfoMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePostSignup = (plan: string | null) => {
+    console.log("plan after signup:", plan);
+    if (plan && plan !== "starter") {
+      startCheckout(plan); // → Stripe Checkout
+    } else {
+      router.push("/protected"); // → Dashboard
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const { fullName, email, password, confirm } = formData;
+    const plan = searchParams.get("plan");
 
     if (password !== confirm) {
       setError("Passwords do not match");
@@ -38,41 +48,32 @@ export default function MinimalSignupForm() {
 
     setLoading(true);
     setError("");
-    setInfoMessage("");
 
     try {
-      const { user, session } = await signup({
+      const { session } = await signup({
         email,
         password,
         full_name: fullName,
       });
 
-      // 🔐 Email confirmation required (no session yet)
       if (!session) {
-        setInfoMessage(
-          "Account created successfully. Please check your email to verify your account."
-        );
+        // Should not happen with email verification off, but just in case
+        setError("Signup succeeded but no session was created. Please log in.");
         return;
       }
 
-      // ✅ Auto-login case
-      router.push("/protected");
+      handlePostSignup(plan);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Signup failed";
+      const message = err instanceof Error ? err.message : "Signup failed";
 
-      // If user already exists → try login
+      // User already exists → try login instead
       if (message.toLowerCase().includes("already")) {
         try {
           await login({ email, password });
-          router.push("/protected");
+          handlePostSignup(plan);
           return;
         } catch (loginErr: unknown) {
-          setError(
-            loginErr instanceof Error
-              ? loginErr.message
-              : "Login failed"
-          );
+          setError(loginErr instanceof Error ? loginErr.message : "Login failed");
           return;
         }
       }
@@ -97,7 +98,6 @@ export default function MinimalSignupForm() {
           disabled={loading}
         />
       </div>
-
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -110,7 +110,6 @@ export default function MinimalSignupForm() {
           disabled={loading}
         />
       </div>
-
       <div>
         <Label htmlFor="password">Password</Label>
         <Input
@@ -124,7 +123,6 @@ export default function MinimalSignupForm() {
           disabled={loading}
         />
       </div>
-
       <div>
         <Label htmlFor="confirm">Confirm Password</Label>
         <Input
@@ -142,12 +140,6 @@ export default function MinimalSignupForm() {
       {error && (
         <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
           {error}
-        </div>
-      )}
-
-      {infoMessage && (
-        <div className="text-sm text-green-600 bg-green-100 p-3 rounded-md">
-          {infoMessage}
         </div>
       )}
 

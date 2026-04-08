@@ -2,7 +2,6 @@
 
 import { useState, FormEvent } from "react";
 import { AlzheimerPrognosis2yrExtendedInput } from "@/features/alzheimer/types";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
@@ -15,8 +14,8 @@ type Props = {
 };
 
 export default function Prog2yrExtendedForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<AlzheimerPrognosis2yrExtendedInput>({
-    patient_id: null,
+  const [patientId, setPatientId] = useState("");
+  const [formData, setFormData] = useState<Omit<AlzheimerPrognosis2yrExtendedInput, "patient_id">>({
     AGE: 70,
     PTGENDER: "female",
     PTEDUCAT: 12,
@@ -30,13 +29,13 @@ export default function Prog2yrExtendedForm({ onSubmit, loading = false }: Props
     PTAU: 22,
   });
 
-  const handleChange = (key: keyof AlzheimerPrognosis2yrExtendedInput, value: any) => {
+  const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({ ...formData, patient_id: patientId.trim() || undefined });
   };
 
   return (
@@ -44,28 +43,29 @@ export default function Prog2yrExtendedForm({ onSubmit, loading = false }: Props
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* AGE */}
-          <div className="space-y-2">
-            <Label>Age: {formData.AGE}</Label>
-            <Slider
-              min={40}
-              max={100}
-              step={1}
-              value={[formData.AGE]}
-              onValueChange={(v) => handleChange("AGE", v[0])}
+          {/* Patient ID */}
+          <div>
+            <Label>Patient ID (optional)</Label>
+            <input
+              type="text"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              placeholder="e.g. pt-1001"
+              className="w-full border rounded-md px-3 py-2 text-sm"
             />
           </div>
 
+          {/* AGE */}
+          <div>
+            <Label>Age: {formData.AGE}</Label>
+            <Slider min={40} max={100} step={1} value={[formData.AGE]} onValueChange={(v) => handleChange("AGE", v[0])} />
+          </div>
+
           {/* Gender */}
-          <div className="space-y-2">
+          <div>
             <Label>Gender</Label>
-            <Select
-              value={formData.PTGENDER}
-              onValueChange={(v) => handleChange("PTGENDER", v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={formData.PTGENDER} onValueChange={(v) => handleChange("PTGENDER", v as "male" | "female")}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="female">Female</SelectItem>
                 <SelectItem value="male">Male</SelectItem>
@@ -74,114 +74,77 @@ export default function Prog2yrExtendedForm({ onSubmit, loading = false }: Props
           </div>
 
           {/* Education */}
-          <div className="space-y-2">
+          <div>
             <Label>Years of Education: {formData.PTEDUCAT}</Label>
-            <Slider
-              min={0}
-              max={30}
-              step={1}
-              value={[formData.PTEDUCAT]}
-              onValueChange={(v) => handleChange("PTEDUCAT", v[0])}
-            />
+            <Slider min={0} max={30} step={1} value={[formData.PTEDUCAT]} onValueChange={(v) => handleChange("PTEDUCAT", v[0])} />
           </div>
 
           {/* ADAS13 */}
-          <div className="space-y-2">
+          <div>
             <Label>ADAS13: {formData.ADAS13}</Label>
-            <Slider
-              min={0}
-              max={85}
-              step={1}
-              value={[formData.ADAS13]}
-              onValueChange={(v) => handleChange("ADAS13", v[0])}
-            />
+            <Slider min={0} max={85} step={1} value={[formData.ADAS13]} onValueChange={(v) => handleChange("ADAS13", v[0])} />
           </div>
 
           {/* CDRSB */}
-          <div className="space-y-2">
+          <div>
             <Label>CDRSB: {formData.CDRSB}</Label>
-            <Slider
-              min={0}
-              max={18}
-              step={0.1}
-              value={[formData.CDRSB]}
-              onValueChange={(v) => handleChange("CDRSB", v[0])}
-            />
+            <Slider min={0} max={18} step={0.1} value={[formData.CDRSB]} onValueChange={(v) => handleChange("CDRSB", v[0])} />
           </div>
 
           {/* FAQ */}
-          <div className="space-y-2">
+          <div>
             <Label>FAQ: {formData.FAQ}</Label>
-            <Slider
-              min={0}
-              max={30}
-              step={1}
-              value={[formData.FAQ]}
-              onValueChange={(v) => handleChange("FAQ", v[0])}
-            />
+            <Slider min={0} max={30} step={1} value={[formData.FAQ]} onValueChange={(v) => handleChange("FAQ", v[0])} />
           </div>
 
           {/* APOE4 Count */}
-          <div className="space-y-2">
+          <div>
             <Label>APOE4 Count: {formData.APOE4_count}</Label>
-            <Slider
-              min={0}
-              max={2}
-              step={1}
-              value={[formData.APOE4_count]}
-              onValueChange={(v) => handleChange("APOE4_count", v[0])}
-            />
+            <Slider min={0} max={2} step={1} value={[formData.APOE4_count]} onValueChange={(v) => handleChange("APOE4_count", v[0] as 0 | 1 | 2)} />
           </div>
 
           {/* GDTOTAL */}
-          <div className="space-y-2">
-            <Label>Global Deterioration (GDTOTAL): {formData.GDTOTAL}</Label>
-            <Slider
-              min={1}
-              max={7}
-              step={0.1}
-              value={[formData.GDTOTAL]}
-              onValueChange={(v) => handleChange("GDTOTAL", v[0])}
-            />
+          <div>
+            <Label>GDTOTAL: {formData.GDTOTAL}</Label>
+            <Slider min={1} max={7} step={0.1} value={[formData.GDTOTAL]} onValueChange={(v) => handleChange("GDTOTAL", v[0])} />
           </div>
 
           {/* ABETA */}
-          <div className="space-y-2">
+          <div>
             <Label>CSF Aβ (ABETA): {formData.ABETA}</Label>
             <Slider
               min={200}
               max={2000}
               step={10}
-              value={[formData.ABETA ?? 0]}
+              value={[formData.ABETA ?? 200]} // fallback if null
               onValueChange={(v) => handleChange("ABETA", v[0])}
             />
           </div>
 
           {/* TAU */}
-          <div className="space-y-2">
+          <div>
             <Label>CSF Tau (TAU): {formData.TAU}</Label>
             <Slider
               min={50}
               max={1000}
               step={5}
-              value={[formData.TAU ?? 0]}
+              value={[formData.TAU ?? 50]} // fallback if null
               onValueChange={(v) => handleChange("TAU", v[0])}
             />
           </div>
 
           {/* PTAU */}
-          <div className="space-y-2">
+          <div>
             <Label>CSF p-Tau (PTAU): {formData.PTAU}</Label>
             <Slider
               min={5}
               max={100}
               step={1}
-              value={[formData.PTAU ?? 0]}
+              value={[formData.PTAU ?? 5]} // fallback if null
               onValueChange={(v) => handleChange("PTAU", v[0])}
             />
           </div>
 
-          {/* Submit */}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Predicting..." : "🧬 Predict 2-Year Progression (Extended)"}
           </Button>

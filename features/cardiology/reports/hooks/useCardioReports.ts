@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { fetchCardioReports } from "@/lib/api/cardiologyReports";
 import type { CardioReport } from "../types";
 
 type CardioReportFilters = {
@@ -8,46 +9,37 @@ type CardioReportFilters = {
 };
 
 export function useCardioReports() {
+
   const [reports, setReports] = useState<CardioReport[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<CardioReportFilters>({});
 
   useEffect(() => {
-    let cancelled = false;
 
-    setLoading(true);
-    setError(null);
+    async function loadReports() {
+      try {
 
-    // Mock data fetch (replace with real API later)
-    const timeout = setTimeout(() => {
-      if (cancelled) return;
+        setLoading(true);
+        setError(null);
 
-      const mockReports: CardioReport[] = [
-        {
-          id: "1",
-          patientId: "C123",
-          testDate: "2026-02-02",
-          ascvdRisk: 12,
-          bpCategory: "Stage 1",
-        },
-        {
-          id: "2",
-          patientId: "C124",
-          testDate: "2026-02-01",
-          ascvdRisk: 8,
-          bpCategory: "Elevated",
-        },
-      ];
+        const data = await fetchCardioReports(filters);
+        setReports(data);
 
-      setReports(mockReports);
-      setLoading(false);
-    }, 1000);
+      } catch (err: any) {
 
-    return () => {
-      cancelled = true;
-      clearTimeout(timeout);
-    };
+        console.error(err);
+        setError("Failed to load reports");
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    }
+
+    loadReports();
+
   }, [filters]);
 
   return {

@@ -1,10 +1,12 @@
 export interface CardioReport {
   id: string;
-  patientId: string;
-  testDate: string;
-  ascvdRisk?: number;
-  bpCategory?: string;
-  ef?: number;
+  assessment_type: string;
+  patient_id: string;
+  specialty: string;
+  model_version: string;
+  created_at: string;
+  pdf_url: string | null;
+  summary: Record<string, any>;
 }
 
 export interface CardioReportsResponse {

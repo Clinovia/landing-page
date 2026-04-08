@@ -1,6 +1,6 @@
-// app/protected/alzheimer/diagnosis-basic/page.tsx
 "use client";
 
+import { useEffect } from "react";
 import DiagBasicForm from "@/features/alzheimer/components/DiagBasicForm";
 import DiagBasicResult from "@/features/alzheimer/components/DiagBasicResult";
 import {
@@ -11,14 +11,25 @@ import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
 import { diagnosisBasic } from "@/lib/api/alzheimer";
 
 export default function BasicDiagnosisPage() {
-  const { result, loading, error, runTool } =
+  const { result, loading, error, runTool, reset } =
     useAlzheimerTool<
       AlzheimerDiagnosisBasicInput,
       AlzheimerDiagnosisBasicOutput
-    >(diagnosisBasic);
+    >(diagnosisBasic, {
+      debug: true,
+      timeoutMs: 10000,
+    });
+
+  useEffect(() => {
+    reset(); // ✅ prevents stale state when navigating
+  }, [reset]);
 
   const handleSubmit = async (data: AlzheimerDiagnosisBasicInput) => {
     await runTool(data);
+  };
+
+  const handleReset = () => {
+    reset();
   };
 
   return (
@@ -34,13 +45,21 @@ export default function BasicDiagnosisPage() {
 
       <DiagBasicForm onSubmit={handleSubmit} loading={loading} />
 
-      {error && (
+      {error && !loading && (
         <div className="p-4 bg-red-50 border border-red-200 rounded">
           <p className="text-red-600">{error}</p>
+          <button
+            onClick={handleReset}
+            className="mt-2 text-sm text-blue-600 underline"
+          >
+            Try Again
+          </button>
         </div>
       )}
 
-      {result && <DiagBasicResult output={result} />}
+      {result && !loading && (
+        <DiagBasicResult output={result} />
+      )}
 
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.

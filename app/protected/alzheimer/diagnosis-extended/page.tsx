@@ -1,6 +1,6 @@
-// app/protected/alzheimer/diagnosis-extended/page.tsx
 "use client";
 
+import { useEffect } from "react";
 import DiagExtendedForm from "@/features/alzheimer/components/DiagExtendedForm";
 import DiagExtendedResult from "@/features/alzheimer/components/DiagExtendedResult";
 import {
@@ -11,16 +11,27 @@ import { useAlzheimerTool } from "@/features/alzheimer/hooks/useAlzheimerTool";
 import { diagnosisExtended } from "@/lib/api/alzheimer";
 
 export default function ExtendedDiagnosisPage() {
-  const { result, loading, error, runTool } =
+  const { result, loading, error, runTool, reset } =
     useAlzheimerTool<
       AlzheimerDiagnosisExtendedInput,
       AlzheimerDiagnosisExtendedOutput
-    >(diagnosisExtended);
+    >(diagnosisExtended, {
+      debug: true,
+      timeoutMs: 10000,
+    });
+
+  useEffect(() => {
+    reset(); // ✅ prevents cross-page state leakage
+  }, [reset]);
 
   const handleSubmit = async (
     data: AlzheimerDiagnosisExtendedInput
   ) => {
     await runTool(data);
+  };
+
+  const handleReset = () => {
+    reset();
   };
 
   return (
@@ -36,13 +47,21 @@ export default function ExtendedDiagnosisPage() {
 
       <DiagExtendedForm onSubmit={handleSubmit} loading={loading} />
 
-      {error && (
+      {error && !loading && (
         <div className="p-4 bg-red-50 border border-red-200 rounded">
           <p className="text-red-600">{error}</p>
+          <button
+            onClick={handleReset}
+            className="mt-2 text-sm text-blue-600 underline"
+          >
+            Try Again
+          </button>
         </div>
       )}
 
-      {result && <DiagExtendedResult output={result} />}
+      {result && !loading && (
+        <DiagExtendedResult output={result} />
+      )}
 
       <p className="text-sm text-gray-500 mt-6">
         ⚠️ For research and planning use only. Not a medical device.

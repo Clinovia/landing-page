@@ -1,51 +1,58 @@
 "use client";
+
+import ClinicalResultCard from "@/components/shared/ClinicalResultCard";
 import { AlzheimerRiskScreenerOutput } from "@/features/alzheimer/types";
 
 type Props = {
-  output: AlzheimerRiskScreenerOutput;
+  output?: AlzheimerRiskScreenerOutput;
+};
+
+const RISK_STYLES: Record<string, string> = {
+  low: "text-green-600",
+  moderate: "text-yellow-600",
+  high: "text-red-600",
 };
 
 export default function AlzheimerRiskResult({ output }: Props) {
-  // Capitalize first letter for display
-  const displayRiskLevel =
-    output.risk_category.charAt(0).toUpperCase() + output.risk_category.slice(1);
+  if (!output) {
+    return (
+      <div className="p-4 border rounded bg-gray-50 mt-4 animate-pulse space-y-2">
+        <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+        <div className="h-3 bg-gray-200 rounded"></div>
+      </div>
+    );
+  }
 
-  // Helper function to get risk color
-  const getRiskColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case "high":
-        return "text-red-600";
-      case "moderate":
-        return "text-yellow-600";
-      case "low":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
+  const reportId =
+    (output as any).assessment_id || (output as any).id;
+
+  const riskColor =
+    RISK_STYLES[output.risk_category?.toLowerCase() || ""] ||
+    "text-gray-600";
+
+  const displayRisk = output.risk_category
+    ? output.risk_category.charAt(0).toUpperCase() +
+      output.risk_category.slice(1)
+    : "N/A";
 
   return (
-    <div className="space-y-4 mt-4">
-      <div className="p-4 border rounded bg-gray-50">
-        <h3 className="font-semibold text-lg mb-2">Risk Assessment Result</h3>
-
-        <div className="mb-2">
-          <strong>Risk Level:</strong>{" "}
-          <span className={`font-bold ${getRiskColor(output.risk_category)}`}>
-            {displayRiskLevel}
-          </span>
-        </div>
-
-        <div>
-          <strong>Recommendation:</strong>{" "}
-          {output.recommendation ? output.recommendation : ""}
-        </div>
-      </div>
-
-            {/* Model Info */}
-      <p className="text-sm text-gray-500">
-        Model: {output.model_name} (v{output.model_version})
-      </p>
-    </div>
+    <ClinicalResultCard
+      title="Alzheimer Risk Screening"
+      reportId={reportId}
+      modelName={output.model_name}
+      fields={[
+        {
+          label: "Risk Level",
+          value: displayRisk,
+          highlight: true,
+          color: riskColor,
+        },
+      ]}
+      features={
+        output.recommendation
+          ? [output.recommendation]
+          : undefined
+      }
+    />
   );
 }

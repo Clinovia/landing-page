@@ -29,7 +29,7 @@ const sidebar: SidebarSection[] = [
       { title: "ASCVD", href: "/protected/cardiology/ascvd" },
       { title: "Blood Pressure Categorization", href: "/protected/cardiology/bp-category" },
       { title: "CHA2DS2-VASc", href: "/protected/cardiology/cha2ds2vasc" },
-      { title: "ECG Interpreter", href: "/protected/cardiology/ecg-interpreter" },
+      { title: "ECG Interpretation", href: "/protected/cardiology/ecg-interpretation" },
     ],
   },
   {

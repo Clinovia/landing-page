@@ -3,11 +3,19 @@
 import { useState, FormEvent } from "react";
 import { ASCVDInput } from "@/features/cardiology/types";
 import { Slider } from "@/components/ui/slider";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Gender } from "@/features/alzheimer/types";
+import { CardioRace } from "@/features/cardiology/types";
 
 type Props = {
   onSubmit: (data: ASCVDInput) => void;
@@ -15,7 +23,9 @@ type Props = {
 };
 
 export default function ASCVDForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<ASCVDInput>({
+  const [patientId, setPatientId] = useState("");
+
+  const [formData, setFormData] = useState<Omit<ASCVDInput, "patient_id">>({
     age: 55,
     gender: "female",
     race: "white",
@@ -27,19 +37,38 @@ export default function ASCVDForm({ onSubmit, loading = false }: Props) {
     diabetes: false,
   });
 
-  const handleChange = (key: keyof ASCVDInput, value: any) => {
+  const handleChange = <K extends keyof typeof formData>(
+    key: K,
+    value: (typeof formData)[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    onSubmit({
+      ...formData,
+      patient_id: patientId.trim() || undefined,
+    });
   };
 
   return (
     <Card className="p-6 rounded-2xl shadow-md">
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Patient ID */}
+          <div className="space-y-2">
+            <Label>Patient ID (optional)</Label>
+            <input
+              type="text"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              placeholder="e.g. pt-1001"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+
           {/* Age */}
           <div className="space-y-2">
             <Label>Age: {formData.age}</Label>
@@ -57,7 +86,7 @@ export default function ASCVDForm({ onSubmit, loading = false }: Props) {
             <Label>Gender</Label>
             <Select
               value={formData.gender}
-              onValueChange={(v) => handleChange("gender", v)}
+              onValueChange={(v) => handleChange("gender", v as Gender)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -74,7 +103,7 @@ export default function ASCVDForm({ onSubmit, loading = false }: Props) {
             <Label>Race</Label>
             <Select
               value={formData.race}
-              onValueChange={(v) => handleChange("race", v)}
+              onValueChange={(v) => handleChange("race", v as CardioRace)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -154,7 +183,7 @@ export default function ASCVDForm({ onSubmit, loading = false }: Props) {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Calculating..." : "🫀 Assess ASCVD Risk"}
           </Button>

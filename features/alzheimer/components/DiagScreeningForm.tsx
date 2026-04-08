@@ -1,15 +1,27 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Race, Gender, AlzheimerDiagnosisFormData, mapFormToBackend } from "@/features/alzheimer/types";
+import {
+  Race,
+  Gender,
+  AlzheimerDiagnosisFormData,
+  mapFormToBackend,
+} from "@/features/alzheimer/types";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 type Props = {
-  onSubmit: (data: any) => void; // Accept backend type
+  onSubmit: (data: any) => void;
   loading?: boolean;
 };
 
@@ -23,8 +35,13 @@ const raceMap: Record<number, string> = {
   7: "Unknown",
 };
 
-export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<AlzheimerDiagnosisFormData>({
+export default function DiagnosisScreeningForm({
+  onSubmit,
+  loading = false,
+}: Props) {
+  const [patientId, setPatientId] = useState("");
+
+  const [formData, setFormData] = useState<Omit<AlzheimerDiagnosisFormData, "patient_id">>({
     age: 75,
     educationYears: 16,
     mocaScore: 26,
@@ -35,22 +52,41 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
     race: 5,
   });
 
-  const handleChange = <K extends keyof AlzheimerDiagnosisFormData>(
+  const handleChange = <K extends keyof typeof formData>(
     key: K,
-    value: AlzheimerDiagnosisFormData[K]
+    value: (typeof formData)[K]
   ) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(mapFormToBackend(formData));
+
+    const payload = mapFormToBackend({
+      ...formData,
+      patient_id: patientId.trim() || undefined,
+    });
+
+    onSubmit(payload);
   };
 
   return (
     <Card className="p-6 rounded-2xl shadow-md">
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Patient ID */}
+          <div className="space-y-2">
+            <Label>Patient ID (optional)</Label>
+            <input
+              type="text"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              placeholder="e.g. pt-1001"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+
           {/* Age */}
           <div className="space-y-2">
             <Label>Age: {formData.age}</Label>
@@ -63,7 +99,7 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
             />
           </div>
 
-          {/* Education Years */}
+          {/* Education */}
           <div className="space-y-2">
             <Label>Years of Education: {formData.educationYears}</Label>
             <Slider
@@ -99,7 +135,7 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
             />
           </div>
 
-          {/* CDR Sum */}
+          {/* CDR */}
           <div className="space-y-2">
             <Label>CDR Sum: {formData.cdrSum}</Label>
             <Slider
@@ -131,7 +167,7 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
               onValueChange={(v) => handleChange("gender", v as Gender)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select gender" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="female">Female</SelectItem>
@@ -148,7 +184,7 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
               onValueChange={(v) => handleChange("race", Number(v) as Race)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select race" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(raceMap).map(([key, label]) => (
@@ -161,7 +197,7 @@ export default function DiagnosisScreeningForm({ onSubmit, loading = false }: Pr
           </div>
 
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Predicting..." : "Predict"}
+            {loading ? "Predicting..." : "🧠 Predict Diagnosis"}
           </Button>
         </form>
       </CardContent>

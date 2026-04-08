@@ -1,8 +1,9 @@
-// app/protected/layout.tsx
 "use client";
+
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Topbar from "@/components/layout/Topbar";
 
 function AuthGuard({ children }: { children: ReactNode }) {
   const { session, isLoading } = useAuth();
@@ -25,7 +26,12 @@ function AuthGuard({ children }: { children: ReactNode }) {
 
   if (!session) return null;
 
-  return <div className="min-h-screen bg-gray-50">{children}</div>;
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Topbar />
+      <div className="flex-1">{children}</div>
+    </div>
+  );
 }
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {

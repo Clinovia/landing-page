@@ -5,7 +5,13 @@ import { AlzheimerPrognosis2yrBasicInput } from "@/features/alzheimer/types";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
@@ -15,8 +21,11 @@ type Props = {
 };
 
 export default function Prog2yrBasicForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<AlzheimerPrognosis2yrBasicInput>({
-    patient_id: null,
+  const [patientId, setPatientId] = useState("");
+
+  const [formData, setFormData] = useState<
+    Omit<AlzheimerPrognosis2yrBasicInput, "patient_id">
+  >({
     AGE: 70,
     PTGENDER: "female",
     PTEDUCAT: 12,
@@ -28,19 +37,38 @@ export default function Prog2yrBasicForm({ onSubmit, loading = false }: Props) {
     GDTOTAL: 3,
   });
 
-  const handleChange = (key: keyof AlzheimerPrognosis2yrBasicInput, value: any) => {
+  const handleChange = <K extends keyof typeof formData>(
+    key: K,
+    value: (typeof formData)[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    onSubmit({
+      ...formData,
+      patient_id: patientId.trim() || undefined,
+    });
   };
 
   return (
     <Card className="p-6 rounded-2xl shadow-md">
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Patient ID */}
+          <div className="space-y-2">
+            <Label>Patient ID (optional)</Label>
+            <input
+              type="text"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              placeholder="e.g. pt-1001"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+            />
+          </div>
 
           {/* AGE */}
           <div className="space-y-2">
@@ -59,7 +87,7 @@ export default function Prog2yrBasicForm({ onSubmit, loading = false }: Props) {
             <Label>Gender</Label>
             <Select
               value={formData.PTGENDER}
-              onValueChange={(v) => handleChange("PTGENDER", v)}
+              onValueChange={(v) => handleChange("PTGENDER", v as typeof formData.PTGENDER)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -131,7 +159,7 @@ export default function Prog2yrBasicForm({ onSubmit, loading = false }: Props) {
             />
           </div>
 
-          {/* APOE4 Count */}
+          {/* APOE4 */}
           <div className="space-y-2">
             <Label>APOE4 Count: {formData.APOE4_count}</Label>
             <Slider
@@ -139,13 +167,13 @@ export default function Prog2yrBasicForm({ onSubmit, loading = false }: Props) {
               max={2}
               step={1}
               value={[formData.APOE4_count]}
-              onValueChange={(v) => handleChange("APOE4_count", v[0])}
+              onValueChange={(v) => handleChange("APOE4_count", v[0] as 0 | 1 | 2)}
             />
           </div>
 
           {/* GDTOTAL */}
           <div className="space-y-2">
-            <Label>Global Deterioration (GDTOTAL): {formData.GDTOTAL}</Label>
+            <Label>Global Deterioration: {formData.GDTOTAL}</Label>
             <Slider
               min={1}
               max={7}
@@ -155,7 +183,6 @@ export default function Prog2yrBasicForm({ onSubmit, loading = false }: Props) {
             />
           </div>
 
-          {/* Submit */}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Predicting..." : "🧠 Predict 2-Year Progression"}
           </Button>

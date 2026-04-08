@@ -36,6 +36,7 @@ export interface AlzheimerDiagnosisOutput {
 // Frontend-friendly form type
 // ==========================================================
 export interface AlzheimerDiagnosisFormData {
+  patient_id?: string | number | null;
   age: number;
   educationYears: number;
   mocaScore: number;

@@ -1,3 +1,4 @@
+// frontend/lib/api/authApi.ts
 import { supabase } from "@/lib/supabaseClient";
 
 export async function signup({

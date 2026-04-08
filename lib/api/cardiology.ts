@@ -7,8 +7,8 @@ import type {
   BPCategoryOutput,
   CHA2DS2VAScInput,
   CHA2DS2VAScOutput,
-  ECGInterpreterInput,
-  ECGInterpreterOutput,
+  ECGInterpretationInput,
+  ECGInterpretationOutput,
 } from "@/features/cardiology/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.clinovia.ai";
@@ -31,5 +31,5 @@ export const categorizeBP = (data: BPCategoryInput) =>
 export const calculateCHA2DS2VASc = (data: CHA2DS2VAScInput) =>
   post<CHA2DS2VAScInput, CHA2DS2VAScOutput>("/api/v1/cardiology/cha2ds2vasc", data);
 
-export const interpretECG = (data: ECGInterpreterInput) =>
-  post<ECGInterpreterInput, ECGInterpreterOutput>("/api/v1/cardiology/ecg-interpreter", data);
+export const interpretECG = (data: ECGInterpretationInput) =>
+  post<ECGInterpretationInput, ECGInterpretationOutput>("/api/v1/cardiology/ecg-interpretation", data);

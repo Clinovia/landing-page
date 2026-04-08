@@ -1,10 +1,18 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { AlzheimerDiagnosisExtendedInput } from "@/features/alzheimer/types";
-import { Card, CardContent } from "@/components/ui/card";
+import { AlzheimerDiagnosisExtendedInput, Gender } from "@/features/alzheimer/types";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
   onSubmit: (data: AlzheimerDiagnosisExtendedInput) => void;
@@ -12,8 +20,12 @@ type Props = {
 };
 
 export default function DiagExtendedForm({ onSubmit, loading = false }: Props) {
-  const [formData, setFormData] = useState<AlzheimerDiagnosisExtendedInput>({
-    patient_id: null,
+  const [patientId, setPatientId] = useState("");
+
+  const [formData, setFormData] = useState<Omit<
+    AlzheimerDiagnosisExtendedInput,
+    "patient_id"
+  >>({
     AGE: 72,
     MMSE: 25,
     FAQ: 4,
@@ -38,20 +50,29 @@ export default function DiagExtendedForm({ onSubmit, loading = false }: Props) {
     mPACCtrailsB: -0.6,
   });
 
-  const handleChange = (key: keyof AlzheimerDiagnosisExtendedInput, value: any) => {
+  const handleChange = <K extends keyof typeof formData>(
+    key: K,
+    value: (typeof formData)[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    onSubmit({
+      ...formData,
+      patient_id: patientId.trim() || undefined,
+    });
   };
 
-  const sliderFields: Array<[keyof AlzheimerDiagnosisExtendedInput, string, number, number, number]> = [
-    ["AGE", "Age", 0, 120, 1],
+  const sliderFields: Array<
+    [keyof typeof formData, string, number, number, number]
+  > = [
+    ["AGE", "Age", 18, 120, 1],
     ["MMSE", "MMSE", 0, 30, 1],
     ["FAQ", "FAQ", 0, 30, 0.1],
-    ["PTEDUCAT", "Years of Education", 0, 30, 1],
+    ["PTEDUCAT", "Education (years)", 0, 30, 1],
     ["RAVLT_immediate", "RAVLT Immediate", 0, 50, 1],
     ["MOCA", "MOCA", 0, 30, 1],
     ["ADAS13", "ADAS13", 0, 100, 0.1],
@@ -71,53 +92,63 @@ export default function DiagExtendedForm({ onSubmit, loading = false }: Props) {
   ];
 
   return (
-    <Card className="p-6 rounded-2xl shadow-md max-w-3xl mx-auto">
+    <Card className="p-6 rounded-2xl shadow-md">
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Gender */}
-          <div>
-            <Label htmlFor="PTGENDER">Gender</Label>
-            <select
-              id="PTGENDER"
-              value={formData.PTGENDER}
-              onChange={(e) => handleChange("PTGENDER", e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
 
-          {/* APOE4 */}
-          <div>
-            <Label htmlFor="APOE4">APOE4 Allele Count: {formData.APOE4}</Label>
+          {/* Patient ID */}
+          <div className="space-y-2">
+            <Label>Patient ID (optional)</Label>
             <input
-              id="APOE4"
-              type="range"
-              min={0}
-              max={2}
-              step={1}
-              value={formData.APOE4}
-              onChange={(e) => handleChange("APOE4", Number(e.target.value))}
-              className="w-full"
+              type="text"
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              placeholder="e.g. pt-2001"
+              className="w-full border rounded-md px-3 py-2 text-sm"
             />
           </div>
 
-          {/* Sliders */}
+          {/* Gender */}
+          <div className="space-y-2">
+            <Label>Gender</Label>
+            <Select
+              value={formData.PTGENDER}
+              onValueChange={(v) => handleChange("PTGENDER", v as Gender)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* APOE4 */}
+          <div className="space-y-2">
+            <Label>APOE4 Allele Count: {formData.APOE4}</Label>
+            <Slider
+              min={0}
+              max={2}
+              step={1}
+              value={[formData.APOE4]}
+              onValueChange={(v) => handleChange("APOE4", v[0])}
+            />
+          </div>
+
+          {/* Dynamic Sliders */}
           {sliderFields.map(([key, label, min, max, step]) => (
-            <div key={key}>
-              <Label htmlFor={key}>
-                {label}: {formData[key] ?? 0}
+            <div key={key} className="space-y-2">
+              <Label>
+                {label}: {formData[key]}
               </Label>
-              <input
-                id={key}
-                type="range"
+              <Slider
                 min={min}
                 max={max}
                 step={step}
-                value={formData[key] ?? 0}
-                onChange={(e) => handleChange(key, Number(e.target.value))}
-                className="w-full"
+                value={[formData[key] as number]}
+                onValueChange={(v) => handleChange(key, v[0])}
               />
             </div>
           ))}
@@ -126,6 +157,7 @@ export default function DiagExtendedForm({ onSubmit, loading = false }: Props) {
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Assessing..." : "🧠 Assess Extended Diagnosis"}
           </Button>
+
         </form>
       </CardContent>
     </Card>
