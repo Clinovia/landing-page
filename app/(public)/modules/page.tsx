@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 
 type Module = {
@@ -18,17 +17,30 @@ export default function ModulesPage() {
   ];
 
   const neurology: Module[] = [
-    { name: "Risk Screener", description: "Neurologic risk screening tool", inputs: "Basic clinical inputs", outputs: "Risk assessment" },
-    { name: "Diagnosis Screening", description: "Initial diagnostic triage", inputs: "Symptoms, history", outputs: "Suggested differentials" },
-    { name: "Diagnosis Basic", description: "Basic diagnostic model", inputs: "Symptoms, vitals", outputs: "Preliminary diagnosis" },
-    { name: "Diagnosis Extended", description: "Advanced diagnostic model", inputs: "Extended clinical data", outputs: "Detailed diagnostic output" },
+    { name: "Risk Screener", description: "Neurologic risk screening tool", inputs: "Basic clinical inputs", outputs: "Alzheimer's risk assessment" },
+    { name: "Diagnosis Screening", description: "Initial diagnostic triage", inputs: "Symptoms, history", outputs: "CN, MCI, or AD" },
+    { name: "Diagnosis Basic", description: "Basic diagnostic model", inputs: "Symptoms, vitals", outputs: "CN, MCI, or AD" },
+    { name: "Diagnosis Extended", description: "Advanced diagnostic model", inputs: "Extended clinical data", outputs: "CN, MCI, or AD" },
     { name: "2yr Prognosis Basic", description: "Basic prognosis model", inputs: "Clinical features", outputs: "2-year prognosis" },
-    { name: "2yr Prognosis Extended", description: "Advanced prognosis model", inputs: "Detailed clinical features", outputs: "Extended 2-year prognosis" },
+    { name: "2yr Prognosis Extended", description: "Advanced prognosis model", inputs: "Clinical features, biomarkers, image data", outputs: "2-year prognosis" },
   ];
 
   const renderTable = (title: string, data: Module[]) => (
     <div className="mb-12">
       <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+
+      {title === "Neurology (Alzheimer's)" && (
+        <p className="mb-4 text-gray-700 max-w-4xl">
+          These modules support risk screening, diagnostic assessment, and prognosis of Alzheimer’s disease. 
+          <br />
+          They are developed using ADNI data and machine learning models, including Random Forest&nbsp;and&nbsp;XGBoost.
+          <br />
+          <span className="text-sm">
+            CN: cognitively normal · MCI: mild cognitive impairment · AD: Alzheimer’s disease
+          </span>
+        </p>
+      )}
+
       <table className="w-full border border-gray-300 text-left">
         <thead className="bg-gray-100">
           <tr>
@@ -54,19 +66,18 @@ export default function ModulesPage() {
 
   return (
     <div className="container mx-auto py-16 px-4">
-      <h1 className="text-4xl font-bold mb-10 text-center">Clinical Modules</h1>
-
+      <h1 className="mt-8 text-4xl font-bold mb-10 text-center">Clinical Modules</h1>
       {renderTable("Cardiology", cardiology)}
-      {renderTable("Neurology", neurology)}
+      {renderTable("Neurology (Alzheimer's)", neurology)}
 
       <div className="flex flex-col items-center mt-12 space-y-4">
         <Link
           href="/pricing"
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700"
+          className="bg-green-700 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-500"
         >
           Get Started
         </Link>
-        <Link href="/login" className="text-blue-600 hover:underline text-lg">
+        <Link href="/login" className="text-gray-500 hover:underline text-lg">
           Log In if you have an account
         </Link>
       </div>
