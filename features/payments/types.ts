@@ -3,9 +3,9 @@ export type PlanTier = 'starter' | 'basic' | 'professional' | 'enterprise';
 export interface Plan {
   id: PlanTier;
   name: string;
-  price: number | null; // null = custom
-  assessmentsPerMonth: number | null; // null = unlimited
-  stripePriceId: string | null; // null for starter + enterprise
+  price: number | null;
+  assessmentsPerMonth: number | null;
+  stripePriceId: string | null;
   features: string[];
   highlighted?: boolean;
   ruo: boolean;
@@ -30,21 +30,22 @@ export const PLANS: Plan[] = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 199,
-    assessmentsPerMonth: 500,
+    price: 99,
+    assessmentsPerMonth: 300,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID!,
     ruo: true,
     features: [
       'Everything in Starter',
       'Extended diagnosis',
-      'Overage at $0.45/assessment',
+      'CSV & PDF export',
+      'Priority email support',
     ],
   },
   {
     id: 'professional',
     name: 'Professional',
-    price: 799,
-    assessmentsPerMonth: 5000,
+    price: 299,
+    assessmentsPerMonth: 1500,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID!,
     highlighted: true,
     ruo: true,
@@ -55,15 +56,14 @@ export const PLANS: Plan[] = [
       'Batch processing',
       'PDF reports + storage',
       'Multiple users (shared quota)',
-      'Overage at $0.18/assessment',
     ],
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: null,
-    assessmentsPerMonth: null,
-    stripePriceId: null,
+    price: 799,
+    assessmentsPerMonth: 5000,
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID!,
     ruo: true,
     features: [
       'Everything in Professional',
@@ -72,7 +72,6 @@ export const PLANS: Plan[] = [
       'Custom model registry',
       'HIPAA BAA available',
       'SLA + priority support',
-      'Volume pricing',
     ],
   },
 ];

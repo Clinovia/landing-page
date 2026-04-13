@@ -1,12 +1,10 @@
 "use client";
-
 import Link from "next/link";
 import { Plan } from "../types";
 import { AUTH_ROUTES } from "@/config/routes";
 
 export function PricingCard({ plan }: { plan: Plan }) {
   const isFree = plan.price === 0;
-  const isCustom = plan.price === null;
 
   return (
     <div
@@ -21,18 +19,14 @@ export function PricingCard({ plan }: { plan: Plan }) {
 
       <div>
         <h3 className="font-medium text-lg">{plan.name}</h3>
-        {isCustom ? (
-          <p className="text-2xl font-medium mt-1">Custom</p>
-        ) : (
-          <p className="text-2xl font-medium mt-1">
-            {isFree ? "Free" : `$${plan.price}/mo`}
-          </p>
-        )}
-        {plan.assessmentsPerMonth && (
-          <p className="text-sm text-muted-foreground">
-            {plan.assessmentsPerMonth.toLocaleString()} assessments/mo
-          </p>
-        )}
+        <p className="text-2xl font-medium mt-1">
+          {isFree ? "Free" : `$${plan.price}/mo`}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {plan.assessmentsPerMonth
+            ? `${plan.assessmentsPerMonth.toLocaleString()} assessments/mo`
+            : "Unlimited assessments"}
+        </p>
       </div>
 
       <ul className="flex flex-col gap-2 flex-1">
@@ -43,29 +37,12 @@ export function PricingCard({ plan }: { plan: Plan }) {
         ))}
       </ul>
 
-      {/* CTA */}
-      {isFree ? (
-        <Link
-          href={AUTH_ROUTES.SIGNUP}
-          className="w-full px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-center block text-sm font-medium"
-        >
-          Get Started
-        </Link>
-      ) : isCustom ? (
-        <Link
-          href="/contact"
-          className="w-full px-4 py-2 rounded-md border text-center block text-sm"
-        >
-          Contact Sales
-        </Link>
-      ) : (
-        <Link
-          href={`${AUTH_ROUTES.SIGNUP}?plan=${plan.id}`}
-          className="w-full px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-center block text-sm font-medium"
-        >
-          Subscribe
-        </Link>
-      )}
+      <Link
+        href={isFree ? AUTH_ROUTES.SIGNUP : `${AUTH_ROUTES.SIGNUP}?plan=${plan.id}`}
+        className="w-full px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-center block text-sm font-medium"
+      >
+        {isFree ? "Get Started" : "Subscribe"}
+      </Link>
 
       <p className="text-xs text-muted-foreground text-center">
         For research use only. Not for clinical decision-making.

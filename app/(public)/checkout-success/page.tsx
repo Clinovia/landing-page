@@ -1,3 +1,4 @@
+// frontend/app/(public)/checkout-success/page.tsx
 "use client";
 
 import { useEffect } from "react";
