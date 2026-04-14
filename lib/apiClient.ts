@@ -26,6 +26,31 @@ type ApiRequestOptions<TBody> = {
 };
 
 // ----------------------------------
+// Token Helper (cached)
+// ----------------------------------
+let cachedToken: string | null = null;
+
+async function getAccessToken(): Promise<string> {
+  if (cachedToken) return cachedToken;
+
+  const { data, error } = await supabase.auth.getSession();
+
+  const token = data.session?.access_token;
+
+  if (error || !token) {
+    throw new ApiError(401, "Not authenticated");
+  }
+
+  cachedToken = token;
+  return token;
+}
+
+// Optional: reset token if needed (e.g., logout)
+export function clearCachedToken() {
+  cachedToken = null;
+}
+
+// ----------------------------------
 // Core API Request
 // ----------------------------------
 export async function apiRequest<TResponse, TBody = unknown>(
@@ -42,45 +67,50 @@ export async function apiRequest<TResponse, TBody = unknown>(
   let token: string | null = null;
 
   if (requireAuth) {
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
+    token = await getAccessToken();
+  }
 
-    if (error || !session?.access_token) {
-      throw new ApiError(401, "Not authenticated");
+  // Timeout protection
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+  try {
+    console.log("apiRequest", {
+      path,
+      method,
+      token: token ? "present" : "missing",
+    });
+
+    const response = await fetch(path, {
+      method,
+      headers: {
+        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      credentials: "include",
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new ApiError(response.status, text);
     }
 
-    token = session.access_token;
+    if (rawResponse) {
+      return response as unknown as TResponse;
+    }
+
+    return (await response.json()) as TResponse;
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      throw new ApiError(408, "Request timeout");
+    }
+
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  // 🌐 Request
-  console.log("apiRequest", {
-    path,
-    method,
-    token: token ? "present" : "missing",
-  });
-
-  const response = await fetch(path, {
-    method,
-    headers: {
-      ...(body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: "include",
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new ApiError(response.status, text);
-  }
-
-  if (rawResponse) {
-    return response as unknown as TResponse;
-  }
-
-  return response.json() as Promise<TResponse>;
 }
 
 // ----------------------------------
@@ -97,14 +127,7 @@ export async function apiRequestWithFile<T>({
   file: File;
   extraFields?: Record<string, unknown>;
 }): Promise<T> {
-  const {
-    data: { session },
-    error,
-  } = await supabase.auth.getSession();
-
-  if (error || !session?.access_token) {
-    throw new ApiError(401, "Not authenticated");
-  }
+  const token = await getAccessToken();
 
   const formData = new FormData();
   formData.append(fileField, file);
@@ -115,19 +138,33 @@ export async function apiRequestWithFile<T>({
     });
   }
 
-  const response = await fetch(path, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: formData,
-    credentials: "include",
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new ApiError(response.status, text);
+  try {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+      credentials: "include",
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new ApiError(response.status, text);
+    }
+
+    return (await response.json()) as T;
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      throw new ApiError(408, "File upload timeout");
+    }
+
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return response.json() as Promise<T>;
 }
