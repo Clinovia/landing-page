@@ -1,3 +1,5 @@
+// frontend/features/alzheimer/types.ts
+
 // ==========================================================
 // Shared Types
 // ==========================================================
@@ -170,23 +172,71 @@ export interface AlzheimerPrognosis2yrExtendedOutput
   extends AlzheimerPrognosis2yrBasicOutput {}
 
 // ==========================================================
-// Alzheimer Risk Screener
+// Alzheimer Cognitive Impairment Screening (Refactored)
 // ==========================================================
+
+export type CognitiveTest = "moca" | "mmse" | "bach";
+
 export interface AlzheimerRiskScreenerInput {
   patient_id?: string | number | null;
+
+  // Demographics
   age: number;              // 40–90
-  gender: Gender;           // "male" | "female"
-  education_years: number;  // match backend
-  apoe4_status: boolean;
-  memory_score: number;     // MoCA-like
+  gender: Gender;
+  education_years: number;
+
+  // Cognitive assessment (explicit, not vague)
+  cognitive_test: CognitiveTest;
+  cognitive_score: number;
+
+  // Optional structural imaging
   hippocampal_volume?: number | null;
 }
 
 export interface AlzheimerRiskScreenerOutput {
   patient_id?: string | number | null;
-  model_name: string;       // e.g., "alz-risk-screener-heuristic-v1"
+
+  model_name: string;
   model_version: string;
-  risk_score: number;       // e.g., 0–1
-  risk_category: "low" | "moderate" | "high" | "error";
+
+  risk_score: number; // 0–1
+
+  // More clinically appropriate language
+  risk_level: "low" | "intermediate" | "elevated";
+
+  // Action-oriented output (this is key for clinicians)
+  next_step: string;
+}
+
+// ==========================================================
+// Alzheimer Treatment Considerations (NEW)
+// ==========================================================
+
+export interface AlzheimerTreatmentInput {
+  patient_id?: string | number | null;
+
+  // Must already be clinically evaluated
+  diagnosis_stage: "MCI" | "AD";
+
+  // Required for therapy decisions
+  amyloid_biomarker_positive: boolean;
+
+  // APOE only meaningful here
+  apoe4_status?: boolean;
+
+  // Optional context
+  age?: number;
+}
+
+export interface AlzheimerTreatmentOutput {
+  patient_id?: string | number | null;
+
+  model_name: string;
+  model_version: string;
+
+  eligible_for_anti_amyloid: boolean;
+
+  aria_risk_level?: "low" | "moderate" | "high";
+
   recommendation: string;
 }

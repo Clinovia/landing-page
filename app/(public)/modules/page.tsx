@@ -72,11 +72,19 @@ export default function ModulesPage() {
 
       <div className="flex flex-col items-center mt-12 space-y-4">
         <Link
-          href="/pricing"
-          className="bg-green-700 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-500"
+          href="/pilot"
+          className="bg-green-700 text-white px-6 py-3 rounded-lg text-lg hover:bg-green-800"
         >
-          Get Started
+          Join Pilot Program
         </Link>
+
+        <Link
+          href="/signup"
+          className="bg-gray-700 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-800"
+        >
+          Try Free Sample
+        </Link>
+
         <Link href="/login" className="text-gray-500 hover:underline text-lg">
           Log In if you have an account
         </Link>

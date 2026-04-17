@@ -9,8 +9,8 @@ type Props = {
 
 const RISK_STYLES: Record<string, string> = {
   low: "text-green-600",
-  moderate: "text-yellow-600",
-  high: "text-red-600",
+  intermediate: "text-yellow-600",
+  elevated: "text-red-600",
 };
 
 export default function AlzheimerRiskResult({ output }: Props) {
@@ -26,18 +26,17 @@ export default function AlzheimerRiskResult({ output }: Props) {
   const reportId =
     (output as any).assessment_id || (output as any).id;
 
-  const riskColor =
-    RISK_STYLES[output.risk_category?.toLowerCase() || ""] ||
-    "text-gray-600";
+  const riskKey = output.risk_level?.toLowerCase() || "";
+  const riskColor = RISK_STYLES[riskKey] || "text-gray-600";
 
-  const displayRisk = output.risk_category
-    ? output.risk_category.charAt(0).toUpperCase() +
-      output.risk_category.slice(1)
+  const displayRisk = output.risk_level
+    ? output.risk_level.charAt(0).toUpperCase() +
+      output.risk_level.slice(1)
     : "N/A";
 
   return (
     <ClinicalResultCard
-      title="Alzheimer Risk Screening"
+      title="Cognitive Impairment Screening"
       reportId={reportId}
       modelName={output.model_name}
       fields={[
@@ -47,10 +46,14 @@ export default function AlzheimerRiskResult({ output }: Props) {
           highlight: true,
           color: riskColor,
         },
+        {
+          label: "Risk Score",
+          value: output.risk_score?.toFixed(2) ?? "N/A",
+        },
       ]}
       features={
-        output.recommendation
-          ? [output.recommendation]
+        output.next_step
+          ? [output.next_step]
           : undefined
       }
     />
