@@ -1,15 +1,18 @@
-// frontend/features/alzheimer/types.ts
-
 // ==========================================================
 // Shared Types
 // ==========================================================
 export type Gender = "male" | "female";
 export type Race = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type AlzheimerClass = "CN" | "MCI" | "AD";
-export type RiskCategory = "low" | "moderate" | "high";
+export type PrognosisHorizon = "1yr" | "3yr" | "5yr";
+
+// ✅ Explicit risk vocabularies (avoid ambiguity)
+export type BinaryRiskLevel = "low" | "high";
+export type ThreeLevelRisk = "low" | "moderate" | "high";
+export type ScreeningRiskLevel = "low" | "intermediate" | "elevated";
 
 // ==========================================================
-// Backend-facing Alzheimer Diagnosis Input (matches Pydantic schema)
+// Alzheimer Diagnosis (General / Screening)
 // ==========================================================
 export interface AlzheimerDiagnosisInput {
   patient_id?: string | number | null;
@@ -23,20 +26,17 @@ export interface AlzheimerDiagnosisInput {
   race: Race;
 }
 
-// Backend-facing output
 export interface AlzheimerDiagnosisOutput {
   patient_id?: string | number | null;
   model_name: string;
   model_version: string;
   predicted_class: AlzheimerClass;
-  confidence: number; // 0–1
+  confidence: number;
   probabilities: Record<string, number>;
   top_features?: string[] | null;
 }
 
-// ==========================================================
-// Frontend-friendly form type
-// ==========================================================
+// Frontend-friendly form
 export interface AlzheimerDiagnosisFormData {
   patient_id?: string | number | null;
   age: number;
@@ -49,11 +49,12 @@ export interface AlzheimerDiagnosisFormData {
   race: Race;
 }
 
-// Mapping function: form → backend
+// Mapper
 export function mapFormToBackend(
   form: AlzheimerDiagnosisFormData
 ): AlzheimerDiagnosisInput {
   return {
+    patient_id: form.patient_id,
     age: form.age,
     education_years: form.educationYears,
     moca_score: form.mocaScore,
@@ -65,7 +66,7 @@ export function mapFormToBackend(
   };
 }
 
-// Alias for backward compatibility
+// Backward compatibility
 export type AlzheimerDiagnosisScreeningInput = AlzheimerDiagnosisInput;
 export type AlzheimerDiagnosisScreeningOutput = AlzheimerDiagnosisOutput;
 
@@ -79,7 +80,7 @@ export interface AlzheimerDiagnosisBasicInput {
   FAQ: number;
   PTEDUCAT: number;
   PTGENDER: Gender;
-  APOE4: number; // -1, 0, 1, 2
+  APOE4: number;
   RAVLT_immediate: number;
   MOCA: number;
   ADAS13: number;
@@ -119,8 +120,10 @@ export interface AlzheimerDiagnosisExtendedOutput
   extends AlzheimerDiagnosisBasicOutput {}
 
 // ==========================================================
-// Alzheimer Prognosis 2-Year Models - Common
+// ⚠️ Legacy / Research Models (kept for clinician validation)
+// Alzheimer Prognosis 2-Year Models
 // ==========================================================
+
 interface AlzheimerPrognosis2yrCommonFeatures {
   patient_id?: string | number | null;
   AGE: number;
@@ -135,9 +138,6 @@ interface AlzheimerPrognosis2yrCommonFeatures {
   GDTOTAL: number;
 }
 
-// ==========================================================
-// 2-Year Prognosis - Basic (includes MOCA)
-// ==========================================================
 export interface AlzheimerPrognosis2yrBasicInput
   extends AlzheimerPrognosis2yrCommonFeatures {
   MOCA: number;
@@ -151,16 +151,13 @@ export interface AlzheimerPrognosis2yrBasicOutput {
   probability_progression_to_AD_within_2yrs: number;
   probability_stable_within_2yrs: number;
 
-  risk_level: RiskCategory;
+  risk_level: ThreeLevelRisk;
 
   summary_text: string;
   top_features?: string[] | null;
   error?: string | null;
 }
 
-// ==========================================================
-// 2-Year Prognosis - Extended (biomarkers, no MOCA)
-// ==========================================================
 export interface AlzheimerPrognosis2yrExtendedInput
   extends AlzheimerPrognosis2yrCommonFeatures {
   ABETA: number | null;
@@ -172,24 +169,20 @@ export interface AlzheimerPrognosis2yrExtendedOutput
   extends AlzheimerPrognosis2yrBasicOutput {}
 
 // ==========================================================
-// Alzheimer Cognitive Impairment Screening (Refactored)
+// Alzheimer Cognitive Risk Screener
 // ==========================================================
-
 export type CognitiveTest = "moca" | "mmse" | "bach";
 
 export interface AlzheimerRiskScreenerInput {
   patient_id?: string | number | null;
 
-  // Demographics
-  age: number;              // 40–90
+  age: number;
   gender: Gender;
   education_years: number;
 
-  // Cognitive assessment (explicit, not vague)
   cognitive_test: CognitiveTest;
   cognitive_score: number;
 
-  // Optional structural imaging
   hippocampal_volume?: number | null;
 }
 
@@ -199,32 +192,22 @@ export interface AlzheimerRiskScreenerOutput {
   model_name: string;
   model_version: string;
 
-  risk_score: number; // 0–1
+  risk_score: number;
 
-  // More clinically appropriate language
-  risk_level: "low" | "intermediate" | "elevated";
+  risk_level: ScreeningRiskLevel;
 
-  // Action-oriented output (this is key for clinicians)
   next_step: string;
 }
 
 // ==========================================================
-// Alzheimer Treatment Considerations (NEW)
+// Alzheimer Treatment Considerations
 // ==========================================================
-
 export interface AlzheimerTreatmentInput {
   patient_id?: string | number | null;
 
-  // Must already be clinically evaluated
   diagnosis_stage: "MCI" | "AD";
-
-  // Required for therapy decisions
   amyloid_biomarker_positive: boolean;
-
-  // APOE only meaningful here
   apoe4_status?: boolean;
-
-  // Optional context
   age?: number;
 }
 
@@ -236,7 +219,96 @@ export interface AlzheimerTreatmentOutput {
 
   eligible_for_anti_amyloid: boolean;
 
-  aria_risk_level?: "low" | "moderate" | "high";
+  aria_risk_level?: ThreeLevelRisk;
 
   recommendation: string;
 }
+
+// ==========================================================
+// Alzheimer Prognosis (Unified ⭐ MAIN PRODUCT)
+// ==========================================================
+
+export interface AlzheimerUnifiedPrognosisInput {
+  patient_id?: string | number | null;
+
+  horizon: PrognosisHorizon;
+
+  AGE: number;
+  PTGENDER: Gender;
+  PTEDUCAT: number;
+
+  ADAS13: number;
+  MOCA: number;
+
+  APOE4_count: 0 | 1 | 2;
+  GDTOTAL: number;
+}
+
+export interface DiagnosticPerformance {
+  mode: "youden" | "high_sensitivity" | "high_specificity";
+  threshold: number;
+  sensitivity: number;
+  specificity: number;
+}
+
+export interface AlzheimerUnifiedPrognosisOutput {
+  patient_id?: string | number | null;
+
+  model_name?: string;
+  model_version?: string;
+
+  horizon: PrognosisHorizon;
+
+  probability_progression: number;
+  probability_no_progression: number;
+
+  risk_level: BinaryRiskLevel;
+
+  threshold_used: number;
+  mode: "youden" | "high_sensitivity" | "high_specificity";
+
+  diagnostic_performance: DiagnosticPerformance;
+
+  summary_text?: string | null;
+}
+
+// ==========================================================
+// Frontend Form for Unified Prognosis
+// ==========================================================
+
+export interface AlzheimerPrognosisFormData {
+  patient_id?: string | number | null;
+
+  horizon: PrognosisHorizon;
+
+  age: number;
+  gender: Gender;
+  educationYears: number;
+
+  adas13: number;
+  moca: number;
+
+  apoe4Count: 0 | 1 | 2;
+  gdTotal: number;
+}
+
+// Mapper
+export function mapPrognosisFormToBackend(
+  form: AlzheimerPrognosisFormData
+): AlzheimerUnifiedPrognosisInput {
+  return {
+    patient_id: form.patient_id,
+    horizon: form.horizon,
+
+    AGE: form.age,
+    PTGENDER: form.gender,
+    PTEDUCAT: form.educationYears,
+
+    ADAS13: form.adas13,
+    MOCA: form.moca,
+
+    APOE4_count: form.apoe4Count,
+    GDTOTAL: form.gdTotal,
+  };
+}
+

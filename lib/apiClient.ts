@@ -26,29 +26,23 @@ type ApiRequestOptions<TBody> = {
 };
 
 // ----------------------------------
-// Token Helper (cached)
+// Token Helper
+// Delegates entirely to Supabase, which handles refresh transparently.
+// No manual caching — a cached token can go stale after the 1hr expiry
+// and cause 401s on the first request after a session refresh.
 // ----------------------------------
-let cachedToken: string | null = null;
-
 async function getAccessToken(): Promise<string> {
-  if (cachedToken) return cachedToken;
-
   const { data, error } = await supabase.auth.getSession();
-
   const token = data.session?.access_token;
-
   if (error || !token) {
     throw new ApiError(401, "Not authenticated");
   }
-
-  cachedToken = token;
   return token;
 }
 
-// Optional: reset token if needed (e.g., logout)
-export function clearCachedToken() {
-  cachedToken = null;
-}
+// Kept for backward compatibility (e.g. logout flows that call clearCachedToken).
+// Now a no-op since we no longer cache.
+export function clearCachedToken() {}
 
 // ----------------------------------
 // Core API Request
@@ -65,12 +59,10 @@ export async function apiRequest<TResponse, TBody = unknown>(
   } = options;
 
   let token: string | null = null;
-
   if (requireAuth) {
     token = await getAccessToken();
   }
 
-  // Timeout protection
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
@@ -106,7 +98,6 @@ export async function apiRequest<TResponse, TBody = unknown>(
     if (err.name === "AbortError") {
       throw new ApiError(408, "Request timeout");
     }
-
     throw err;
   } finally {
     clearTimeout(timeout);
@@ -131,7 +122,6 @@ export async function apiRequestWithFile<T>({
 
   const formData = new FormData();
   formData.append(fileField, file);
-
   if (extraFields) {
     Object.entries(extraFields).forEach(([key, value]) => {
       formData.append(key, String(value));
@@ -162,7 +152,6 @@ export async function apiRequestWithFile<T>({
     if (err.name === "AbortError") {
       throw new ApiError(408, "File upload timeout");
     }
-
     throw err;
   } finally {
     clearTimeout(timeout);

@@ -13,6 +13,8 @@ import type {
   AlzheimerPrognosis2yrBasicOutput,
   AlzheimerPrognosis2yrExtendedInput,
   AlzheimerPrognosis2yrExtendedOutput,
+  AlzheimerUnifiedPrognosisInput,
+  AlzheimerUnifiedPrognosisOutput,
 } from "@/features/alzheimer/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.clinovia.ai";
@@ -56,6 +58,15 @@ export const diagnosisExtended = (data: AlzheimerDiagnosisExtendedInput) =>
 export const riskScreener = (data: AlzheimerRiskScreenerInput) =>
   post<AlzheimerRiskScreenerInput, AlzheimerRiskScreenerOutput>(
     "/api/v1/alzheimer/risk-screener",
+    data
+  );
+
+/* ------------------------------------------------------------------ */
+/* Prognosis (Unified)                                                 */
+/* ------------------------------------------------------------------ */
+export const prognosisUnified = (data: AlzheimerUnifiedPrognosisInput) =>
+  post<AlzheimerUnifiedPrognosisInput, AlzheimerUnifiedPrognosisOutput>(
+    "/api/v1/alzheimer/prognosis",
     data
   );
 

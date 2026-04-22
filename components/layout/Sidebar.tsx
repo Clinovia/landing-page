@@ -46,6 +46,12 @@ const sidebar: SidebarSection[] = [
         ],
       },
       {
+        title: "Prognosis",
+        children: [
+          { title: "Unified Model", href: "/protected/alzheimer/prognosis" },
+        ],
+      },
+      {
         title: "Prognosis (2yr)",
         children: [
           { title: "Basic Features", href: "/protected/alzheimer/prognosis-2yr-basic" },

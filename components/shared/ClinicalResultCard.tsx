@@ -16,6 +16,7 @@ type ClinicalResultCardProps = {
   modelName?: string;
   reportId?: string;
   onReset?: () => void;
+  children?: React.ReactNode; // ✅ ADD THIS
 };
 
 const BASE_STORAGE_URL =
