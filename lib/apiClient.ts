@@ -1,192 +1,106 @@
-import { supabase } from "@/lib/supabaseClient";
+// frontend-mci/lib/apiClient.ts
+import { supabaseClient } from "@/lib/api";
 
-// ----------------------------------
-// Error Class
-// ----------------------------------
+/* ─────────────────────────────────────────────
+ * Thin API client wrapper (REST-style)
+ * ───────────────────────────────────────────── */
 
-export class ApiError extends Error {
-  status: number;
-  body?: string;
+export const apiClient = {
+  get: <T>(path: string) =>
+    apiRequest<T>({ path, method: "GET" }),
 
-  constructor(status: number, body?: string) {
-    super(`API Error (${status})${body ? `: ${body}` : ""}`);
-    this.name = "ApiError";
-    this.status = status;
-    this.body = body;
-  }
-}
+  post: <T>(path: string, body?: unknown) =>
+    apiRequest<T>({ path, method: "POST", body }),
 
-// ----------------------------------
-// Types
-// ----------------------------------
+  put: <T>(path: string, body?: unknown) =>
+    apiRequest<T>({ path, method: "PUT", body }),
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
-
-type ApiRequestOptions<TBody> = {
-  path: string;
-  method?: HttpMethod;
-  body?: TBody;
-  requireAuth?: boolean;
-  rawResponse?: boolean;
-  /** Per-request timeout in ms. Defaults to DEFAULT_TIMEOUT_MS. */
-  timeoutMs?: number;
+  delete: <T>(path: string) =>
+    apiRequest<T>({ path, method: "DELETE" }),
 };
 
-// ----------------------------------
-// Constants
-// ----------------------------------
+/* ─────────────────────────────────────────────
+ * API Error (transport-level)
+ * ───────────────────────────────────────────── */
+export class ApiError extends Error {
+  status?: number;
 
-const DEFAULT_TIMEOUT_MS = 10_000;
-const FILE_UPLOAD_TIMEOUT_MS = 15_000;
-
-// ----------------------------------
-// Token Helper
-//
-// Delegates entirely to Supabase, which handles refresh transparently.
-// No manual caching — a cached token can go stale after the 1hr expiry
-// and cause 401s on the first request after a session refresh.
-// ----------------------------------
-
-async function getAccessToken(): Promise<string> {
-  const { data, error } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-
-  if (error || !token) {
-    throw new ApiError(401, "Not authenticated");
-  }
-
-  return token;
-}
-
-// Kept for backward compatibility (e.g. logout flows that call clearCachedToken).
-// Now a no-op since we no longer cache.
-export function clearCachedToken(): void {}
-
-// ----------------------------------
-// Abort helper
-// Returns a controller and a self-clearing timeout handle.
-// ----------------------------------
-
-function makeAbortController(timeoutMs: number): {
-  controller: AbortController;
-  clear: () => void;
-} {
-  const controller = new AbortController();
-  const handle = setTimeout(() => controller.abort(), timeoutMs);
-  return { controller, clear: () => clearTimeout(handle) };
-}
-
-// ----------------------------------
-// Core API Request
-// ----------------------------------
-
-export async function apiRequest<TResponse, TBody = unknown>(
-  options: ApiRequestOptions<TBody>
-): Promise<TResponse> {
-  const {
-    path,
-    method = "GET",
-    body,
-    requireAuth = true,
-    rawResponse = false,
-    timeoutMs = DEFAULT_TIMEOUT_MS,
-  } = options;
-
-  const token = requireAuth ? await getAccessToken() : null;
-
-  const { controller, clear } = makeAbortController(timeoutMs);
-
-  try {
-    console.log("apiRequest", {
-      path,
-      method,
-      token: token ? "present" : "missing",
-    });
-
-    const response = await fetch(path, {
-      method,
-      headers: {
-        ...(body ? { "Content-Type": "application/json" } : {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: body ? JSON.stringify(body) : undefined,
-      credentials: "include",
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new ApiError(response.status, text);
-    }
-
-    if (rawResponse) {
-      return response as unknown as TResponse;
-    }
-
-    return (await response.json()) as TResponse;
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new ApiError(408, "Request timed out");
-    }
-    throw err;
-  } finally {
-    clear();
+  constructor(message: string, status?: number) {
+    super(message);
+    this.name = "ApiError"; // ✅ helps with instanceof checks
+    this.status = status;
   }
 }
 
-// ----------------------------------
-// File Upload (multipart/form-data)
-// ----------------------------------
-
-export async function apiRequestWithFile<T>({
-  path,
-  fileField,
-  file,
-  extraFields,
-  timeoutMs = FILE_UPLOAD_TIMEOUT_MS,
-}: {
+interface RequestOptions {
   path: string;
-  fileField: string;
-  file: File;
-  extraFields?: Record<string, unknown>;
-  timeoutMs?: number;
-}): Promise<T> {
-  const token = await getAccessToken();
+  method?: "GET" | "POST" | "PUT" | "DELETE";
+  body?: unknown;
+  headers?: Record<string, string>;
+}
 
-  const formData = new FormData();
-  formData.append(fileField, file);
+/* ─────────────────────────────────────────────
+ * Core API Request (JWT-aware)
+ * ───────────────────────────────────────────── */
+export async function apiRequest<T>({
+  path,
+  method = "GET",
+  body,
+  headers = {},
+}: RequestOptions): Promise<T> {
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
 
-  if (extraFields) {
-    for (const [key, value] of Object.entries(extraFields)) {
-      formData.append(key, String(value));
-    }
+  const accessToken = session?.access_token;
+
+  const res = await fetch(path, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken && {
+        Authorization: `Bearer ${accessToken}`,
+      }),
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new ApiError(text || "API request failed", res.status);
   }
 
-  const { controller, clear } = makeAbortController(timeoutMs);
+  return res.json();
+}
 
-  try {
-    const response = await fetch(path, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-      credentials: "include",
-      signal: controller.signal,
-    });
+/* ─────────────────────────────────────────────
+ * File Upload Variant
+ * ───────────────────────────────────────────── */
+export async function apiRequestWithFile<T>(
+  path: string,
+  formData: FormData
+): Promise<T> {
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new ApiError(response.status, text);
-    }
+  const accessToken = session?.access_token;
 
-    return (await response.json()) as T;
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new ApiError(408, "File upload timed out");
-    }
-    throw err;
-  } finally {
-    clear();
+  const res = await fetch(path, {
+    method: "POST",
+    headers: {
+      ...(accessToken && {
+        Authorization: `Bearer ${accessToken}`,
+      }),
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new ApiError(text || "File upload failed", res.status);
   }
+
+  return res.json();
 }

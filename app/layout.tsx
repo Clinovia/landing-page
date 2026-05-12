@@ -1,11 +1,10 @@
-// app/layout.tsx
-import '@/styles/globals.css';
-import type { Metadata } from 'next';
-import { Providers } from './providers';
+import "@/styles/globals.css";
+import type { Metadata } from "next";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: 'Clinovia',
-  description: 'AI-powered clinical decision support',
+  title: "Clinovia",
+  description: "AI-powered clinical decision support",
 };
 
 export default function RootLayout({
@@ -15,8 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Providers>{children}</Providers>
+      <body suppressHydrationWarning>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

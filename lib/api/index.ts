@@ -1,11 +1,24 @@
-// lib/api/index.ts
-export { supabase } from "../supabaseClient";
-export { apiRequest, apiRequestWithFile, ApiError } from "../apiClient";
+/* ─────────────────────────────────────────────
+ * Core API Client (transport layer)
+ * ───────────────────────────────────────────── */
+export {
+  apiRequest,
+  apiRequestWithFile,
+  ApiError,
+} from "@/lib/apiClient";
 
+/* ─────────────────────────────────────────────
+ * Supabase Clients
+ * ───────────────────────────────────────────── */
+
+// Browser (singleton)
+export { supabase as supabaseClient } from "@/lib/supabase/browserClient";;
+
+/* ─────────────────────────────────────────────
+ * API Contract Types
+ * ───────────────────────────────────────────── */
 export type {
   AuthEndpoints,
-  AlzheimerEndpoints,
-  CardiologyEndpoints,
   UserEndpoints,
   DashboardEndpoints,
   ReportEndpoints,

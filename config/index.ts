@@ -40,12 +40,6 @@ export {
 // Routes Configuration
 export {
   ROUTES,
-  PUBLIC_ROUTES,
-  AUTH_ROUTES,
-  DASHBOARD_ROUTES,
-  ALZHEIMER_ROUTES,
-  CARDIOLOGY_ROUTES,
-  ROUTE_METADATA,
   isProtectedRoute,
   isPublicRoute,
   isAuthRoute,

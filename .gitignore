@@ -1,32 +1,8 @@
-venv/
-# Dependencies
-node_modules/
-
-# Build output
-.next/
-out/
-build/
-
-# Environment variables
-.env.local
+node_modules
+.next
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# IDEs and editors
+.env.local
+venv
+dist
+build
 .DS_Store
-.vercel
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Misc
-.DS_Store
-Thumbs.db

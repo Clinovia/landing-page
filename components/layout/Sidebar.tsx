@@ -2,119 +2,157 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
-type SidebarLeafItem = {
+type SidebarItem = {
   title: string;
-  href: string;
+  href?: string;
+  children?: SidebarItem[];
 };
 
-type SidebarParentItem = {
+type Section = {
   title: string;
-  children: SidebarLeafItem[];
+  href?: string;
+  items?: SidebarItem[];
 };
 
-type SidebarItem = SidebarLeafItem | SidebarParentItem;
-
-type SidebarSection = {
-  title: string;
-  href: string;
-  items: SidebarItem[];
-};
-
-const sidebar: SidebarSection[] = [
-  {
-    title: "Cardiology",
-    href: "/protected/cardiology",
-    items: [
-      { title: "ASCVD", href: "/protected/cardiology/ascvd" },
-      { title: "Blood Pressure Categorization", href: "/protected/cardiology/bp-category" },
-      { title: "CHA2DS2-VASc", href: "/protected/cardiology/cha2ds2vasc" },
-      { title: "ECG Interpretation", href: "/protected/cardiology/ecg-interpretation" },
-    ],
-  },
+const SIDEBAR: Section[] = [
   {
     title: "Neurology / Alzheimer",
-    href: "/protected/alzheimer",
+    href: "/clinical/alzheimer",
     items: [
-      { title: "Risk Screener", href: "/protected/alzheimer/risk-screener" },
       {
-        title: "Diagnosis",
+        title: "Clinical Pipeline",
         children: [
-          { title: "Screening", href: "/protected/alzheimer/diagnosis-screening" },
-          { title: "Basic Features", href: "/protected/alzheimer/diagnosis-basic" },
-          { title: "Extended Features", href: "/protected/alzheimer/diagnosis-extended" },
+          {
+            title: "Stage 1 – Clinical Screening",
+            href: "/clinical/alzheimer/stage1-clinical",
+          },
+          {
+            title: "Stage 2a – Plasma Model",
+            href: "/clinical/alzheimer/stage2a-plasma",
+          },
+          {
+            title: "Stage 2b – MRI Model",
+            href: "/clinical/alzheimer/stage2b-mri",
+          },
         ],
       },
-      {
-        title: "Prognosis",
-        children: [
-          { title: "Unified Model", href: "/protected/alzheimer/prognosis" },
-        ],
-      },
-      {
-        title: "Prognosis (2yr)",
-        children: [
-          { title: "Basic Features", href: "/protected/alzheimer/prognosis-2yr-basic" },
-          { title: "Extended Features", href: "/protected/alzheimer/prognosis-2yr-extended" },
-        ],
-      },
+      /*{
+        title: "Decision Support",
+        href: "/clinical/alzheimer/decision-support",
+      },*/
     ],
   },
 ];
 
-export default function Sidebar() {
+function SidebarLink({
+  href,
+  title,
+  depth = 0,
+}: {
+  href: string;
+  title: string;
+  depth?: number;
+}) {
   const pathname = usePathname();
 
-  return (
-    <aside className="w-64 h-screen p-4 border-r bg-background overflow-y-auto">
-      <nav className="space-y-6">
-        {sidebar.map((section) => (
-          <div key={section.title}>
-            <Link
-              href={section.href}
-              className="font-semibold text-lg mb-2 block hover:underline text-foreground"
-            >
-              {section.title}
-            </Link>
+  const active = pathname === href;
 
-            <ul className="ml-2 space-y-1">
-              {section.items.map((item) =>
-                "children" in item ? (
-                  <li key={item.title}>
-                    <span className="font-medium text-foreground">{item.title}</span>
-                    <ul className="ml-4 mt-1 space-y-1">
-                      {item.children.map((child) => (
-                        <li key={child.title}>
-                          <Link
-                            href={child.href}
-                            className={`text-sm hover:underline ${
-                              pathname === child.href
-                                ? "text-primary font-semibold"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            {child.title}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ) : (
-                  <li key={item.title}>
-                    <Link
-                      href={item.href}
-                      className={`hover:underline ${
-                        pathname === item.href
-                          ? "text-primary font-semibold"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {item.title}
-                    </Link>
-                  </li>
-                )
-              )}
-            </ul>
+  return (
+    <Link
+      href={href}
+      className={clsx(
+        "block rounded-lg px-3 py-2 text-sm transition-colors",
+        depth > 0 && "ml-4",
+        active
+          ? "bg-black text-white dark:bg-white dark:text-black"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}
+    >
+      {title}
+    </Link>
+  );
+}
+
+function SidebarItemNode({
+  item,
+  depth = 0,
+}: {
+  item: SidebarItem;
+  depth?: number;
+}) {
+  return (
+    <div className="space-y-1">
+      {item.href ? (
+        <SidebarLink
+          href={item.href}
+          title={item.title}
+          depth={depth}
+        />
+      ) : (
+        <div
+          className={clsx(
+            "px-3 py-2 text-sm font-medium text-foreground",
+            depth > 0 && "ml-4"
+          )}
+        >
+          {item.title}
+        </div>
+      )}
+
+      {item.children && (
+        <div className="space-y-1">
+          {item.children.map((child) => (
+            <SidebarItemNode
+              key={child.title}
+              item={child}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Sidebar() {
+  return (
+    <aside className="w-72 border-r bg-background p-4">
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold">
+          Clinical AI Platform
+        </h2>
+
+        <p className="text-sm text-muted-foreground">
+          Alzheimer Decision Support
+        </p>
+      </div>
+
+      <nav className="space-y-6">
+        {SIDEBAR.map((section) => (
+          <div key={section.title} className="space-y-2">
+            {section.href ? (
+              <SidebarLink
+                href={section.href}
+                title={section.title}
+              />
+            ) : (
+              <h3 className="px-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {section.title}
+              </h3>
+            )}
+
+            {section.items && (
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <SidebarItemNode
+                    key={item.title}
+                    item={item}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </nav>

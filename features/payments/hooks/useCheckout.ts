@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createCheckoutSession } from "../api";
+import { createCheckoutSession } from "@/lib/api/payments";
 
 export function useCheckout() {
   const [loading, setLoading] = useState(false);

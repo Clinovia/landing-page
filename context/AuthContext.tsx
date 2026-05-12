@@ -3,149 +3,105 @@
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
+  useState,
   ReactNode,
 } from "react";
+
 import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabaseClient";
-import { apiRequest } from "@/lib/apiClient";
+import { supabase as supabaseClient } from "@/lib/supabase/browserClient";
 
-// -----------------------------
+// ----------------------------------
 // Types
-// -----------------------------
-
-type Plan = "starter" | "basic" | "professional";
-
-type SubscriptionStatus = "active" | "inactive" | "loading";
+// ----------------------------------
 
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
-  plan: Plan;
-  isPaid: boolean;
-  assessmentsUsed: number;
-  assessmentsLimit: number;
-  nextBillingDate: string | null;
-  subscriptionStatus: SubscriptionStatus;
-  refreshSubscription: () => Promise<void>;
+
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 };
 
-// -----------------------------
+// ----------------------------------
 // Context
-// -----------------------------
+// ----------------------------------
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// -----------------------------
+// ----------------------------------
 // Provider
-// -----------------------------
+// ----------------------------------
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [subscriptionStatus, setSubscriptionStatus] =
-    useState<SubscriptionStatus>("loading");
-  const [plan, setPlan] = useState<Plan>("starter");
-  const [isPaid, setIsPaid] = useState(false);
-  const [assessmentsUsed, setAssessmentsUsed] = useState(0);
-  const [assessmentsLimit, setAssessmentsLimit] = useState(100);
-  const [nextBillingDate, setNextBillingDate] = useState<string | null>(null);
 
-  // -----------------------------
-  // Fetch subscription + plan
-  // -----------------------------
-  const fetchSubscription = async () => {
-    try {
-      const res = await apiRequest<{
-        plan: Plan;
-        is_paid: boolean;
-        assessments_used?: number;
-        assessments_limit?: number;
-        next_billing_date?: string | null;
-      }>({
-        path: "/payments/status",
-        method: "GET",
-      });
-
-      setPlan(res.plan);
-      setIsPaid(res.is_paid);
-      setAssessmentsUsed(res.assessments_used ?? 0);
-      setAssessmentsLimit(res.assessments_limit ?? 100);
-      setNextBillingDate(res.next_billing_date ?? null);
-      setSubscriptionStatus(res.is_paid ? "active" : "inactive");
-    } catch (err) {
-      console.error("Subscription fetch failed:", err);
-      setPlan("starter");
-      setIsPaid(false);
-      setAssessmentsUsed(0);
-      setAssessmentsLimit(100);
-      setNextBillingDate(null);
-      setSubscriptionStatus("inactive");
-    }
-  };
-
-  const refreshSubscription = async () => {
-    setSubscriptionStatus("loading");
-    await fetchSubscription();
-  };
-
-  // -----------------------------
-  // Init auth
-  // -----------------------------
   useEffect(() => {
+    let mounted = true;
+
+    // 🔹 Initial session load
     const init = async () => {
-      const { data, error } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
 
-      if (error) {
-        console.error("Error fetching session:", error);
+        if (!mounted) return;
+
+        setSession(session);
+        setUser(session?.user ?? null);
+      } catch {
+        if (!mounted) return;
+        setSession(null);
+        setUser(null);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-
-      const currentSession = data.session;
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-
-      if (currentSession?.user) {
-        await fetchSubscription();
-      } else {
-        setPlan("starter");
-        setIsPaid(false);
-        setNextBillingDate(null);
-        setSubscriptionStatus("inactive");
-      }
-
-      setIsLoading(false);
     };
 
     init();
 
+    // 🔥 Real-time auth sync (Supabase v2 correct signature)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
+    } = supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
 
-      if (newSession?.user) {
-        await fetchSubscription();
-      } else {
-        setPlan("starter");
-        setIsPaid(false);
-        setNextBillingDate(null);
-        setSubscriptionStatus("inactive");
-      }
+      setSession(session);
+      setUser(session?.user ?? null);
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  // -----------------------------
-  // Loading guard
-  // -----------------------------
-  if (isLoading) return null;
+  // ----------------------------------
+  // Actions
+  // ----------------------------------
+
+  const login = async (email: string, password: string) => {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const logout = async () => {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
 
   return (
     <AuthContext.Provider
@@ -153,13 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         user,
         isLoading,
-        plan,
-        isPaid,
-        assessmentsUsed,
-        assessmentsLimit,
-        nextBillingDate,
-        subscriptionStatus,
-        refreshSubscription,
+        login,
+        logout,
       }}
     >
       {children}
@@ -167,13 +118,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// -----------------------------
+// ----------------------------------
 // Hook
-// -----------------------------
+// ----------------------------------
+
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth must be used within AuthProvider");
   }
-  return context;
+  return ctx;
 }

@@ -13,14 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/lib/supabaseClient";
+import { logout } from "@/lib/supabase/auth";
 
 export default function Topbar() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await logout();
     router.push("/login");
   };
 
@@ -29,19 +29,19 @@ export default function Topbar() {
 
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b bg-white">
-      {/* Left side */}
+
       <div className="flex items-center gap-4">
         <div className="text-lg font-semibold text-[#1B4D3E]">
           Clinovia Workspace
         </div>
-        <Link href="/protected">
+
+        <Link href="/dashboard">
           <Button variant="ghost" size="sm">
             Dashboard
           </Button>
         </Link>
       </div>
 
-      {/* Right side */}
       {!isLoading && user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -54,19 +54,25 @@ export default function Topbar() {
               </span>
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>
               Signed in as
               <div className="text-xs text-gray-500">{email}</div>
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem>
               Account Settings
             </DropdownMenuItem>
+
             <DropdownMenuItem>
               Support
             </DropdownMenuItem>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem
               onClick={handleLogout}
               className="text-red-600 cursor-pointer"

@@ -1,4 +1,3 @@
-// frontend/features/auth/components/SignupForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signup, login } from "@/lib/api/authApi";
+import { login } from "@/lib/supabase/auth";
+import { supabase } from "@/lib/supabase/browserClient";
 import { useCheckout } from "@/features/payments/hooks/useCheckout";
 
 export default function MinimalSignupForm() {
@@ -20,8 +20,9 @@ export default function MinimalSignupForm() {
     password: "",
     confirm: "",
   });
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,16 +30,17 @@ export default function MinimalSignupForm() {
   };
 
   const handlePostSignup = (plan: string | null) => {
-    console.log("plan after signup:", plan);
     if (plan && plan !== "starter") {
-      startCheckout(plan); // → Stripe Checkout
+      startCheckout(plan);
     } else {
-      router.push("/protected"); // → Dashboard
+      router.replace("/clinical/alzheimer");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     const { fullName, email, password, confirm } = formData;
     const plan = searchParams.get("plan");
 
@@ -48,33 +50,45 @@ export default function MinimalSignupForm() {
     }
 
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
-      const { session } = await signup({
+      // 🔥 Signup directly via Supabase client (no legacy authApi)
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        full_name: fullName,
+        options: {
+          data: { full_name: fullName },
+        },
       });
 
-      if (!session) {
-        // Should not happen with email verification off, but just in case
-        setError("Signup succeeded but no session was created. Please log in.");
-        return;
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // ⚠️ Handle edge case: user already exists
+      if (!data.session) {
+        // fallback → try login
+        await login(email, password);
       }
 
       handlePostSignup(plan);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Signup failed";
+      const message =
+        err instanceof Error ? err.message : "Signup failed";
 
-      // User already exists → try login instead
+      // Handle "user already exists" more robustly
       if (message.toLowerCase().includes("already")) {
         try {
-          await login({ email, password });
+          await login(email, password);
           handlePostSignup(plan);
           return;
         } catch (loginErr: unknown) {
-          setError(loginErr instanceof Error ? loginErr.message : "Login failed");
+          setError(
+            loginErr instanceof Error
+              ? loginErr.message
+              : "Login failed"
+          );
           return;
         }
       }
@@ -86,7 +100,11 @@ export default function MinimalSignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 max-w-md mx-auto"
+      noValidate
+    >
       <div>
         <Label htmlFor="fullName">Full Name</Label>
         <Input
@@ -99,6 +117,7 @@ export default function MinimalSignupForm() {
           disabled={loading}
         />
       </div>
+
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -109,8 +128,10 @@ export default function MinimalSignupForm() {
           onChange={handleChange}
           required
           disabled={loading}
+          autoComplete="email"
         />
       </div>
+
       <div>
         <Label htmlFor="password">Password</Label>
         <Input
@@ -122,8 +143,10 @@ export default function MinimalSignupForm() {
           required
           minLength={6}
           disabled={loading}
+          autoComplete="new-password"
         />
       </div>
+
       <div>
         <Label htmlFor="confirm">Confirm Password</Label>
         <Input
@@ -135,6 +158,7 @@ export default function MinimalSignupForm() {
           required
           minLength={6}
           disabled={loading}
+          autoComplete="new-password"
         />
       </div>
 

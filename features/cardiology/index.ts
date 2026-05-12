@@ -1,1 +1,0 @@
-// frontend/features/cardiology/index.ts

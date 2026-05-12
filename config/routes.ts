@@ -1,138 +1,121 @@
-// clinovia-saas/frontend/config/routes.ts
 /**
  * Application Routes Configuration
  * Centralized route definitions for type-safe navigation
  */
 
 export const PUBLIC_ROUTES = {
-  HOME: '/',
-  MODULES: '/modules',
-  ABOUT: '/about',
-  CONTACT: '/contact',
-  PRIVACY: '/privacy',
-  TERMS: '/terms',
+  HOME: "/",
+  MODULES: "/modules",
+  ABOUT: "/about",
+  CONTACT: "/contact",
+  PRIVACY: "/privacy",
+  TERMS: "/terms",
 } as const;
 
 export const AUTH_ROUTES = {
-  LOGIN: '/login',
-  SIGNUP: '/signup',
-  FORGOT_PASSWORD: '/forgot-password',
-  RESET_PASSWORD: '/reset-password',
-  VERIFY_EMAIL: '/verify-email',
+  LOGIN: "/login",
+  SIGNUP: "/signup",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
+  VERIFY_EMAIL: "/verify-email",
 } as const;
 
 export const DASHBOARD_ROUTES = {
-  DASHBOARD: '/dashboard',
-  PROFILE: '/profile',
-  SETTINGS: '/settings',
-  REPORTS: '/reports',
+  ROOT: "/dashboard",
+  PROFILE: "/profile",
+  SETTINGS: "/settings",
+  REPORTS: "/reports",
 } as const;
 
-export const ALZHEIMER_ROUTES = {
-  BASE: '/alzheimer',
-  OVERVIEW: '/alzheimer/overview',
-  DIAGNOSIS_SCREENING: '/alzheimer/diagnosis-screening',
-  DIAGNOSIS_BASIC: '/alzheimer/diagnosis-basic',
-  DIAGNOSIS_EXTENDED: '/alzheimer/diagnosis-extended',
-  PROGNOSIS_2YR_BASIC: '/alzheimer/prognosis-2yr-basic',
-  PROGNOSIS_2YR_EXTENDED: '/alzheimer/prognosis-2yr-extended',
-  RISK_SCREENER: '/alzheimer/risk-screener',
+export const CLINICAL_ROUTES = {
+  ALZHEIMER: {
+    ROOT: "/clinical/alzheimer",
+    STAGE1: "/clinical/alzheimer/stage1-clinical-screening",
+    STAGE2: "/clinical/alzheimer/stage2a-plasma-model",
+    STAGE3: "/clinical/alzheimer/stage2b-mri-model",
+  },
 } as const;
 
-export const CARDIOLOGY_ROUTES = {
-  BASE: '/cardiology',
-  OVERVIEW: '/cardiology/overview',
-  ASCVD: '/cardiology/ascvd',
-  BP_CATEGORY: '/cardiology/bp-category',
-  CHA2DS2_VASC: '/cardiology/cha2ds2vasc',
-  ECG_INTERPRETER: '/cardiology/ecg-interpreter',
-} as const;
-
-/**
- * Group all routes
- */
+/* ──────────────────────────────────────────────
+ * Unified ROUTES object (safe grouping only)
+ * ────────────────────────────────────────────── */
 export const ROUTES = {
   PUBLIC: PUBLIC_ROUTES,
   AUTH: AUTH_ROUTES,
   DASHBOARD: DASHBOARD_ROUTES,
-  ALZHEIMER: ALZHEIMER_ROUTES,
-  CARDIOLOGY: CARDIOLOGY_ROUTES,
+  CLINICAL: CLINICAL_ROUTES,
 } as const;
 
-/**
+/* ──────────────────────────────────────────────
  * Type helpers
- */
-type RouteValues<T> = T[keyof T];
-type AllRoutes = RouteValues<typeof ROUTES.PUBLIC> | RouteValues<typeof ROUTES.AUTH> | RouteValues<typeof ROUTES.DASHBOARD> | RouteValues<typeof ROUTES.ALZHEIMER> | RouteValues<typeof ROUTES.CARDIOLOGY>;
+ * ────────────────────────────────────────────── */
+type Values<T> = T[keyof T];
 
 /**
- * Route metadata for navigation menus
+ * All route values in the system (flat union)
+ * Useful for navigation helpers only
  */
-export const ROUTE_METADATA = {
-  ALZHEIMER_TOOLS: [
-    { path: ALZHEIMER_ROUTES.DIAGNOSIS_SCREENING, title: 'Diagnosis Screening', description: 'Quick screening for Alzheimer\'s disease', icon: '🔍' },
-    { path: ALZHEIMER_ROUTES.DIAGNOSIS_BASIC, title: 'Basic Diagnosis', description: 'Basic diagnostic assessment', icon: '📋' },
-    { path: ALZHEIMER_ROUTES.DIAGNOSIS_EXTENDED, title: 'Extended Diagnosis', description: 'Comprehensive diagnostic evaluation', icon: '📊' },
-    { path: ALZHEIMER_ROUTES.PROGNOSIS_2YR_BASIC, title: '2-Year Prognosis (Basic)', description: 'Basic 2-year prognosis prediction', icon: '📈' },
-    { path: ALZHEIMER_ROUTES.PROGNOSIS_2YR_EXTENDED, title: '2-Year Prognosis (Extended)', description: 'Extended 2-year prognosis prediction', icon: '📉' },
-    { path: ALZHEIMER_ROUTES.RISK_SCREENER, title: 'Risk Screener', description: 'Assess risk factors for Alzheimer\'s', icon: '⚠️' },
-  ],
-  CARDIOLOGY_TOOLS: [
-    { path: CARDIOLOGY_ROUTES.ASCVD, title: 'ASCVD Calculator', description: 'Atherosclerotic cardiovascular disease risk', icon: '💓' },
-    { path: CARDIOLOGY_ROUTES.BP_CATEGORY, title: 'Blood Pressure Category', description: 'Categorize blood pressure readings', icon: '🩺' },
-    { path: CARDIOLOGY_ROUTES.CHA2DS2_VASC, title: 'CHA₂DS₂-VASc Score', description: 'Stroke risk in atrial fibrillation', icon: '🫀' },
-    { path: CARDIOLOGY_ROUTES.ECG_INTERPRETER, title: 'ECG Interpreter', description: 'AI-powered ECG analysis', icon: '📈' },
-  ],
-  MAIN_NAV: [
-    { path: PUBLIC_ROUTES.HOME, title: 'Home', icon: '🏠' },
-    { path: PUBLIC_ROUTES.MODULES, title: 'Modules', icon: '📦' },
-    { path: DASHBOARD_ROUTES.DASHBOARD, title: 'Dashboard', icon: '📊', protected: true },
-  ],
-} as const;
+export type AppRoute =
+  | Values<typeof PUBLIC_ROUTES>
+  | Values<typeof AUTH_ROUTES>
+  | Values<typeof DASHBOARD_ROUTES>
+  | Values<typeof CLINICAL_ROUTES["ALZHEIMER"]>;
 
-/**
- * Helper functions
- */
-export const isProtectedRoute = (pathname: string): boolean => {
-  const protectedPrefixes: string[] = [
-    ALZHEIMER_ROUTES.BASE,
-    CARDIOLOGY_ROUTES.BASE,
-    DASHBOARD_ROUTES.DASHBOARD,
-    DASHBOARD_ROUTES.PROFILE,
-    DASHBOARD_ROUTES.SETTINGS,
-    DASHBOARD_ROUTES.REPORTS,
-  ];
-  return protectedPrefixes.some(prefix => pathname.startsWith(prefix));
+/* ──────────────────────────────────────────────
+ * Route helpers (safe & scalable)
+ * ────────────────────────────────────────────── */
+
+const includesRoute = <T extends Record<string, string>>(
+  routes: T,
+  pathname: string
+): boolean => {
+  return (Object.values(routes) as string[]).includes(pathname);
 };
 
 export const isPublicRoute = (pathname: string): boolean =>
-  Object.values(PUBLIC_ROUTES).includes(pathname as any);
+  includesRoute(PUBLIC_ROUTES, pathname);
 
 export const isAuthRoute = (pathname: string): boolean =>
-  Object.values(AUTH_ROUTES).some(route => pathname.startsWith(route));
+  Object.values(AUTH_ROUTES).some((route) => pathname.startsWith(route));
 
-export const getDefaultRedirect = (userRole?: string): AllRoutes => {
+export const isProtectedRoute = (pathname: string): boolean =>
+  Object.values(DASHBOARD_ROUTES).some((route) =>
+    pathname.startsWith(route)
+  );
+
+/* ──────────────────────────────────────────────
+ * Navigation defaults
+ * ────────────────────────────────────────────── */
+export const getDefaultRedirect = (userRole?: string): AppRoute => {
   switch (userRole) {
-    case 'admin':
-      return DASHBOARD_ROUTES.DASHBOARD;
-    case 'doctor':
-      return ALZHEIMER_ROUTES.BASE;
+    case "admin":
+      return DASHBOARD_ROUTES.ROOT;
+    case "doctor":
+      return CLINICAL_ROUTES.ALZHEIMER.ROOT;
     default:
-      return DASHBOARD_ROUTES.DASHBOARD;
+      return DASHBOARD_ROUTES.ROOT;
   }
 };
 
-export const getBreadcrumbs = (pathname: string): Array<{ label: string; href: string }> => {
-  const segments = pathname.split('/').filter(Boolean);
-  const breadcrumbs = [{ label: 'Home', href: '/' }];
-  let currentPath = '';
-  segments.forEach(segment => {
+/* ──────────────────────────────────────────────
+ * Breadcrumb helper (unchanged but safe)
+ * ────────────────────────────────────────────── */
+export const getBreadcrumbs = (
+  pathname: string
+): Array<{ label: string; href: string }> => {
+  const segments = pathname.split("/").filter(Boolean);
+  const breadcrumbs = [{ label: "Home", href: "/" }];
+
+  let currentPath = "";
+  segments.forEach((segment) => {
     currentPath += `/${segment}`;
     const label = segment
-      .split('-')
-      .map(word => word[0].toUpperCase() + word.slice(1))
-      .join(' ');
+      .split("-")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" ");
+
     breadcrumbs.push({ label, href: currentPath });
   });
+
   return breadcrumbs;
 };

@@ -1,86 +1,144 @@
-// lib/api/alzheimer.ts
-import { apiRequest } from "@/lib/apiClient";
+/* -------------------------------------
+ * Alzheimer API (Stage 1, 2A, 2B)
+ * Thin client — NO transformations
+ * ----------------------------------- */
+
+import { apiClient } from "@/lib/apiClient";
+
+/* -------------------------------------
+ * API BASE
+ * ----------------------------------- */
+
+const ASSESSMENT_BASE =
+  "/api/v1/assessments";
+
+
+/* -------------------------------------
+ * Stage 1 — Clinical Screening
+ * ----------------------------------- */
+
 import type {
-  AlzheimerDiagnosisScreeningInput,
-  AlzheimerDiagnosisScreeningOutput,
-  AlzheimerRiskScreenerInput,
-  AlzheimerRiskScreenerOutput,
-  AlzheimerDiagnosisBasicInput,
-  AlzheimerDiagnosisBasicOutput,
-  AlzheimerDiagnosisExtendedInput,
-  AlzheimerDiagnosisExtendedOutput,
-  AlzheimerPrognosis2yrBasicInput,
-  AlzheimerPrognosis2yrBasicOutput,
-  AlzheimerPrognosis2yrExtendedInput,
-  AlzheimerPrognosis2yrExtendedOutput,
-  AlzheimerUnifiedPrognosisInput,
-  AlzheimerUnifiedPrognosisOutput,
-} from "@/features/alzheimer/types";
+  Stage1ClinicalScreeningInput,
+  Stage1ClinicalScreeningOutput,
+} from "@/features/alzheimer/stage1/types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.clinovia.ai";
+export type Stage1Output =
+  Stage1ClinicalScreeningOutput;
 
-/* ------------------------------------------------------------------ */
-/* Shared Helper                                                       */
-/* ------------------------------------------------------------------ */
-function post<TInput, TOutput>(path: string, body: TInput): Promise<TOutput> {
-  return apiRequest<TOutput, TInput>({
-    path: `${BASE_URL}${path}`,
-    method: "POST",
-    body,
-    requireAuth: true, // Supabase token will be attached
-  });
+export type Stage1Input =
+  Stage1ClinicalScreeningInput;
+
+export async function runStage1(
+  input: Stage1Input
+): Promise<Stage1Output> {
+
+  return apiClient.post<Stage1Output>(
+    `${ASSESSMENT_BASE}/stage1-clinical`,
+    input
+  );
 }
 
-/* ------------------------------------------------------------------ */
-/* Diagnosis                                                           */
-/* ------------------------------------------------------------------ */
-export const diagnosisScreening = (data: AlzheimerDiagnosisScreeningInput) =>
-  post<AlzheimerDiagnosisScreeningInput, AlzheimerDiagnosisScreeningOutput>(
-    "/api/v1/alzheimer/diagnosis-screening",
-    data
-  );
 
-export const diagnosisBasic = (data: AlzheimerDiagnosisBasicInput) =>
-  post<AlzheimerDiagnosisBasicInput, AlzheimerDiagnosisBasicOutput>(
-    "/api/v1/alzheimer/diagnosis-basic",
-    data
-  );
+/* -------------------------------------
+ * Stage 2A — Plasma (Amyloid)
+ * ----------------------------------- */
 
-export const diagnosisExtended = (data: AlzheimerDiagnosisExtendedInput) =>
-  post<AlzheimerDiagnosisExtendedInput, AlzheimerDiagnosisExtendedOutput>(
-    "/api/v1/alzheimer/diagnosis-extended",
-    data
-  );
+import type {
+  Stage2aPlasmaModelInput,
+  Stage2aPlasmaModelOutput,
+} from "@/features/alzheimer/stage2a/types";
 
-/* ------------------------------------------------------------------ */
-/* Risk Screener                                                       */
-/* ------------------------------------------------------------------ */
-export const riskScreener = (data: AlzheimerRiskScreenerInput) =>
-  post<AlzheimerRiskScreenerInput, AlzheimerRiskScreenerOutput>(
-    "/api/v1/alzheimer/risk-screener",
-    data
-  );
+export type Stage2aOutput =
+  Stage2aPlasmaModelOutput;
 
-/* ------------------------------------------------------------------ */
-/* Prognosis (Unified)                                                 */
-/* ------------------------------------------------------------------ */
-export const prognosisUnified = (data: AlzheimerUnifiedPrognosisInput) =>
-  post<AlzheimerUnifiedPrognosisInput, AlzheimerUnifiedPrognosisOutput>(
-    "/api/v1/alzheimer/prognosis",
-    data
-  );
+export type Stage2aInput =
+  Stage2aPlasmaModelInput;
 
-/* ------------------------------------------------------------------ */
-/* Prognosis (2-Year)                                                  */
-/* ------------------------------------------------------------------ */
-export const prognosis2YrBasic = (data: AlzheimerPrognosis2yrBasicInput) =>
-  post<AlzheimerPrognosis2yrBasicInput, AlzheimerPrognosis2yrBasicOutput>(
-    "/api/v1/alzheimer/prognosis-2yr-basic",
-    data
-  );
+export async function runStage2a(
+  input: Stage2aInput
+): Promise<Stage2aOutput> {
 
-export const prognosis2YrExtended = (data: AlzheimerPrognosis2yrExtendedInput) =>
-  post<AlzheimerPrognosis2yrExtendedInput, AlzheimerPrognosis2yrExtendedOutput>(
-    "/api/v1/alzheimer/prognosis-2yr-extended",
-    data
+  return apiClient.post<Stage2aOutput>(
+    `${ASSESSMENT_BASE}/stage2a-plasma`,
+    input
   );
+}
+
+
+/* -------------------------------------
+ * Stage 2B — MRI (Neurodegeneration)
+ * ----------------------------------- */
+
+import type {
+  Stage2bMRIGateInput,
+  Stage2bMRIGateOutput,
+} from "@/features/alzheimer/stage2b/types";
+
+export type Stage2bOutput =
+  Stage2bMRIGateOutput;
+
+export type Stage2bInput =
+  Stage2bMRIGateInput;
+
+export async function runStage2b(
+  input: Stage2bInput
+): Promise<Stage2bOutput> {
+
+  return apiClient.post<Stage2bOutput>(
+    `${ASSESSMENT_BASE}/stage2b-mri`,
+    input
+  );
+}
+
+
+/* -------------------------------------
+ * Decision Support (optional future)
+ * ----------------------------------- */
+
+export type ClinicalSummary = {
+  summary: string;
+};
+
+export type RiskStratification = {
+  risk_level:
+    | "LOW"
+    | "INTERMEDIATE"
+    | "HIGH";
+};
+
+export type PathwayDecision = {
+  next_step: string;
+  rationale: string;
+};
+
+export type PetSimulation = {
+  expected_positivity: number;
+
+  // Clinical utility metrics
+  nnt?: number;
+  ppv?: number;
+  npv?: number;
+
+  // Optional interpretation layer
+  risk_band?:
+    | "LOW"
+    | "INTERMEDIATE"
+    | "HIGH";
+
+  recommendation?: string;
+
+  // Model metadata
+  confidence?: number;
+};
+
+export type PatientCommunication = {
+  message: string;
+};
+
+export type UncertaintyResult = {
+  uncertainty_score: number;
+};
+
+export type DecisionSupportInput = {
+  patient_id?: string | number;
+};

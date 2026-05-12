@@ -1,10 +1,15 @@
 "use client";
+
 import Link from "next/link";
 import { Plan } from "../types";
-import { AUTH_ROUTES } from "@/config/routes";
+import { ROUTES } from "@/config/routes";
 
 export function PricingCard({ plan }: { plan: Plan }) {
   const isFree = plan.price === 0;
+
+  const href = isFree
+    ? ROUTES.AUTH.SIGNUP
+    : `${ROUTES.AUTH.SIGNUP}?plan=${plan.id}`;
 
   return (
     <div
@@ -32,13 +37,14 @@ export function PricingCard({ plan }: { plan: Plan }) {
       <ul className="flex flex-col gap-2 flex-1">
         {plan.features.map((f) => (
           <li key={f} className="text-sm text-muted-foreground flex gap-2">
-            <span className="text-blue-500 mt-0.5">✓</span> {f}
+            <span className="text-blue-500 mt-0.5">✓</span>
+            {f}
           </li>
         ))}
       </ul>
 
       <Link
-        href={isFree ? AUTH_ROUTES.SIGNUP : `${AUTH_ROUTES.SIGNUP}?plan=${plan.id}`}
+        href={href}
         className="w-full px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-center block text-sm font-medium"
       >
         {isFree ? "Get Started" : "Subscribe"}

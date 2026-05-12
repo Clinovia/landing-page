@@ -1,20 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { login } from "@/lib/api/authApi";
-import { supabase } from "@/lib/supabaseClient";
-
-const { data: { session } } = await supabase.auth.getSession();
-if (session) {
-  const header = JSON.parse(atob(session.access_token.split('.')[0]));
-  console.log("TOKEN KID:", header.kid);
-}
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -44,24 +38,16 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      await login({ email, password });
+      await login(email, password);
 
-      // Ensure session exists before redirect
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        throw new Error("Login succeeded but session not established.");
-      }
-
-      router.replace("/protected");
+      // 🔥 AuthContext listener guarantees session sync
+      router.replace("/clinical/alzheimer");
     } catch (err) {
-      const message =
+      setError(
         err instanceof Error
           ? err.message
-          : "Invalid email or password.";
-      setError(message);
+          : "Invalid email or password."
+      );
     } finally {
       setLoading(false);
     }
