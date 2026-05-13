@@ -1,215 +1,298 @@
+import Link from "next/link";
+import Image from "next/image";
+
 export default function PlatformSection() {
   const stages = [
     {
       stage: "Stage 1",
-      title: "Clinical Screening",
+      title: "Clinical Progression Screening",
       purpose:
-        "Estimates 24-month MCI-to-AD progression risk using routinely available clinical variables. High-risk patients are routed to parallel confirmatory stages.",
+        "Estimates 24-month cognitive progression risk using structured clinical and neuropsychological variables.",
       inputs: [
-        "Age, sex, years of education",
-        "APOE ε4 allele count (0, 1, or 2)",
-        "MMSE score",
-        "ECog — study partner total & memory discrepancy",
-        "RAVLT immediate recall & forgetting score",
+        "Demographics and education",
+        "APOE ε4 status",
+        "MMSE",
+        "ECog functional measures",
+        "RAVLT memory performance",
       ],
       outputs: [
-        "Risk class: High Risk Progressor or Low Risk Monitor",
         "24-month progression probability",
-        "Model confidence score",
-        "Top contributing features",
-        "Next step: Proceed to Stage 2 or Clinical Monitoring",
+        "Risk stratification",
+        "Confidence score",
+        "Explainability insights",
       ],
-      color: "border-green-700",
-      badgeColor: "bg-green-50 text-green-800 border-green-200",
+      accent: "green",
       shap: "/images/stage1_shap_bar.png",
       shapAlt: "Stage 1 SHAP feature importance",
+      metric: "AUC 0.916",
+      href: "/research/stage1-clinical",
     },
     {
       stage: "Stage 2a",
-      title: "Plasma Amyloid Triage",
+      title: "Plasma Biomarker Intelligence",
       purpose:
-        "Estimates amyloid burden from blood-based biomarkers. Runs in parallel with Stage 2b — both results feed into the fusion layer.",
+        "Estimates amyloid-associated neurodegenerative risk using blood biomarkers and clinical covariates.",
       inputs: [
         "Plasma Aβ42/40 ratio",
-        "Phosphorylated tau 217 (p-tau217)",
+        "Plasma pTau217",
         "GFAP",
-        "Neurofilament light chain (NfL)",
-        "Age, APOE ε4, education, MMSE (covariates)",
+        "NfL",
+        "Clinical covariates",
       ],
       outputs: [
-        "Amyloid probability score (0–100%)",
-        "Classification: Amyloid Positive or Negative",
-        "Risk band: Low / Intermediate / High",
-        "Recommendation: Order PET / Consider PET / Defer PET",
-        "Forwarded to fusion layer",
+        "Amyloid probability score",
+        "Risk band classification",
+        "PET triage recommendation",
+        "Biomarker explainability",
       ],
-      color: "border-purple-700",
-      badgeColor: "bg-purple-50 text-purple-800 border-purple-200",
+      accent: "purple",
       shap: "/images/stage2a_shap_bar.png",
       shapAlt: "Stage 2a SHAP feature importance",
+      metric: "AUC 0.915",
+      href: "/research/stage2a-plasma",
     },
     {
       stage: "Stage 2b",
-      title: "MRI Neurodegeneration Gate",
+      title: "MRI Neurodegeneration Analysis",
       purpose:
-        "Confirms or rules out structural neurodegeneration using MRI volumetrics and longitudinal atrophy trajectories. Runs in parallel with Stage 2a.",
+        "Characterizes structural neurodegeneration using MRI volumetrics and longitudinal atrophy trajectories.",
       inputs: [
-        "Hippocampal, entorhinal, ventricular, whole-brain volumes",
-        "Intracranial volume (ICV)",
-        "Longitudinal slopes: hippocampus, ventricles, whole brain",
-        "Age, APOE ε4 (covariates)",
+        "Hippocampal volume",
+        "Entorhinal volume",
+        "Ventricular expansion",
+        "Whole-brain atrophy",
+        "Longitudinal MRI trajectories",
       ],
       outputs: [
-        "MRI risk probability",
-        "Classification: N+ Positive or N+ Negative",
-        "Risk band: Low / Intermediate / High",
-        "Clinical interpretation",
-        "Next step: Plasma / Multimodal / Monitoring",
+        "MRI neurodegeneration risk",
+        "N+ classification",
+        "Structural trajectory analysis",
+        "Multimodal fusion input",
       ],
-      color: "border-blue-700",
-      badgeColor: "bg-blue-50 text-blue-800 border-blue-200",
+      accent: "blue",
       shap: "/images/stage2b_shap_bar.png",
       shapAlt: "Stage 2b SHAP feature importance",
+      metric: "Longitudinal MRI",
+      href: "/research/stage2b-mri",
     },
   ];
 
-  return (
-    <section id="Platform" className="w-full bg-gray-50 py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+  const accentStyles = {
+    green: {
+      border: "border-green-600",
+      badge: "bg-green-500/10 text-green-700 border-green-200",
+      metric: "text-green-700",
+      button:
+        "border-green-600 text-green-700 hover:bg-green-50",
+    },
+    purple: {
+      border: "border-purple-600",
+      badge: "bg-purple-500/10 text-purple-700 border-purple-200",
+      metric: "text-purple-700",
+      button:
+        "border-purple-600 text-purple-700 hover:bg-purple-50",
+    },
+    blue: {
+      border: "border-blue-600",
+      badge: "bg-blue-500/10 text-blue-700 border-blue-200",
+      metric: "text-blue-700",
+      button:
+        "border-blue-600 text-blue-700 hover:bg-blue-50",
+    },
+  };
 
-        {/* Section header */}
-        <div className="mb-14 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-[#1B4D3E] md:text-4xl">
-            Multi-Stage Diagnostic Pipeline
+  return (
+    <section
+      id="Platform"
+      className="w-full bg-gradient-to-b from-gray-50 to-white py-24"
+    >
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
+        
+        {/* Header */}
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <p className="text-sm font-semibold tracking-[0.2em] uppercase text-green-700">
+            Platform Architecture
+          </p>
+
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight text-[#16382F]">
+            Longitudinal Multimodal Brain Health Intelligence
           </h2>
-          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
-            Built on ADNI data, the pipeline routes patients from clinical
-            screening through parallel plasma amyloid triage and MRI
-            neurodegeneration gating before converging at a fusion layer.
+
+          <p className="mt-6 text-lg leading-relaxed text-gray-600">
+            Clinovia integrates clinical cognition, plasma biomarkers,
+            and MRI neurodegeneration analysis into a longitudinal
+            multimodal risk stratification pipeline.
           </p>
         </div>
 
-        {/* Pipeline flow diagram */}
-        <div className="mb-12 hidden md:flex flex-col items-center">
+        {/* Pipeline */}
+        <div className="hidden lg:flex items-center justify-center mb-16">
+          <div className="flex items-center gap-6 text-sm font-medium text-gray-500">
+            <span className="px-4 py-2 rounded-full border border-green-200 bg-green-50 text-green-700">
+              Stage 1
+            </span>
 
-          {/* Stage 1 */}
-          <div className="flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#1B4D3E] text-white text-xs font-bold flex items-center justify-center">
-              1
-            </div>
-            <span className="mt-1.5 text-xs text-gray-500 font-medium">Clinical Screening</span>
-          </div>
+            <div className="w-12 h-px bg-gray-300" />
 
-          {/* Fork */}
-          <div className="w-px h-4 bg-gray-300" />
-          <div className="flex items-start gap-32">
-            <div className="flex flex-col items-center">
-              <div className="w-px h-4 bg-gray-300" />
-              <div className="w-8 h-8 rounded-full bg-purple-700 text-white text-xs font-bold flex items-center justify-center">
-                2a
-              </div>
-              <span className="mt-1.5 text-xs text-gray-500 font-medium">Plasma Triage</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-px h-4 bg-gray-300" />
-              <div className="w-8 h-8 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center">
-                2b
-              </div>
-              <span className="mt-1.5 text-xs text-gray-500 font-medium">MRI Gate</span>
-            </div>
-          </div>
+            <span className="px-4 py-2 rounded-full border border-purple-200 bg-purple-50 text-purple-700">
+              Stage 2a
+            </span>
 
-          {/* Converge */}
-          <div className="relative w-48 h-8">
-            <div className="absolute left-1/4 top-0 w-px h-4 bg-gray-300" />
-            <div className="absolute right-1/4 top-0 w-px h-4 bg-gray-300" />
-            <div className="absolute left-1/4 right-1/4 top-4 h-px bg-gray-300" />
-            <div className="absolute left-1/2 top-4 w-px h-4 bg-gray-300 -translate-x-1/2" />
-          </div>
+            <div className="w-12 h-px bg-gray-300" />
 
-          {/* Fusion */}
-          <div className="flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">
-              F
-            </div>
-            <span className="mt-1.5 text-xs text-gray-500 font-medium">Fusion Layer</span>
-            <span className="text-xs text-amber-600 font-medium mt-0.5">Coming soon</span>
+            <span className="px-4 py-2 rounded-full border border-blue-200 bg-blue-50 text-blue-700">
+              Stage 2b
+            </span>
+
+            <div className="w-12 h-px bg-gray-300" />
+
+            <span className="px-4 py-2 rounded-full border border-amber-200 bg-amber-50 text-amber-700">
+              Fusion Layer
+            </span>
           </div>
         </div>
 
-        {/* Stage cards */}
-        <div className="grid gap-8 md:grid-cols-3">
-          {stages.map((stage) => (
-            <div
-              key={stage.stage}
-              className={`flex flex-col rounded-2xl border-t-4 ${stage.color} border border-gray-200 bg-white p-6 shadow-sm`}
-            >
-              <span className={`self-start text-xs font-semibold px-3 py-1 rounded-full border ${stage.badgeColor} mb-4`}>
-                {stage.stage}
-              </span>
+        {/* Stage Cards */}
+        <div className="grid gap-8 lg:grid-cols-3">
+          {stages.map((stage) => {
+            const style =
+              accentStyles[
+                stage.accent as keyof typeof accentStyles
+              ];
 
-              <h3 className="text-xl font-bold text-[#1B4D3E] mb-3">{stage.title}</h3>
+            return (
+              <div
+                key={stage.stage}
+                className={`flex flex-col rounded-3xl border border-gray-200 bg-white shadow-sm overflow-hidden`}
+              >
+                {/* Top Accent */}
+                <div className={`h-1.5 w-full ${style.border.replace("border", "bg")}`} />
 
-              <p className="text-sm text-gray-600 leading-relaxed mb-5">{stage.purpose}</p>
+                <div className="flex flex-col flex-1 p-7">
+                  
+                  {/* Badge */}
+                  <div className="flex items-center justify-between mb-5">
+                    <span
+                      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${style.badge}`}
+                    >
+                      {stage.stage}
+                    </span>
 
-              {/* SHAP chart */}
-              <div className="mb-5 rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 px-3 pt-3 mb-2">
-                  Feature Importance (SHAP)
-                </p>
-                <img
-                  src={stage.shap}
-                  alt={stage.shapAlt}
-                  className="w-full object-contain max-h-40"
-                />
-              </div>
+                    <span
+                      className={`text-sm font-semibold ${style.metric}`}
+                    >
+                      {stage.metric}
+                    </span>
+                  </div>
 
-              <div className="mt-auto space-y-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Inputs</p>
-                  <ul className="space-y-1">
-                    {stage.inputs.map((input) => (
-                      <li key={input} className="flex items-start gap-2 text-sm text-gray-700">
-                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                        {input}
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Title */}
+                  <h3 className="text-2xl font-bold text-[#16382F] leading-tight">
+                    {stage.title}
+                  </h3>
+
+                  {/* Purpose */}
+                  <p className="mt-4 text-sm leading-relaxed text-gray-600">
+                    {stage.purpose}
+                  </p>
+
+                  {/* SHAP */}
+                  <div className="mt-6 rounded-2xl border border-gray-100 overflow-hidden bg-gray-50">
+                    <div className="px-4 pt-4">
+                      <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
+                        Feature Importance
+                      </p>
+                    </div>
+
+                    <Image
+                      src={stage.shap}
+                      alt={stage.shapAlt}
+                      width={1200}
+                      height={800}
+                      className="w-full object-contain"
+                    />
+                  </div>
+
+                  {/* Inputs */}
+                  <div className="mt-6">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
+                      Inputs
+                    </p>
+
+                    <ul className="space-y-2">
+                      {stage.inputs.map((input) => (
+                        <li
+                          key={input}
+                          className="flex items-start gap-2 text-sm text-gray-700"
+                        >
+                          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gray-400 shrink-0" />
+                          {input}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Outputs */}
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
+                      Outputs
+                    </p>
+
+                    <ul className="space-y-2">
+                      {stage.outputs.map((output) => (
+                        <li
+                          key={output}
+                          className="flex items-start gap-2 text-sm text-gray-700"
+                        >
+                          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#16382F] shrink-0" />
+                          {output}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <Link
+                      href={stage.href}
+                      className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors ${style.button}`}
+                    >
+                      View White Paper →
+
+                    </Link>
+                  </div>
                 </div>
-
-                <div className="border-t border-gray-100 pt-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Outputs</p>
-                  <ul className="space-y-1">
-                    {stage.outputs.map((output) => (
-                      <li key={output} className="flex items-start gap-2 text-sm text-gray-700">
-                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#1B4D3E] shrink-0" />
-                        {output}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
+            );
+          })}
+        </div>
+
+        {/* Fusion Banner */}
+        <div className="mt-12 rounded-3xl border border-amber-200 bg-amber-50 px-8 py-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">
+                Fusion Layer — Coming Soon
+              </p>
+
+              <h3 className="mt-2 text-xl font-bold text-amber-900">
+                Multimodal Longitudinal Risk Fusion
+              </h3>
+
+              <p className="mt-3 text-sm leading-relaxed text-amber-800 max-w-3xl">
+                Future Clinovia models will integrate cognition, plasma
+                biomarkers, and MRI neurodegeneration trajectories into
+                a unified longitudinal brain health intelligence layer.
+              </p>
             </div>
-          ))}
-        </div>
-
-        {/* Fusion banner */}
-        <div className="mt-10 flex items-center gap-4 rounded-xl border border-amber-200 bg-amber-50 px-6 py-4">
-          <div className="w-8 h-8 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
-            F
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-amber-900">Fusion Layer — Coming Soon</p>
-            <p className="text-xs text-amber-700 mt-0.5">
-              Stage 2a plasma and Stage 2b MRI outputs will be combined using a late-fusion
-              model to produce a final amyloid burden estimate and PET/CSF referral recommendation.
-            </p>
           </div>
         </div>
 
-        <p className="mt-8 text-center text-xs text-gray-400">
-          All models trained and validated on ADNI (Alzheimer's Disease Neuroimaging Initiative) data.
-          For research use only — not approved for clinical diagnosis.
+        {/* Footer */}
+        <p className="mt-10 text-center text-xs text-gray-400 leading-relaxed">
+          Models developed using Alzheimer&apos;s Disease Neuroimaging
+          Initiative (ADNI) data. Research use only. Not approved for
+          clinical diagnosis or treatment decision-making.
         </p>
       </div>
     </section>

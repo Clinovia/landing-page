@@ -64,11 +64,11 @@ export default function MriResult({ result }: Props) {
         },
         {
           label: "Next Step",
-          value: result.next_step.replaceAll("_", " ").toLowerCase(),
+          value: result.next_step.replaceAll("_", " ").toLowerCase() ?? "—",
         },
         {
           label: "Clinical Interpretation",
-          value: result.clinical_interpretation,
+          value: result.clinical_interpretation ?? "—",
         },
       ]}
     />

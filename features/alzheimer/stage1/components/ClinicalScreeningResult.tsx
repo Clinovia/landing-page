@@ -55,7 +55,7 @@ export function ClinicalScreeningResult({ result }: Props) {
         },
         {
           label: "Next Step",
-          value: result.next_step.replaceAll("_", " ").toLowerCase(),
+          value: result.next_step.replaceAll("_", " ").toLowerCase() ?? "—",
         },
       ]}
     />

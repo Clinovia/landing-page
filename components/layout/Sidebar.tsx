@@ -38,10 +38,10 @@ const SIDEBAR: Section[] = [
           },
         ],
       },
-      /*{
+      {
         title: "Decision Support",
         href: "/clinical/alzheimer/decision-support",
-      },*/
+      },
     ],
   },
 ];

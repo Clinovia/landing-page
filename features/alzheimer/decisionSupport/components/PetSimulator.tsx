@@ -10,62 +10,33 @@ import ErrorMessage from "@/components/shared/ErrorMessage";
 import type { PetSimulatorProps } from "../types";
 
 function GaugeArc({ pct }: { pct: number }) {
-  // Semi-circle SVG gauge, 0–100
   const radius = 54;
   const cx = 70;
   const cy = 70;
-  const circumference = Math.PI * radius; // half circle
-  const offset = circumference * (1 - pct / 100);
-
+  const circumference = Math.PI * radius;
+  const offset = circumference * (1 - Math.min(100, Math.max(0, pct)) / 100);
   const color =
-    pct >= 70
-      ? "stroke-destructive"
-      : pct >= 40
-      ? "stroke-amber-500"
-      : "stroke-emerald-500";
+    pct >= 70 ? "stroke-destructive" : pct >= 40 ? "stroke-amber-500" : "stroke-emerald-500";
 
   return (
     <svg viewBox="0 0 140 80" className="w-48 mx-auto" aria-hidden>
-      {/* Track */}
       <path
         d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="12"
-        strokeLinecap="round"
+        fill="none" stroke="currentColor" strokeWidth="12" strokeLinecap="round"
         className="text-muted stroke-current opacity-20"
       />
-      {/* Fill */}
       <path
         d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
-        fill="none"
-        strokeWidth="12"
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        className={color}
-        style={{ transition: "stroke-dashoffset 0.8s ease" }}
+        fill="none" strokeWidth="12" strokeLinecap="round"
+        strokeDasharray={circumference} strokeDashoffset={offset}
+        className={color} style={{ transition: "stroke-dashoffset 0.8s ease" }}
       />
-      {/* Label */}
-      <text
-        x={cx}
-        y={cy - 6}
-        textAnchor="middle"
-        fontSize="22"
-        fontWeight="700"
-        className="fill-foreground"
-        style={{ fontVariantNumeric: "tabular-nums" }}
-      >
+      <text x={cx} y={cy - 6} textAnchor="middle" fontSize="22" fontWeight="700"
+        className="fill-foreground" style={{ fontVariantNumeric: "tabular-nums" }}>
         {pct}%
       </text>
-      <text
-        x={cx}
-        y={cy + 10}
-        textAnchor="middle"
-        fontSize="9"
-        className="fill-muted-foreground"
-      >
-        Expected Positivity
+      <text x={cx} y={cy + 10} textAnchor="middle" fontSize="9" className="fill-muted-foreground">
+        PET Value Score
       </text>
     </svg>
   );
@@ -78,16 +49,22 @@ export function PetSimulator({
   error,
   onRefresh,
 }: PetSimulatorProps) {
-  const positivityPct = data
-    ? Math.round(data.expected_positivity * 100)
-    : 0;
+  const raw = data as any;
 
-  const positivityLabel =
-    positivityPct >= 70
-      ? { text: "Likely Positive", variant: "destructive" as const }
-      : positivityPct >= 40
-      ? { text: "Uncertain", variant: "secondary" as const }
-      : { text: "Likely Negative", variant: "outline" as const };
+  // Backend returns: pet_value_level, recommended_action, reason_summary[], visual_state, raw_score
+  const petValueLevel: string = raw?.pet_value_level ?? "LOW";
+  const recommendedAction: string = raw?.recommended_action ?? "";
+  const reasons: string[] = raw?.reason_summary ?? [];
+  const rawScore: number = raw?.raw_score ?? 0;
+
+  // Map level to gauge pct
+  const pct = petValueLevel === "HIGH" ? 85 : petValueLevel === "MODERATE" ? 55 : 20;
+
+  const levelConfig = {
+    HIGH:     { text: "PET Recommended",     variant: "destructive" as const },
+    MODERATE: { text: "PET May Help",         variant: "secondary" as const },
+    LOW:      { text: "PET Low Value",        variant: "outline" as const },
+  }[petValueLevel] ?? { text: petValueLevel, variant: "outline" as const };
 
   return (
     <Card className="border border-border shadow-sm">
@@ -95,21 +72,15 @@ export function PetSimulator({
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <CardTitle className="text-base font-semibold text-foreground">
-              PET Scan Simulator
+              PET Cost-Benefit Simulator
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground mt-0.5">
-              Estimated amyloid PET positivity based on current clinical profile
+              Expected value of confirmatory amyloid PET given current clinical profile
             </CardDescription>
           </div>
           {onRefresh && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isLoading}
-              className="text-xs"
-            >
-              {isLoading ? <LoadingSpinner className="w-3 h-3" />: "↻ Refresh"}
+            <Button variant="ghost" size="sm" onClick={onRefresh} disabled={isLoading} className="text-xs">
+              {isLoading ? <LoadingSpinner className="w-3 h-3" /> : "↻ Refresh"}
             </Button>
           )}
         </div>
@@ -121,7 +92,7 @@ export function PetSimulator({
         {isLoading && (
           <div className="flex items-center gap-3 py-6 justify-center text-muted-foreground">
             <LoadingSpinner className="w-3 h-3" />
-            <span className="text-sm">Simulating PET outcome…</span>
+            <span className="text-sm">Simulating PET value…</span>
           </div>
         )}
 
@@ -131,52 +102,45 @@ export function PetSimulator({
           <div className="flex flex-col items-center gap-3 py-4">
             <p className="text-sm text-muted-foreground">PET simulation not yet run.</p>
             {onRefresh && (
-              <Button size="sm" variant="outline" onClick={onRefresh}>
-                Run Simulation
-              </Button>
+              <Button size="sm" variant="outline" onClick={onRefresh}>Run Simulation</Button>
             )}
           </div>
         )}
 
         {data && !isLoading && (
           <div className="space-y-5">
-            {/* Gauge */}
             <div className="flex flex-col items-center gap-2 pt-2">
-              <GaugeArc pct={positivityPct} />
-              <Badge variant={positivityLabel.variant}>{positivityLabel.text}</Badge>
+              <GaugeArc pct={pct} />
+              <Badge variant={levelConfig.variant}>{levelConfig.text}</Badge>
             </div>
 
-            {/* NNT */}
-            {data.nnt !== undefined && (
-              <div className="rounded-lg border border-border bg-muted/30 p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                      Number Needed to Test (NNT)
-                    </p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums mt-0.5">
-                      {data.nnt.toFixed(1)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground max-w-[160px] leading-relaxed">
-                      Patients with this profile needed to find one true positive
-                    </p>
-                  </div>
-                </div>
+            {recommendedAction && (
+              <Alert>
+                <AlertDescription className="text-sm text-foreground leading-relaxed">
+                  {recommendedAction}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {reasons.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Factors
+                </p>
+                <ul className="space-y-1">
+                  {reasons.map((r: string, i: number) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                      <span className="text-primary mt-0.5">•</span>
+                      {r}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
-            {/* Interpretation */}
-            <Alert>
-              <AlertDescription className="text-sm text-foreground leading-relaxed">
-                {positivityPct >= 70
-                  ? "High likelihood of amyloid positivity. PET imaging is strongly recommended to confirm before initiating disease-modifying therapy."
-                  : positivityPct >= 40
-                  ? "Intermediate likelihood. Clinical judgment required — consider additional biomarker evidence before ordering PET."
-                  : "Low likelihood of amyloid positivity. PET imaging may not be cost-effective at this risk level."}
-              </AlertDescription>
-            </Alert>
+            <p className="text-xs text-muted-foreground text-right">
+              Raw score: {rawScore}
+            </p>
           </div>
         )}
       </CardContent>

@@ -51,13 +51,13 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section id="Features" className="w-full bg-white py-20">
+    <section id="Features" className="w-full bg-gray-50 py-20">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-3xl font-bold text-[#1B4D3E] md:text-4xl">
             Core Platform Features
           </h2>
-          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-[#1B4D3E]">
+          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
             Built for real clinical workflows — not just prediction models. Each
             feature supports physician decisions, documentation, and faster
             treatment readiness.
@@ -68,7 +68,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm"
+              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
             >
               <h3 className="mb-3 text-lg font-semibold text-[#1B4D3E]">
                 {feature.title}
@@ -76,7 +76,7 @@ export default function FeaturesSection() {
 
               <ul className="space-y-2">
                 {feature.description.map((item, i) => (
-                  <li key={i} className="text-sm text-gray-700">
+                  <li key={i} className="text-sm text-gray-600">
                     • {item}
                   </li>
                 ))}

@@ -56,7 +56,7 @@ export default function PlasmaResult({ result }: Props) {
         },
         {
           label: "Recommendation",
-          value: result.recommendation.replaceAll("_", " ").toLowerCase(),
+          value: result.recommendation.replaceAll("_", " ").toLowerCase() ?? "—",
         },
       ]}
     />
