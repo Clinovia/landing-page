@@ -25,17 +25,17 @@ export default function FeaturesSection() {
       ],
     },
     {
-      title: "NHI-Aware Treatment Pathway Router",
+      title: "Treatment Pathway Router",
       description: [
-        "Routes patients to the next clinical step based on tier and stage",
-        "Supports Korean NHI workflows and reimbursement alignment",
+        "Routes patients to the next clinical step based on tier and disease stage",
+        "Aligned with local reimbursement workflows and referral pathways",
         "Reduces administrative friction that delays specialist referrals",
       ],
     },
     {
       title: "Patient Communication Generator",
       description: [
-        "Generates physician-reviewed Korean-language patient summaries",
+        "Generates physician-reviewed plain-language patient summaries",
         "Family-centered and non-alarming communication tailored to risk tier",
         "Concrete lifestyle and follow-up recommendations for better adherence",
       ],
@@ -63,7 +63,6 @@ export default function FeaturesSection() {
             treatment readiness.
           </p>
         </div>
-
         <div className="grid gap-8 md:grid-cols-2">
           {features.map((feature, index) => (
             <div
@@ -73,7 +72,6 @@ export default function FeaturesSection() {
               <h3 className="mb-3 text-lg font-semibold text-[#1B4D3E]">
                 {feature.title}
               </h3>
-
               <ul className="space-y-2">
                 {feature.description.map((item, i) => (
                   <li key={i} className="text-sm text-gray-600">
