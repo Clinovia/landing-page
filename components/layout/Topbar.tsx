@@ -35,9 +35,9 @@ export default function Topbar() {
           Clinovia Workspace
         </div>
 
-        <Link href="/dashboard">
+        <Link href="/#hero">
           <Button variant="ghost" size="sm">
-            Dashboard
+            Home
           </Button>
         </Link>
       </div>

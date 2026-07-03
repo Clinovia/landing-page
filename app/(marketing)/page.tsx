@@ -1,7 +1,7 @@
 import Hero from "./sections/Hero";
 import Platform from "./sections/Platform";
-import HowWeWork from "./sections/Features";
-import About from "./sections/Pilot";
+import Features from "./sections/Features";
+import Pilot from "./sections/Pilot";
 import CTASection from "./sections/CTASection";
 
 export default function HomePage() {
@@ -9,8 +9,8 @@ export default function HomePage() {
     <main className="w-full">
       <Hero />
       <Platform />
-      <HowWeWork />
-      <About />
+      <Features />
+      <Pilot />
       <CTASection />
     </main>
   );

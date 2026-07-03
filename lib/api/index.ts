@@ -20,6 +20,5 @@ export { supabase as supabaseClient } from "@/lib/supabase/browserClient";;
 export type {
   AuthEndpoints,
   UserEndpoints,
-  DashboardEndpoints,
   ReportEndpoints,
 } from "@/config/api";

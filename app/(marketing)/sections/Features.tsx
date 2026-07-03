@@ -1,73 +1,57 @@
 export default function FeaturesSection() {
   const features = [
     {
-      title: "Clinical Summary Report",
+      title: "Simple Inputs, No New Workflow",
       description: [
-        "Physician-ready PDF with calibrated amyloid likelihood and confidence band",
-        "SHAP-style feature contribution analysis for explainable clinical review",
-        "Longitudinal patient trajectory tracking across visits and stages",
+        "Uses only age, sex, RAVLT_immediate, and MMSE",
+        "Nothing outside what's already routinely collected at intake",
+        "No additional testing, imaging, or labs required",
       ],
     },
     {
-      title: "4-Tier Risk Stratification",
+      title: "Transparent, Explainable Output",
       description: [
-        "Watch, Concern, High Risk, and Urgent clinical action tiers",
-        "Removes ambiguity by linking prediction output to concrete next steps",
-        "Supports faster referral decisions and standardized care pathways",
+        "SHAP-based explanation for every individual prediction",
+        "Shows which inputs drove a patient's risk score",
+        "Supports clinical trust and easier documentation",
       ],
     },
     {
-      title: "PET Value Simulator",
+      title: "Validated Performance",
       description: [
-        "Determines whether confirmatory amyloid PET is likely to change management",
-        "Balances amyloid probability, uncertainty, and clinical stage",
-        "Visual PET utility dial instead of unnecessary numeric complexity",
+        "AUC 0.91 · Sensitivity 0.87 · Specificity 0.82 on held-out ADNI data",
+        "Calibrated risk output (Brier score 0.12, skill score 0.31 vs. baseline)",
+        "Built and tested on a minimal, reproducible 4-feature model",
       ],
     },
     {
-      title: "Treatment Pathway Router",
+      title: "Built for First Contact",
       description: [
-        "Routes patients to the next clinical step based on tier and disease stage",
-        "Aligned with local reimbursement workflows and referral pathways",
-        "Reduces administrative friction that delays specialist referrals",
-      ],
-    },
-    {
-      title: "Patient Communication Generator",
-      description: [
-        "Generates physician-reviewed plain-language patient summaries",
-        "Family-centered and non-alarming communication tailored to risk tier",
-        "Concrete lifestyle and follow-up recommendations for better adherence",
-      ],
-    },
-    {
-      title: "Safety Override Layer",
-      description: [
-        "Flags uncertainty, discordant biomarkers, and atypical presentations",
-        "Escalates unsafe or ambiguous cases for specialist review",
-        "Preserves physician trust through transparent override logic",
+        "Designed for the PCP or memory clinic intake moment",
+        "Supports earlier, more consistent triage — not a diagnosis",
+        "Standardizes who gets prioritized for specialist referral",
       ],
     },
   ];
 
   return (
-    <section id="Features" className="w-full bg-gray-50 py-20">
+    <section id="features" className="w-full bg-white py-20">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-3xl font-bold text-[#1B4D3E] md:text-4xl">
-            Core Platform Features
+            Why Clinovia
           </h2>
           <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
-            Built for real clinical workflows — not just prediction models. Each
-            feature supports physician decisions, documentation, and faster
-            treatment readiness.
+            One simple, validated tool for first-contact risk stratification —
+            not a stack of modules to learn.
           </p>
         </div>
+
         <div className="grid gap-8 md:grid-cols-2">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm"
             >
               <h3 className="mb-3 text-lg font-semibold text-[#1B4D3E]">
                 {feature.title}

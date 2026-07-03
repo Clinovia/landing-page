@@ -33,25 +33,11 @@ export const AUTH_ENDPOINTS = {
 } as const;
 
 /**
- * Alzheimer's module endpoints
+ * MCI Screening endpoints
+ * 24-month MCI-to-Alzheimer's progression risk model
  */
-export const ALZHEIMER_ENDPOINTS = {
-  DIAGNOSIS_SCREENING: buildUrl('/alzheimer/diagnosis-screening'),
-  DIAGNOSIS_BASIC: buildUrl('/alzheimer/diagnosis-basic'),
-  DIAGNOSIS_EXTENDED: buildUrl('/alzheimer/diagnosis-extended'),
-  PROGNOSIS_2YR_BASIC: buildUrl('/alzheimer/prognosis-2yr-basic'),
-  PROGNOSIS_2YR_EXTENDED: buildUrl('/alzheimer/prognosis-2yr-extended'),
-  RISK_SCREENER: buildUrl('/alzheimer/risk-screener'),
-} as const;
-
-/**
- * Cardiology module endpoints
- */
-export const CARDIOLOGY_ENDPOINTS = {
-  ASCVD: buildUrl('/cardiology/ascvd'),
-  BP_CATEGORY: buildUrl('/cardiology/bp-category'),
-  CHA2DS2_VASC: buildUrl('/cardiology/cha2ds2vasc'),
-  ECG_INTERPRETER: buildUrl('/cardiology/ecg-interpreter'),
+export const MCI_SCREENING_ENDPOINTS = {
+  PREDICT: buildUrl('/mci-screening/predict'),
 } as const;
 
 /**
@@ -62,15 +48,6 @@ export const USER_ENDPOINTS = {
   UPDATE_PROFILE: buildUrl('/user/profile'),
   CHANGE_PASSWORD: buildUrl('/user/change-password'),
   DELETE_ACCOUNT: buildUrl('/user/delete'),
-} as const;
-
-/**
- * Dashboard/Analytics endpoints
- */
-export const DASHBOARD_ENDPOINTS = {
-  STATS: buildUrl('/dashboard/stats'),
-  RECENT_ASSESSMENTS: buildUrl('/dashboard/recent'),
-  CHARTS: buildUrl('/dashboard/charts'),
 } as const;
 
 /**
@@ -89,10 +66,8 @@ export const REPORT_ENDPOINTS = {
  */
 export const API_ENDPOINTS = {
   AUTH: AUTH_ENDPOINTS,
-  ALZHEIMER: ALZHEIMER_ENDPOINTS,
-  CARDIOLOGY: CARDIOLOGY_ENDPOINTS,
+  MCI_SCREENING: MCI_SCREENING_ENDPOINTS,
   USER: USER_ENDPOINTS,
-  DASHBOARD: DASHBOARD_ENDPOINTS,
   REPORT: REPORT_ENDPOINTS,
 } as const;
 
@@ -114,10 +89,8 @@ export const API_RETRY_CONFIG = {
  * Type helpers
  */
 export type AuthEndpoints = typeof AUTH_ENDPOINTS[keyof typeof AUTH_ENDPOINTS];
-export type AlzheimerEndpoints = typeof ALZHEIMER_ENDPOINTS[keyof typeof ALZHEIMER_ENDPOINTS];
-export type CardiologyEndpoints = typeof CARDIOLOGY_ENDPOINTS[keyof typeof CARDIOLOGY_ENDPOINTS];
+export type MCIScreeningEndpoints = typeof MCI_SCREENING_ENDPOINTS[keyof typeof MCI_SCREENING_ENDPOINTS];
 export type UserEndpoints = typeof USER_ENDPOINTS[keyof typeof USER_ENDPOINTS];
-export type DashboardEndpoints = typeof DASHBOARD_ENDPOINTS[keyof typeof DASHBOARD_ENDPOINTS];
 export type ReportEndpoints =
   | typeof REPORT_ENDPOINTS[keyof typeof REPORT_ENDPOINTS]
   | ReturnType<typeof REPORT_ENDPOINTS.GET_BY_ID>;

@@ -41,7 +41,7 @@ export default function LoginForm() {
       await login(email, password);
 
       // 🔥 AuthContext listener guarantees session sync
-      router.replace("/clinical/alzheimer");
+      router.replace("/mci-screening");
     } catch (err) {
       setError(
         err instanceof Error

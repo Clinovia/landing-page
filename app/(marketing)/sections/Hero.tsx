@@ -3,48 +3,56 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section id="Hero" className="relative w-full h-screen">
+    <section
+      id="hero"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+    >
       {/* Background image */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/alzheimer.jpg"
-          alt="MCI due to Alzheimer's Disease Clinical Tool"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/55" />
-      </div>
+      <Image
+        src="/images/alzheimer.jpg"
+        alt="Clinician reviewing brain imaging"
+        fill
+        priority
+        className="object-cover"
+      />
+
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/60" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center animate-fadeIn">
-        <div className="mt-20 md:mt-32 max-w-3xl space-y-6">
-
-          <p className="inline-block text-xs font-semibold tracking-widest uppercase text-green-400 border border-green-400/40 rounded-full px-4 py-1">
-            ADNI-Validated · Research Use Only
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center animate-fadeIn">
+        <div className="mt-20 max-w-3xl space-y-6 md:mt-32">
+          {/* Badge */}
+          <p className="inline-block rounded-full border border-green-400/40 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-green-400">
+            Research Use Only · ADNI Validated
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
-            MCI Due to Alzheimer's Disease
-            <span className="block text-green-400 mt-1">Decision Support Tool</span>
+          {/* Headline */}
+          <h1 className="text-5xl font-bold leading-tight text-white drop-shadow-lg md:text-6xl">
+            24-Month MCI-to-Alzheimer&apos;s
+            <span className="mt-1 block text-green-400">
+              Risk Prediction
+            </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
-            A multi-stage AI pipeline — clinical screening, parallel MRI neurodegeneration
-            gating and plasma biomarker triage — built on ADNI data to stratify
-            progression risk and guide next clinical steps.
+          {/* Supporting text */}
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-200 md:text-xl">
+            Clinovia helps clinicians stratify 24-month Alzheimer&apos;s
+            progression risk at first contact using routine cognitive and
+            demographic data.
           </p>
 
-          {/* Stage badges */}
-          <div className="flex items-center justify-center gap-3 flex-wrap pt-2">
+          {/* Trust strip */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             {[
-              "Stage 1 · Clinical Screening",
-              "Stage 2a · Plasma Triage",
-              "Stage 2b · MRI Gate",
+              "AUC 0.91",
+              "4 Routine Inputs",
+              "24-Month Prediction",
+              "ADNI Validated",
             ].map((label) => (
               <span
                 key={label}
-                className="text-xs font-medium text-white/80 bg-white/10 border border-white/20 rounded-full px-3 py-1"
+                className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/80"
               >
                 {label}
               </span>
@@ -54,23 +62,24 @@ export default function Hero() {
           {/* CTA */}
           <div className="flex items-center justify-center gap-4 pt-4">
             <Link
-              href="/signup?redirect=/clinical/alzheimer"
-              className="inline-block bg-green-700 hover:bg-green-800 text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition-transform hover:scale-105"
+              href="/signup"
+              className="inline-block rounded-full bg-green-700 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-green-800"
             >
-              Start Assessment
+              Try MCI Screening
             </Link>
+
             <Link
-              href="/modules"
-              className="inline-block text-white/80 hover:text-white font-medium text-base underline underline-offset-4 transition-colors"
+              href="#platform"
+              className="text-base font-medium text-white/80 underline underline-offset-4 transition-colors hover:text-white"
             >
-              Learn more
+              See how it works
             </Link>
           </div>
         </div>
 
-        <p className="absolute bottom-6 text-xs text-gray-400 max-w-xl mx-auto px-4">
-          * This tool is intended for research purposes only and is not approved
-          for clinical diagnosis or treatment decisions.
+        {/* Disclaimer */}
+        <p className="mt-12 max-w-2xl text-center text-xs text-gray-400">
+        Research Use Only. Not approved for clinical diagnosis or treatment decisions.
         </p>
       </div>
     </section>

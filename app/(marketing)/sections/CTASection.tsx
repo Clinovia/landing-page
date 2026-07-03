@@ -2,20 +2,32 @@ import Link from "next/link";
 
 export default function CTASection() {
   return (
-    <section className="py-16 bg-green-800 text-white w-full">
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Ready to explore Clinovia.ai?
+    <section id="cta" className="bg-slate-900 py-24">
+      <div className="mx-auto max-w-4xl px-6 text-center">
+        <h2 className="text-4xl font-bold text-white">
+          Ready to Explore Clinovia?
         </h2>
-        <p className="mb-8 text-lg md:text-xl">
-          Early access is free — join researchers and clinical teams testing our neurology tools.
+
+        <p className="mt-6 text-lg text-slate-300">
+          We're looking for pilot clinics and research partners to bring
+          first-contact MCI risk stratification into practice.
         </p>
-        <Link
-          href="/modules"
-          className="inline-block bg-white text-green-800 font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition-transform hover:scale-105"
-        >
-          Request Early Access
-        </Link>
+
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <Link
+            href="/pilot"
+            className="inline-block rounded-full bg-white px-8 py-3 font-semibold text-slate-900 transition-transform hover:scale-105"
+          >
+            Apply for Pilot Access
+          </Link>
+
+          <a
+            href="mailto:collaborate@clinovia.ai?subject=Research%20Collaboration%20Inquiry"
+            className="inline-block rounded-full border border-white px-8 py-3 font-semibold text-white transition-transform hover:scale-105 hover:bg-white/10"
+          >
+            Propose a Collaboration
+          </a>
+        </div>
       </div>
     </section>
   );

@@ -33,7 +33,7 @@ export default function MinimalSignupForm() {
     if (plan && plan !== "starter") {
       startCheckout(plan);
     } else {
-      router.replace("/clinical/alzheimer");
+      router.replace("/mci-screening");
     }
   };
 
