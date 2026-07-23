@@ -33,11 +33,11 @@ export const AUTH_ENDPOINTS = {
 } as const;
 
 /**
- * MCI Screening endpoints
+ * Risk Assessment endpoints
  * 24-month MCI-to-Alzheimer's progression risk model
  */
-export const MCI_SCREENING_ENDPOINTS = {
-  PREDICT: buildUrl('/mci-screening/predict'),
+export const RISK_ASSESSMENT_ENDPOINTS = {
+  PREDICT: buildUrl('/risk-assessment/predict'),
 } as const;
 
 /**
@@ -66,7 +66,7 @@ export const REPORT_ENDPOINTS = {
  */
 export const API_ENDPOINTS = {
   AUTH: AUTH_ENDPOINTS,
-  MCI_SCREENING: MCI_SCREENING_ENDPOINTS,
+  RISK_ASSESSMENT: RISK_ASSESSMENT_ENDPOINTS,
   USER: USER_ENDPOINTS,
   REPORT: REPORT_ENDPOINTS,
 } as const;
@@ -89,7 +89,7 @@ export const API_RETRY_CONFIG = {
  * Type helpers
  */
 export type AuthEndpoints = typeof AUTH_ENDPOINTS[keyof typeof AUTH_ENDPOINTS];
-export type MCIScreeningEndpoints = typeof MCI_SCREENING_ENDPOINTS[keyof typeof MCI_SCREENING_ENDPOINTS];
+export type RiskAssessmentEndpoints = typeof RISK_ASSESSMENT_ENDPOINTS[keyof typeof RISK_ASSESSMENT_ENDPOINTS];
 export type UserEndpoints = typeof USER_ENDPOINTS[keyof typeof USER_ENDPOINTS];
 export type ReportEndpoints =
   | typeof REPORT_ENDPOINTS[keyof typeof REPORT_ENDPOINTS]

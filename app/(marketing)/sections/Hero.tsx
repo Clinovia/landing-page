@@ -1,85 +1,119 @@
-import Image from "next/image";
+"use client";
+
+import { User, FileText, Brain, FileBarChart2 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+// =============================================================================
+// Design notes
+// =============================================================================
+// Direction: "clinical instrument readout" rather than generic SaaS hero.
+// - Display face: serif, for the headline only — evokes a journal/clinical
+//   report register rather than a typical product-marketing sans.
+// - Utility face: mono, uppercase, tracked out — used for the eyebrow label
+//   and the flow-diagram captions, like instrument labeling.
+// - Palette: warm paper background, ink text, a single restrained teal
+//   accent for the signature flow line + primary CTA. No terracotta/cream
+//   combo, no near-black+neon — deliberately avoided as AI-default looks.
+// - Signature element: the Patient → Clinical Data → Clinovia → Risk Report
+//   pipeline, rendered as a literal instrument rail with a traveling
+//   highlight, not a generic icon-and-arrow row.
+// - Motion respects prefers-reduced-motion (rail highlight is disabled,
+//   not just slowed, for reduced-motion users).
+
+const PIPELINE = [
+  { icon: User, label: "Patient" },
+  { icon: FileText, label: "Clinical Data" },
+  { icon: Brain, label: "Clinovia" },
+  { icon: FileBarChart2, label: "Risk Report" },
+];
 
 export default function Hero() {
   return (
-    <section
-      id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
-    >
-      {/* Background image */}
-      <Image
-        src="/images/alzheimer.jpg"
-        alt="Clinician reviewing brain imaging"
-        fill
-        priority
-        className="object-cover"
-      />
+    <section id="hero" className="relative overflow-hidden bg-stone-50 px-6 py-20 sm:py-28">
+      <style>{`
+        @keyframes clinovia-rail-sweep {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .clinovia-rail-highlight {
+          animation: clinovia-rail-sweep 3.5s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .clinovia-rail-highlight {
+            animation: none;
+          }
+        }
+      `}</style>
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="mx-auto max-w-4xl text-center">
+        {/* Eyebrow */}
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700">
+          MCI → AD · 24-Month Progression Risk
+        </p>
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center animate-fadeIn">
-        <div className="mt-20 max-w-3xl space-y-6 md:mt-32">
-          {/* Badge */}
-          <p className="inline-block rounded-full border border-green-400/40 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-green-400">
-            Research Use Only · ADNI Validated
-          </p>
+        {/* Headline */}
+        <h1 className="mt-6 font-serif text-4xl leading-tight text-slate-900 sm:text-5xl sm:leading-tight">
+          Predict 24-Month Alzheimer&rsquo;s Disease Progression
+          <br className="hidden sm:block" /> from Routine Clinical Data
+        </h1>
 
-          {/* Headline */}
-          <h1 className="text-5xl font-bold leading-tight text-white drop-shadow-lg md:text-6xl">
-            24-Month MCI-to-Alzheimer&apos;s
-            <span className="mt-1 block text-green-400">
-              Risk Prediction
-            </span>
-          </h1>
+        {/* Subheading */}
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">
+          Clinovia uses validated machine learning models to estimate
+          progression risk in patients with Mild Cognitive Impairment (MCI).
+          Start with routine cognitive testing, and improve prediction when
+          MRI measurements are available.
+        </p>
 
-          {/* Supporting text */}
-          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-200 md:text-xl">
-            Clinovia helps clinicians stratify 24-month Alzheimer&apos;s
-            progression risk at first contact using routine cognitive and
-            demographic data.
-          </p>
+        {/* CTAs */}
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button
+            size="lg"
+            className="bg-teal-700 text-white hover:bg-teal-800"
+          >
+            Try a Sample Assessment
+          </Button>
 
-          {/* Trust strip */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            {[
-              "AUC 0.91",
-              "4 Routine Inputs",
-              "24-Month Prediction",
-              "ADNI Validated",
-            ].map((label) => (
-              <span
-                key={label}
-                className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/80"
-              >
-                {label}
-              </span>
-            ))}
-          </div>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/pilot">Request Pilot</Link>
+          </Button>
+        </div>
 
-          {/* CTA */}
-          <div className="flex items-center justify-center gap-4 pt-4">
-            <Link
-              href="/signup"
-              className="inline-block rounded-full bg-green-700 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-green-800"
-            >
-              Try MCI Screening
-            </Link>
+        {/* Signature element: the pipeline rail */}
+        <div className="mx-auto mt-20 max-w-3xl">
+          <div className="relative">
+            {/* Rail track */}
+            <div className="absolute left-0 right-0 top-6 h-px bg-slate-200" />
 
-            <Link
-              href="#platform"
-              className="text-base font-medium text-white/80 underline underline-offset-4 transition-colors hover:text-white"
-            >
-              See how it works
-            </Link>
+            {/* Traveling highlight */}
+            <div className="absolute left-0 right-0 top-6 h-px overflow-hidden">
+              <div className="clinovia-rail-highlight h-px w-1/3 bg-gradient-to-r from-transparent via-teal-500 to-transparent" />
+            </div>
+
+            {/* Nodes */}
+            <div className="relative flex justify-between">
+              {PIPELINE.map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center gap-3"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-teal-700 shadow-sm">
+                    <Icon className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-slate-500">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Disclaimer */}
-        <p className="mt-12 max-w-2xl text-center text-xs text-gray-400">
-        Research Use Only. Not approved for clinical diagnosis or treatment decisions.
+        {/* Regulatory disclaimer */}
+        <p className="mt-16 text-xs text-slate-400">
+          For Research Use Only. Not a diagnostic device.
         </p>
       </div>
     </section>

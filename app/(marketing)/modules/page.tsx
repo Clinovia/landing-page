@@ -1,4 +1,6 @@
+// frontend/app/(marketing)/modules/page.tsx
 "use client";
+
 import Link from "next/link";
 
 type Module = {
@@ -12,114 +14,136 @@ type Module = {
 
 const neurology: Module[] = [
   {
-    name: "Stage 1 — Clinical Screening",
+    name: "Clinical + Cognitive",
     description:
-      "Estimates 24-month MCI-to-AD progression risk from routine clinical variables. Routes high-risk patients to Stage 2a and/or 2b.",
+      "Predicts 24-month progression from Mild Cognitive Impairment to Alzheimer's disease using routine cognitive assessments and demographic information only.",
     inputs: [
-      "Age, sex, education",
-      "APOE ε4 count",
+      "Age",
+      "Sex",
       "MMSE",
-      "ECog (study partner total & memory discrepancy)",
-      "RAVLT immediate & forgetting",
+      "RAVLT Immediate Recall",
     ],
     outputs: [
-      "Risk class: High Risk Progressor / Low Risk Monitor",
       "24-month progression probability",
+      "Risk category",
       "Model confidence",
       "Top contributing features",
-      "Next step routing",
+      "Recommended next step",
     ],
     badge: "Live",
-    badgeColor: "bg-green-100 text-green-800 border-green-200",
+    badgeColor:
+      "bg-green-100 text-green-800 border-green-200",
   },
   {
-    name: "Stage 2a — Plasma Amyloid Triage",
+    name: "Clinical + Cognitive + MRI",
     description:
-      "Estimates amyloid burden from blood-based biomarkers. Runs in parallel with Stage 2b and feeds the fusion layer.",
+      "Enhances prediction performance using structural MRI measurements for improved specificity and fewer false positives.",
     inputs: [
-      "Plasma Aβ42/40 ratio",
-      "p-tau217",
-      "GFAP",
-      "NfL",
-      "Age, APOE ε4, education, MMSE (covariates)",
+      "Age",
+      "Sex",
+      "MMSE",
+      "RAVLT Immediate Recall",
+      "Hippocampus",
+      "Entorhinal",
+      "MidTemp",
+      "WholeBrain",
+      "Ventricles",
     ],
     outputs: [
-      "Amyloid probability (0–100%)",
-      "Classification: Amyloid Positive / Negative",
-      "Risk band: Low / Intermediate / High",
-      "Recommendation: Order / Consider / Defer PET",
+      "24-month progression probability",
+      "Risk category",
+      "Model confidence",
       "Top contributing features",
+      "Recommended next step",
     ],
     badge: "Live",
-    badgeColor: "bg-green-100 text-green-800 border-green-200",
+    badgeColor:
+      "bg-green-100 text-green-800 border-green-200",
   },
   {
-    name: "Stage 2b — MRI Neurodegeneration Gate",
+    name: "Multimodal Risk Assessment",
     description:
-      "Confirms or rules out structural neurodegeneration using MRI volumetrics and longitudinal atrophy trajectories. Runs in parallel with Stage 2a.",
+      "Incorporates genetics and advanced biomarkers including APOE genotype, CSF biomarkers, and PET imaging. Currently under evaluation.",
     inputs: [
-      "Hippocampal, entorhinal, ventricular, whole-brain volumes",
-      "Intracranial volume (ICV)",
-      "Longitudinal slopes: hippocampus, ventricles, whole brain",
-      "Age, APOE ε4 (covariates)",
+      "Clinical + Cognitive + MRI",
+      "APOE genotype",
+      "CSF biomarkers",
+      "PET imaging",
     ],
     outputs: [
-      "MRI risk probability",
-      "Classification: N+ Positive / N+ Negative",
-      "Risk band: Low / Intermediate / High",
-      "Clinical interpretation",
-      "Next step routing",
+      "Enhanced multimodal risk estimate",
+      "Research-use risk stratification",
     ],
-    badge: "Live",
-    badgeColor: "bg-green-100 text-green-800 border-green-200",
-  },
-  {
-    name: "Fusion Layer",
-    description:
-      "Combines Stage 2a plasma and Stage 2b MRI outputs into a final amyloid burden estimate and PET/CSF referral recommendation.",
-    inputs: ["Stage 2a output", "Stage 2b output"],
-    outputs: ["Final amyloid estimate", "PET/CSF referral recommendation"],
     badge: "Coming Soon",
-    badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+    badgeColor:
+      "bg-amber-100 text-amber-800 border-amber-200",
   },
 ];
 
-function ModuleCard({ module }: { module: Module }) {
-  const isComingSoon = module.badge === "Coming Soon";
+function ModuleCard({
+  module,
+}: {
+  module: Module;
+}) {
+  const isComingSoon =
+    module.badge === "Coming Soon";
+
   return (
-    <div className={`rounded-xl border border-gray-200 bg-white p-5 shadow-sm ${isComingSoon ? "opacity-60" : ""}`}>
-      <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
-        <h3 className="text-base font-semibold text-[#1B4D3E]">{module.name}</h3>
+    <div
+      className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md ${
+        isComingSoon ? "opacity-70" : ""
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          {module.name}
+        </h3>
+
         {module.badge && (
-          <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${module.badgeColor}`}>
+          <span
+            className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${module.badgeColor}`}
+          >
             {module.badge}
           </span>
         )}
       </div>
-      <p className="text-sm text-gray-600 mb-4 leading-relaxed">{module.description}</p>
-      <div className="grid grid-cols-2 gap-4 text-xs">
-        <div>
-          <p className="font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Inputs</p>
-          <ul className="space-y-1">
-            {module.inputs.map((i) => (
-              <li key={i} className="flex items-start gap-1.5 text-gray-700">
-                <span className="mt-1 w-1 h-1 rounded-full bg-gray-400 shrink-0" />
-                {i}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Outputs</p>
-          <ul className="space-y-1">
-            {module.outputs.map((o) => (
-              <li key={o} className="flex items-start gap-1.5 text-gray-700">
-                <span className="mt-1 w-1 h-1 rounded-full bg-[#1B4D3E] shrink-0" />
-                {o}
-              </li>
-            ))}
-          </ul>
-        </div>
+
+      <p className="mt-3 text-sm leading-6 text-gray-600">
+        {module.description}
+      </p>
+
+      <div className="mt-6">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          Inputs
+        </h4>
+
+        <ul className="mt-3 space-y-2">
+          {module.inputs.map((input) => (
+            <li
+              key={input}
+              className="text-sm text-gray-700"
+            >
+              • {input}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-6">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          Outputs
+        </h4>
+
+        <ul className="mt-3 space-y-2">
+          {module.outputs.map((output) => (
+            <li
+              key={output}
+              className="text-sm text-gray-700"
+            >
+              • {output}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -127,37 +151,61 @@ function ModuleCard({ module }: { module: Module }) {
 
 export default function ModulesPage() {
   return (
-    <div className="mx-auto max-w-6xl py-16 px-6">
-      <h1 className="mt-8 text-4xl font-bold mb-2 text-center text-[#1B4D3E]">
-        Clinical Modules
-      </h1>
-      <p className="text-center text-gray-500 text-sm mb-14">
-        All Alzheimer's models trained and validated on ADNI data · For research use only
-      </p>
+    <div className="mx-auto max-w-7xl px-6 py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="text-sm font-semibold uppercase tracking-widest text-green-700">
+          Clinical Modules
+        </p>
 
-      {/* Neurology */}
-      <section className="mb-14">
-        <div className="flex items-center gap-3 mb-6">
-          <h2 className="text-2xl font-semibold text-[#1B4D3E]">Neurology — Alzheimer's</h2>
-          <span className="text-xs font-medium text-gray-400 border border-gray-200 rounded-full px-2.5 py-0.5">
-            Random Forest · XGBoost · ADNI
+        <h1 className="mt-4 text-5xl font-bold text-gray-900">
+          First-Contact Risk Assessment
+        </h1>
+
+        <p className="mt-6 text-lg leading-8 text-gray-600">
+          Estimate 24-month progression risk in patients with mild
+          cognitive impairment using routine assessments, with an
+          optional MRI-enhanced pathway for improved precision.
+        </p>
+
+        <p className="mt-4 text-sm text-gray-500">
+          Trained and validated on ADNI data · Research Use Only
+        </p>
+      </div>
+
+      <section className="mt-16">
+        <div className="mb-8 flex items-center gap-3">
+          <h2 className="text-2xl font-semibold text-[#1B4D3E]">
+            Neurology — Alzheimer's Disease
+          </h2>
+
+          <span className="rounded-full border border-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-400">
+            Logistic Regression · Random Forest · XGBoost · ADNI
           </span>
         </div>
-        <div className="grid gap-5 md:grid-cols-2">
-          {neurology.map((m) => <ModuleCard key={m.name} module={m} />)}
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          {neurology.map((module) => (
+            <ModuleCard
+              key={module.name}
+              module={module}
+            />
+          ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <div className="flex flex-col items-center gap-4 mt-4">
+      <div className="mt-16 flex flex-col items-center gap-4">
         <Link
-          href="/signup?redirect=/clinical/alzheimer"
-          className="bg-[#1B4D3E] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-[#163d31] transition-colors"
+          href="/signup"
+          className="rounded-xl bg-[#1B4D3E] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#163d31]"
         >
-          Join Pilot Program
+          Create Free Account
         </Link>
-        <Link href="/login" className="text-sm text-gray-400 hover:underline">
-          Log in if you have an account
+
+        <Link
+          href="/login"
+          className="text-sm text-gray-500 hover:underline"
+        >
+          Log in if you already have an account
         </Link>
       </div>
     </div>

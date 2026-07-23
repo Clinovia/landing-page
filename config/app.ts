@@ -1,12 +1,13 @@
 // config/app.ts
 
 export const APP_CONFIG = {
-  NAME: 'MedAI Platform',
-  DESCRIPTION: 'AI-powered medical diagnosis and prognosis platform',
+  NAME: 'Clinovia',
+  DESCRIPTION:
+    'Research-use platform estimating 24-month risk of progression from mild cognitive impairment (MCI) to Alzheimer\'s disease.',
   VERSION: '1.0.0',
-  AUTHOR: 'Your Organization',
-  SUPPORT_EMAIL: 'support@medai.com',
-  CONTACT_EMAIL: 'contact@medai.com',
+  AUTHOR: 'Clinovia Inc.',
+  SUPPORT_EMAIL: 'support@clinovia.ai',
+  CONTACT_EMAIL: 'contact@clinovia.ai',
 } as const;
 
 /**
@@ -14,8 +15,8 @@ export const APP_CONFIG = {
  * Enable/disable features across the app
  */
 export const FEATURE_FLAGS = {
-  ENABLE_ALZHEIMER_MODULE: true,
-  ENABLE_CARDIOLOGY_MODULE: true,
+  ENABLE_RISK_ASSESSMENT_CLINICAL: true,
+  ENABLE_RISK_ASSESSMENT_MRI: true,
   ENABLE_REPORTS: true,
   ENABLE_DASHBOARD: true,
   ENABLE_ANALYTICS: true,
@@ -32,18 +33,18 @@ export const AUTH_CONFIG = {
   // Token expiration times (in seconds)
   ACCESS_TOKEN_EXPIRY: 7 * 24 * 60 * 60, // 7 days
   REFRESH_TOKEN_EXPIRY: 30 * 24 * 60 * 60, // 30 days
-  
+
   // Session settings
   SESSION_TIMEOUT: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
   REMEMBER_ME_DURATION: 30 * 24 * 60 * 60 * 1000, // 30 days
-  
+
   // Password requirements
   PASSWORD_MIN_LENGTH: 8,
   PASSWORD_REQUIRE_UPPERCASE: true,
   PASSWORD_REQUIRE_LOWERCASE: true,
   PASSWORD_REQUIRE_NUMBER: true,
   PASSWORD_REQUIRE_SPECIAL: true,
-  
+
   // Login attempts
   MAX_LOGIN_ATTEMPTS: 5,
   LOCKOUT_DURATION: 15 * 60 * 1000, // 15 minutes
@@ -55,81 +56,83 @@ export const AUTH_CONFIG = {
 export const UI_CONFIG = {
   // Theme
   DEFAULT_THEME: 'light' as 'light' | 'dark',
-  
+
   // Pagination
   DEFAULT_PAGE_SIZE: 10,
   PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
-  
+
   // Sidebar
   SIDEBAR_WIDTH: 280,
   SIDEBAR_COLLAPSED_WIDTH: 80,
-  
+
   // Toast/Notification duration
   TOAST_DURATION: 5000, // 5 seconds
-  
+
   // Loading states
   DEBOUNCE_DELAY: 500, // milliseconds
   LOADING_SPINNER_DELAY: 300, // milliseconds
-  
-  // File upload
+
+  // File upload (MRI scan uploads, if/when supported)
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
   ALLOWED_FILE_TYPES: ['.pdf', '.jpg', '.jpeg', '.png', '.dcm'],
 } as const;
 
 /**
  * Validation rules
+ * Ranges reflect the inputs actually collected by the two risk-assessment editions.
  */
 export const VALIDATION_RULES = {
   // Email
   EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  
-  // Age ranges
+
+  // Demographics
   MIN_AGE: 18,
   MAX_AGE: 120,
-  
-  // Vital signs ranges (for validation)
-  BLOOD_PRESSURE: {
-    SYSTOLIC: { MIN: 70, MAX: 250 },
-    DIASTOLIC: { MIN: 40, MAX: 150 },
+
+  // Cognitive assessments (Clinical Edition)
+  MMSE: { MIN: 0, MAX: 30 }, // Mini-Mental State Examination score
+  RAVLT_IMMEDIATE_RECALL: { MIN: 0, MAX: 75 }, // sum across trials, adjust to your instrument's actual scale
+
+  // Quantitative MRI measures (MRI-Enhanced Edition) — volumes in mm^3, adjust to your pipeline's units
+  MRI_MEASURES: {
+    HIPPOCAMPUS: { MIN: 2000, MAX: 5000 },
+    ENTORHINAL_CORTEX: { MIN: 1000, MAX: 3000 },
+    MIDDLE_TEMPORAL_GYRUS: { MIN: 10000, MAX: 25000 },
+    WHOLE_BRAIN: { MIN: 900000, MAX: 1400000 },
+    VENTRICLES: { MIN: 5000, MAX: 60000 },
   },
-  HEART_RATE: { MIN: 30, MAX: 250 },
-  TEMPERATURE: { MIN: 35, MAX: 42 }, // Celsius
-  
-  // Lab values
-  CHOLESTEROL: { MIN: 100, MAX: 400 }, // mg/dL
-  HDL: { MIN: 20, MAX: 100 }, // mg/dL
-  LDL: { MIN: 50, MAX: 300 }, // mg/dL
 } as const;
 
 /**
- * Medical module configuration
+ * Risk assessment module configuration
  */
 export const MODULE_CONFIG = {
-  ALZHEIMER: {
-    NAME: "Alzheimer's Disease",
-    DESCRIPTION: 'AI-powered diagnosis and prognosis tools',
+  RISK_ASSESSMENT_CLINICAL: {
+    NAME: 'Clinical + Cognitive Risk Assessment',
+    DESCRIPTION:
+      'Estimates 24-month progression risk from MCI to Alzheimer\'s disease using age, sex, MMSE, and RAVLT Immediate Recall.',
     ICON: '🧠',
     COLOR: '#8B5CF6', // Purple
-    AVAILABLE_TOOLS: [
-      'diagnosis-screening',
-      'diagnosis-basic',
-      'diagnosis-extended',
-      'prognosis-2yr-basic',
-      'prognosis-2yr-extended',
-      'risk-screener',
-    ],
+    ROUTE: '/risk-assessment',
+    INPUTS: ['age', 'sex', 'mmse', 'ravlt_immediate_recall'],
   },
-  CARDIOLOGY: {
-    NAME: 'Cardiology',
-    DESCRIPTION: 'Cardiovascular risk assessment tools',
-    ICON: '❤️',
-    COLOR: '#EF4444', // Red
-    AVAILABLE_TOOLS: [
-      'ascvd',
-      'bp-category',
-      'cha2ds2vasc',
-      'ecg-interpreter',
-      'ef-prediction',
+  RISK_ASSESSMENT_MRI: {
+    NAME: 'MRI-Enhanced Risk Assessment',
+    DESCRIPTION:
+      'Adds quantitative MRI measures (hippocampus, entorhinal cortex, middle temporal gyrus, whole brain, ventricles) to the clinical model for a refined 24-month progression risk estimate.',
+    ICON: '🧲',
+    COLOR: '#0EA5E9', // Blue
+    ROUTE: '/risk-assessment-mri',
+    INPUTS: [
+      'age',
+      'sex',
+      'mmse',
+      'ravlt_immediate_recall',
+      'hippocampus',
+      'entorhinal_cortex',
+      'middle_temporal_gyrus',
+      'whole_brain',
+      'ventricles',
     ],
   },
 } as const;
@@ -165,11 +168,11 @@ export const SUCCESS_MESSAGES = {
  * Local storage keys
  */
 export const STORAGE_KEYS = {
-  THEME: 'medai_theme',
-  LANGUAGE: 'medai_language',
-  SIDEBAR_COLLAPSED: 'medai_sidebar_collapsed',
-  RECENT_SEARCHES: 'medai_recent_searches',
-  PREFERENCES: 'medai_user_preferences',
+  THEME: 'clinovia_theme',
+  LANGUAGE: 'clinovia_language',
+  SIDEBAR_COLLAPSED: 'clinovia_sidebar_collapsed',
+  RECENT_SEARCHES: 'clinovia_recent_searches',
+  PREFERENCES: 'clinovia_user_preferences',
 } as const;
 
 /**
@@ -183,10 +186,10 @@ export const IS_TEST = process.env.NODE_ENV === 'test';
  * External links
  */
 export const EXTERNAL_LINKS = {
-  DOCUMENTATION: 'https://docs.medai.com',
-  SUPPORT: 'https://support.medai.com',
-  PRIVACY_POLICY: 'https://medai.com/privacy',
-  TERMS_OF_SERVICE: 'https://medai.com/terms',
-  FAQ: 'https://medai.com/faq',
-  GITHUB: 'https://github.com/yourorg/medai',
+  DOCUMENTATION: 'https://docs.clinovia.ai',
+  SUPPORT: 'https://support.clinovia.ai',
+  PRIVACY_POLICY: 'https://clinovia.ai/privacy',
+  TERMS_OF_SERVICE: 'https://clinovia.ai/terms',
+  FAQ: 'https://clinovia.ai/faq',
+  GITHUB: 'https://github.com/clinovia',
 } as const;

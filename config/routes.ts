@@ -19,10 +19,17 @@ export const AUTH_ROUTES = {
   LOGIN: "/login",
   SIGNUP: "/signup",
   FORGOT_PASSWORD: "/forgot-password",
+  // Signup now returns an active session immediately (email confirmation
+  // is disabled), so CONFIRM is repurposed as a short "setting up your
+  // account" waiting screen while profile creation completes — not a
+  // link-confirmation destination anymore. CHECK_EMAIL is intentionally
+  // not listed here; it's no longer part of the signup flow.
+  CONFIRM: "/confirm",
 } as const;
 
 export const CLINICAL_ROUTES = {
-  MCI_SCREENING: "/mci-screening",
+  RISK_ASSESSMENT: "/risk-assessment",
+  RISK_ASSESSMENT_MRI: "/risk-assessment-mri",
 } as const;
 
 /* -------------------------------------------------------
@@ -67,18 +74,18 @@ export const isAuthRoute = (pathname: string): boolean =>
   Object.values(AUTH_ROUTES).some((route) => pathname.startsWith(route));
 
 export const isClinicalRoute = (pathname: string): boolean =>
-  pathname.startsWith(CLINICAL_ROUTES.MCI_SCREENING);
+  pathname.startsWith(CLINICAL_ROUTES.RISK_ASSESSMENT);
 
 /**
- * Protected routes require an authenticated session.
- * Currently this is just the clinical tool.
+ * Protected routes require an
+ * authenticated session.
  */
 export const isProtectedRoute = (pathname: string): boolean =>
   isClinicalRoute(pathname);
 
 /**
- * Public routes are accessible without authentication:
- * marketing pages plus the auth flow itself.
+ * Public routes are accessible
+ * without authentication.
  */
 export const isPublicRoute = (pathname: string): boolean =>
   isMarketingRoute(pathname) || isAuthRoute(pathname);
@@ -87,16 +94,13 @@ export const isPublicRoute = (pathname: string): boolean =>
  * Redirects
  * ----------------------------------------------------- */
 
-export const getDefaultRedirect = (): AppRoute =>
-  MARKETING_ROUTES.HOME;
+export const getDefaultRedirect = (): AppRoute => MARKETING_ROUTES.HOME;
 
 /* -------------------------------------------------------
  * Breadcrumbs
  * ----------------------------------------------------- */
 
-export const getBreadcrumbs = (
-  pathname: string
-): Breadcrumb[] => {
+export const getBreadcrumbs = (pathname: string): Breadcrumb[] => {
   const segments = pathname.split("/").filter(Boolean);
 
   const breadcrumbs: Breadcrumb[] = [

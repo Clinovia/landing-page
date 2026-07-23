@@ -20,9 +20,8 @@ export const PLANS: Plan[] = [
     stripePriceId: null,
     ruo: true,
     features: [
-      'Alzheimer screening',
-      'Basic diagnosis',
-      'ASCVD + BP category',
+      '24-month progression risk estimate (Clinical Edition)',
+      'Age, sex, MMSE, RAVLT Immediate Recall inputs',
       'JSON output only',
       'Single user',
     ],
@@ -36,7 +35,7 @@ export const PLANS: Plan[] = [
     ruo: true,
     features: [
       'Everything in Starter',
-      'Extended diagnosis',
+      'MRI-Enhanced Edition (hippocampus, entorhinal cortex, middle temporal gyrus, whole brain, ventricles)',
       'CSV & PDF export',
       'Priority email support',
     ],
@@ -51,11 +50,10 @@ export const PLANS: Plan[] = [
     ruo: true,
     features: [
       'Everything in Basic',
-      '2yr prognosis models',
-      'CHA₂DS₂-VASc',
       'Batch processing',
-      'PDF reports + storage',
-      'Multiple users (shared quota)',
+      'Structured PDF reports + storage',
+      'Multiple users, role-based access (admin / clinician / viewer)',
+      'Shared quota across institution',
     ],
   },
   {
@@ -67,8 +65,7 @@ export const PLANS: Plan[] = [
     ruo: true,
     features: [
       'Everything in Professional',
-      'ECG interpretation',
-      'Auto-assessments pipeline',
+      'External validation data-sharing option',
       'Custom model registry',
       'HIPAA BAA available',
       'SLA + priority support',

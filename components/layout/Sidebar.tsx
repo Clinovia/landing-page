@@ -18,29 +18,15 @@ type Section = {
 
 const SIDEBAR: Section[] = [
   {
-    title: "Neurology / Alzheimer",
-    href: "/clinical/alzheimer",
+    title: "Risk Assessment",
     items: [
       {
-        title: "Clinical Pipeline",
-        children: [
-          {
-            title: "Stage 1 – Clinical Screening",
-            href: "/clinical/alzheimer/stage1-clinical",
-          },
-          {
-            title: "Stage 2a – Plasma Model",
-            href: "/clinical/alzheimer/stage2a-plasma",
-          },
-          {
-            title: "Stage 2b – MRI Model",
-            href: "/clinical/alzheimer/stage2b-mri",
-          },
-        ],
+        title: "Essential Assessment",
+        href: "/risk-assessment",
       },
       {
-        title: "Decision Support",
-        href: "/clinical/alzheimer/decision-support",
+        title: "Enhanced Assessment",
+        href: "/risk-assessment-mri",
       },
     ],
   },
@@ -118,27 +104,26 @@ function SidebarItemNode({
 
 export default function Sidebar() {
   return (
-    <aside className="w-72 border-r bg-background p-4">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold">
-          Clinical AI Platform
+    <aside className="w-72 border-r bg-background p-6">
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold">
+          Clinovia AI
         </h2>
-
-        <p className="text-sm text-muted-foreground">
-          Alzheimer Decision Support
-        </p>
       </div>
 
       <nav className="space-y-6">
         {SIDEBAR.map((section) => (
-          <div key={section.title} className="space-y-2">
+          <div
+            key={section.title}
+            className="space-y-2"
+          >
             {section.href ? (
               <SidebarLink
                 href={section.href}
                 title={section.title}
               />
             ) : (
-              <h3 className="px-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {section.title}
               </h3>
             )}

@@ -1,3 +1,3 @@
 export * from "./auth";
-export * from "../features/mci-screening/types";
+export * from "../features/risk-assessment/types";
 

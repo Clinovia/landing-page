@@ -16,17 +16,17 @@ export default function CTASection() {
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/pilot"
-            className="inline-block rounded-full bg-white px-8 py-3 font-semibold text-slate-900 transition-transform hover:scale-105"
+            className="inline-block rounded-full bg-white px-8 py-3 font-semibold text-slate-900 transition-colors hover:bg-slate-100"
           >
             Apply for Pilot Access
           </Link>
 
-          <a
-            href="mailto:collaborate@clinovia.ai?subject=Research%20Collaboration%20Inquiry"
-            className="inline-block rounded-full border border-white px-8 py-3 font-semibold text-white transition-transform hover:scale-105 hover:bg-white/10"
+          <Link
+            href="/collaborate"
+            className="inline-block rounded-full border border-white px-8 py-3 font-semibold text-white transition-colors hover:bg-white/10"
           >
             Propose a Collaboration
-          </a>
+          </Link>
         </div>
       </div>
     </section>

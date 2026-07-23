@@ -10,9 +10,9 @@ interface ErrorProps {
   reset: () => void;
 }
 
-export default function MCIScreeningError({ error, reset }: ErrorProps) {
+export default function RiskAssessmentError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    console.error('MCI Screening module error:', error);
+    console.error('Risk Assessment module error:', error);
   }, [error]);
 
   return (
@@ -34,12 +34,12 @@ export default function MCIScreeningError({ error, reset }: ErrorProps) {
 
           {/* Title */}
           <h1 className="mb-2 text-center text-2xl font-bold text-gray-900">
-            MCI Screening Error
+            Risk Assessment Error
           </h1>
 
           {/* Description */}
           <p className="mb-6 text-center text-gray-600">
-            We encountered an issue loading the clinical screening tool.
+            We encountered an issue loading the risk assessment tool.
             Please try again or return to the home page.
           </p>
 
