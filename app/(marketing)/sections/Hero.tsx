@@ -72,7 +72,9 @@ export default function Hero() {
             size="lg"
             className="bg-teal-700 text-white hover:bg-teal-800"
           >
+            <Link href="/signup" className="w-full text-center">
             Try a Sample Assessment
+            </Link>
           </Button>
 
           <Button size="lg" variant="outline" asChild>
