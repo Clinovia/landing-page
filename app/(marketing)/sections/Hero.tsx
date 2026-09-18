@@ -1,6 +1,6 @@
 "use client";
 
-import { User, FileText, Brain, FileBarChart2 } from "lucide-react";
+import { Users, Filter, ListChecks, FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -15,17 +15,17 @@ import { Button } from "@/components/ui/button";
 // - Palette: warm paper background, ink text, a single restrained teal
 //   accent for the signature flow line + primary CTA. No terracotta/cream
 //   combo, no near-black+neon — deliberately avoided as AI-default looks.
-// - Signature element: the Patient → Clinical Data → Clinovia → Risk Report
-//   pipeline, rendered as a literal instrument rail with a traveling
-//   highlight, not a generic icon-and-arrow row.
+// - Signature element: the Candidate Pool → Screen → Enrichment Agent →
+//   Prioritized Cohort pipeline, rendered as a literal instrument rail with
+//   a traveling highlight, not a generic icon-and-arrow row.
 // - Motion respects prefers-reduced-motion (rail highlight is disabled,
 //   not just slowed, for reduced-motion users).
 
 const PIPELINE = [
-  { icon: User, label: "Patient" },
-  { icon: FileText, label: "Clinical Data" },
-  { icon: Brain, label: "Clinovia" },
-  { icon: FileBarChart2, label: "Risk Report" },
+  { icon: Users, label: "Candidate Pool" },
+  { icon: Filter, label: "Trial Enrichment Agent" },
+  { icon: ListChecks, label: "Prioritized Cohort" },
+  { icon: FlaskConical, label: "Confirmatory Testing" },
 ];
 
 export default function Hero() {
@@ -49,21 +49,21 @@ export default function Hero() {
       <div className="mx-auto max-w-4xl text-center">
         {/* Eyebrow */}
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700">
-          MCI → AD · 24-Month Progression Risk
+          Trial Enrichment Agent · NACC + OASIS-3 Validated
         </p>
 
         {/* Headline */}
         <h1 className="mt-6 font-serif text-4xl leading-tight text-slate-900 sm:text-5xl sm:leading-tight">
-          Predict 24-Month Alzheimer&rsquo;s Disease Progression
-          <br className="hidden sm:block" /> from Routine Clinical Data
+          Reduce Costly Screen-Failures
+          <br className="hidden sm:block" /> Before Confirmatory Testing
         </h1>
 
         {/* Subheading */}
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">
-          Clinovia uses validated machine learning models to estimate
-          progression risk in patients with Mild Cognitive Impairment (MCI).
-          Start with routine cognitive testing, and improve prediction when
-          MRI measurements are available.
+          Clinovia&rsquo;s Trial Enrichment Agent stratifies your candidate
+          pool by progression and biomarker risk &mdash; using models
+          validated on independent cohorts &mdash; before you spend on PET
+          or CSF confirmation.
         </p>
 
         {/* CTAs */}
@@ -71,14 +71,15 @@ export default function Hero() {
           <Button
             size="lg"
             className="bg-teal-700 text-white hover:bg-teal-800"
+            asChild
           >
-            <Link href="/signup" className="w-full text-center">
-            Try a Sample Assessment
+            <Link href="/pilot" className="w-full text-center">
+              Book a Pilot
             </Link>
           </Button>
 
           <Button size="lg" variant="outline" asChild>
-            <Link href="/pilot">Request Pilot</Link>
+            <Link href="/validation">Request Validation Data</Link>
           </Button>
         </div>
 

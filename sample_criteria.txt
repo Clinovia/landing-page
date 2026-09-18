@@ -1,0 +1,38 @@
+[
+  {
+    "criterion_id": "I1",
+    "criterion_type": "inclusion",
+    "original_text": "Age 60 to 85 years",
+    "description": "Age between 60 and 85 years",
+    "variable": "AGE",
+    "operator": "between",
+    "value": [60, 85],
+    "units": "years",
+    "status": "structured",
+    "confidence": "high"
+  },
+  {
+    "criterion_id": "I2",
+    "criterion_type": "inclusion",
+    "original_text": "MMSE score ≥ 24",
+    "description": "MMSE score at least 24",
+    "variable": "MMSE",
+    "operator": ">=",
+    "value": 24,
+    "units": "points",
+    "status": "structured",
+    "confidence": "high"
+  },
+  {
+    "criterion_id": "I3",
+    "criterion_type": "inclusion",
+    "original_text": "RAVLT immediate recall ≥ 20",
+    "description": "RAVLT immediate recall at least 20",
+    "variable": "RAVLT_immediate",
+    "operator": ">=",
+    "value": 20,
+    "units": "points",
+    "status": "structured",
+    "confidence": "high"
+  }
+]

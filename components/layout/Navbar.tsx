@@ -10,12 +10,12 @@ import { scrollToSection } from "@/components/ui/scrollToSection";
 import { useActiveSection } from "@/components/layout/hooks/useActiveSection";
 
 const NAV_LINKS = [
-  { label: "Why", id: "why" },
-  { label: "Workflow", id: "workflow" },
-  { label: "Inputs", id: "inputs" },
+  { label: "Problem", id: "problem" },
+  { label: "Agent", id: "agent" },
+  { label: "Prescreening", id: "csf-prescreening" },
+  { label: "Models", id: "model-toolkit" },
   { label: "Validation", id: "validation" },
   { label: "Pilot", id: "pilot-program" },
-  { label: "FAQ", id: "faq" },
 ] as const;
 
 export default function Navbar() {
@@ -91,6 +91,12 @@ export default function Navbar() {
                 <Link href="/risk-assessment">
                   <Button className="bg-teal-700 hover:bg-teal-800">
                     Launch Assessment
+                  </Button>
+                </Link>
+
+                <Link href="/trial-agent">
+                  <Button className="bg-teal-700 hover:bg-teal-800">
+                    Trial Agent
                   </Button>
                 </Link>
 

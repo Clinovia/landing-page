@@ -41,7 +41,7 @@ export default function LoginForm() {
       await login(email, password);
 
       // 🔥 AuthContext listener guarantees session sync
-      router.replace("/risk-assessment");
+      router.replace("/trial-agent");
     } catch (err) {
       setError(
         err instanceof Error

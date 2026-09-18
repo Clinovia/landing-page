@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import Topbar from "@/components/layout/Topbar";
+import Navbar from "@/components/layout/Navbar";
 import { RiskAssessmentProvider } from "@/context/RiskAssessmentContext";
 
 export default function RiskAssessmentLayout({
@@ -13,7 +13,7 @@ export default function RiskAssessmentLayout({
   return (
     <RiskAssessmentProvider>
       <div className="min-h-screen bg-stone-50">
-        <Topbar />
+        <Navbar />
 
         <main className="mx-auto max-w-7xl px-6 py-8">
           {children}
@@ -22,3 +22,4 @@ export default function RiskAssessmentLayout({
     </RiskAssessmentProvider>
   );
 }
+
