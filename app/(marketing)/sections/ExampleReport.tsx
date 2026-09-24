@@ -21,6 +21,9 @@ import { FileDown } from "lucide-react";
 // this card deliberately shows N and score threshold only, and omits
 // those columns rather than fabricating values for them. Revisit once a
 // labeled demo run is available.
+//
+// Color scheme aligned to TheProblem.tsx: bg-white section, teal-700
+// eyebrow, slate-900 headline, slate-600 body, stone-100 card surface.
 
 const FUNNEL = [
   { label: "Source Cohort", value: 30 },
@@ -37,7 +40,7 @@ const ENRICHMENT = [
 
 export default function ExampleReport() {
   return (
-    <section id="example-report" className="bg-stone-50 px-6 py-24">
+    <section id="example-report" className="bg-white px-6 py-14 sm:py-28">
       <div className="mx-auto max-w-3xl">
         {/* Section heading */}
         <div className="mx-auto max-w-2xl text-center">
@@ -58,7 +61,7 @@ export default function ExampleReport() {
         </div>
 
         {/* Report card */}
-        <div className="mx-auto mt-16 max-w-lg rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="mx-auto mt-16 max-w-lg rounded-lg border border-slate-200 bg-stone-100 p-8 shadow-sm">
           {/* Funnel */}
           <p className="font-mono text-[11px] uppercase tracking-wide text-slate-400">
             Executive Summary
@@ -81,7 +84,7 @@ export default function ExampleReport() {
           </div>
 
           {/* Scoring summary */}
-          <div className="mt-8 border-t border-slate-100 pt-6">
+          <div className="mt-8 border-t border-slate-200 pt-6">
             <p className="font-mono text-[11px] uppercase tracking-wide text-slate-400">
               Clinovia Score &middot; A+T+ Probability
             </p>
@@ -106,7 +109,7 @@ export default function ExampleReport() {
           </div>
 
           {/* Enrichment table */}
-          <div className="mt-8 border-t border-slate-100 pt-6">
+          <div className="mt-8 border-t border-slate-200 pt-6">
             <p className="font-mono text-[11px] uppercase tracking-wide text-slate-400">
               Enrichment by Threshold
             </p>
@@ -131,7 +134,7 @@ export default function ExampleReport() {
 
           <button
             type="button"
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-stone-50"
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-stone-50"
           >
             <FileDown className="h-4 w-4" strokeWidth={1.75} />
             Download Full Report

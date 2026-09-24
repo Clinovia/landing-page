@@ -22,7 +22,7 @@ const PIPELINE = [
 
 export default function TrialEnrichmentAgent() {
   return (
-    <section id="agent" className="bg-stone-50 px-6 py-24 sm:py-28">
+    <section id="agent" className="bg-stone-100 px-6 py-14 sm:py-28">
       <div className="mx-auto max-w-4xl text-center">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700">
           Clinovia Trial Enrichment Agent

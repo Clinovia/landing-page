@@ -14,7 +14,7 @@ import { Users, ClipboardCheck, Syringe, XCircle } from "lucide-react";
 const FUNNEL = [
   { icon: Users, label: "Candidate Pool" },
   { icon: ClipboardCheck, label: "Site Prescreen" },
-  { icon: Syringe, label: "PET / CSF" },
+  { icon: Syringe, label: "Confirmatory Testing" },
   { icon: XCircle, label: "Screen Failure" },
 ];
 
@@ -27,7 +27,7 @@ const COSTS = [
 
 export default function TheProblem() {
   return (
-    <section id="problem" className="bg-white px-6 py-24 sm:py-28">
+    <section id="problem" className="bg-white px-6 py-14 sm:py-28">
       <div className="mx-auto max-w-4xl text-center">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-teal-700">
           The CRO Problem
@@ -52,7 +52,7 @@ export default function TheProblem() {
                     className="flex flex-col items-center gap-3"
                   >
                     <div
-                      className={`flex h-12 w-12 items-center justify-center rounded-full border bg-stone-50 shadow-sm ${
+                      className={`flex h-12 w-12 items-center justify-center rounded-full border bg-stone-100 shadow-sm ${
                         isFailure
                           ? "border-red-200 text-red-500"
                           : "border-slate-200 text-teal-700"

@@ -10,12 +10,12 @@ import { scrollToSection } from "@/components/ui/scrollToSection";
 import { useActiveSection } from "@/components/layout/hooks/useActiveSection";
 
 const NAV_LINKS = [
+  { label: "Home", id: "hero" },
   { label: "Problem", id: "problem" },
   { label: "Agent", id: "agent" },
-  { label: "Prescreening", id: "csf-prescreening" },
-  { label: "Models", id: "model-toolkit" },
-  { label: "Validation", id: "validation" },
-  { label: "Pilot", id: "pilot-program" },
+  { label: "Example", id: "example-report" },
+  { label: "Research", id: "research" },
+  { label: "FAQ", id: "faq" },
 ] as const;
 
 export default function Navbar() {
@@ -28,11 +28,8 @@ export default function Navbar() {
   );
 
   // These section IDs only exist on the home page's one-page layout.
-  // On any other route (/pilot, /collaborate, /login, etc.),
-  // document.getElementById(id) finds nothing and scrollToSection
-  // silently no-ops — so from elsewhere, navigate home with a #hash
-  // instead, and let ScrollToHash (mounted in the root layout) handle
-  // scrolling once the home page has actually rendered.
+  // On any other route, navigate home with a #hash and let ScrollToHash
+  // handle scrolling after the home page has rendered.
   function handleNavClick(id: string) {
     if (pathname === "/") {
       scrollToSection(id);

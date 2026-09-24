@@ -3,11 +3,10 @@
 import Hero from "./sections/Hero";
 import TheProblem from "./sections/TheProblem";
 import TrialEnrichmentAgent from "./sections/TrialEnrichmentAgent";
-import CSFPrescreening from "./sections/CSFPrescreening";
-import ModelToolkit from "./sections/ModelToolkit";
-import ExternalValidation from "./sections/ExternalValidation";
 import ExampleReport from "./sections/ExampleReport";
-import Pilot from "./sections/Pilot";
+import TwoAxisPrescreening from "./sections/TwoAxisPrescreening";
+import Research from "./sections/Research";
+import FAQ from "./sections/FAQ";
 
 export default function HomePage() {
   return (
@@ -15,11 +14,10 @@ export default function HomePage() {
       <Hero />
       <TheProblem />
       <TrialEnrichmentAgent />
-      <CSFPrescreening />
-      <ModelToolkit />
-      <ExternalValidation />
       <ExampleReport />
-      <Pilot />
+      <TwoAxisPrescreening />
+      <Research />
+      <FAQ />
     </main>
   );
 }
