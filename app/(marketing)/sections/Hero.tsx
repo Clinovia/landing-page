@@ -63,13 +63,13 @@ export default function Hero() {
             className="bg-teal-700 text-white hover:bg-teal-800"
             asChild
           >
-            <Link href="/contact" className="w-full text-center">
+            <Link href="/collaborate" className="w-full text-center">
               Discuss a Trial
             </Link>
           </Button>
 
           <Button size="lg" variant="outline" asChild>
-            <Link href="/evidence">
+            <Link href="/#research">
               See the Evidence
             </Link>
           </Button>
